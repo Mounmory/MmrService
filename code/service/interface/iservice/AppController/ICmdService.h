@@ -2,6 +2,7 @@
 #define ICMDSERVICE_H
 
 #include "Common_def.h"
+#include "ServiceCtrlPolicies.hpp"
 #include "iservice/InterfaceCommon.h"
 
 BEGINE_NAMESPACE(mmrService)
@@ -9,10 +10,13 @@ BEGINE_NAMESPACE(mmrComp)
 
 class ICmdService
 {
-	//INTERFACE_GUID_DEFINE();
+	IMPLEMENT_INDEXABLE_CLASS
+	IMPLEMENT_GUID_CLASS("F2C2688E-C687-4541-B120-F5800C136774")
 public:
 	ICmdService() = default;
 	virtual ~ICmdService() = default;
+
+	
 
 	virtual void cmdLoop() = 0;
 };

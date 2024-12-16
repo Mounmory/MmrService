@@ -7,7 +7,7 @@
 #include <memory>
 #include <condition_variable>
 
-#include "CTypeInfo.hpp"
+
 
 #include "ComponentExport.h"
 #include "IEventHandler.h"
@@ -15,6 +15,7 @@
 #include "CLoggerCtrl.h"
 #include "CLiceseCtrl.h"
 
+#include "ServiceCtrlPolicies.hpp"
 
 #ifdef OS_MMR_WIN
 #include <Windows.h>
@@ -34,22 +35,15 @@ static const char* strLibExtension = ".so";
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)
 
-template<typename _T>
-class WeakPtrCompare {
-public:
-	bool operator()(std::weak_ptr<_T> t1, std::weak_ptr<_T> t2)const {
-		return t1.lock() < t2.lock();
-	}
-};
-
+template<typename ServiceCtrl>/*服务管理策略*/
 class COMPO_CORE_CLASS_API CCompFramework
 {
 	CCompFramework();
 	~CCompFramework();
 public:
-	static CCompFramework* getInstance()
+	static CCompFramework<ServiceCtrl>* getInstance()
 	{
-		static CCompFramework* instalce = new CCompFramework;
+		static CCompFramework<ServiceCtrl>* instalce = new CCompFramework<ServiceCtrl>;
 		return instalce;
 	}
 
@@ -76,34 +70,37 @@ public:
 	void licenseCtrlLoop(std::atomic_bool& bRunFlag);
 
 	template<typename _T>
-	void registService(std::shared_ptr<_T> pSer) 
+	void registService(std::shared_ptr<_T>&& pSer) 
 	{
-		//m_mapService.insert(std::make_pair(getTypeID<_T>(), std::move(pSer)));
-		m_mapService.insert(std::make_pair(mmrComm::CTypeInfo(typeid(_T)), std::move(pSer)));
+		m_upSerVPolicy->registService<_T>(std::forward<std::shared_ptr<_T>>(pSer));
 	}
 
 	template<typename _T>
 	std::shared_ptr<_T> getService() 
 	{
-		//auto iterSer = m_mapService.find(getTypeID<_T>());
-		auto iterSer = m_mapService.find(mmrComm::CTypeInfo(typeid(_T)));
-		if (iterSer != m_mapService.end())
-			return std::static_pointer_cast<_T>(iterSer->second);
-		else 
-			return nullptr;
+		return m_upSerVPolicy->getService<_T>();
 	}
+
+	template<typename CompType>
+	class CCompRegister//组件自动注册类
+	{
+	public:
+		CCompRegister()
+		{
+			std::unique_ptr<IComponent> compPtr = std::make_unique<CompType>();
+			CCompFramework<ServiceCtrl>::getInstance()->addComponent(std::move(compPtr));
+		}
+		~CCompRegister() = default;
+	};
+
 private:
 	void dealThread();
 
-	//template<typename _T>
-	//std::string getTypeID() 
-	//{
-	//	return typeid(_T).name();
-	//	//return _T::GetGUID();//如果同一个类可能有不同名字，只能为每个服务定义一个GUID了...
-	//}
 private:
 	std::unique_ptr<std::thread> m_threadDeal;
 	std::atomic_bool m_bRunning;
+
+	std::unique_ptr<ServiceCtrl> m_upSerVPolicy;//服务管理策略
 
 	//处理事件相关成员
 	std::unordered_map<std::string, std::set<IEventHandler*>> m_mapHandlers;//所有事件处理者
@@ -116,32 +113,32 @@ private:
 
 	//处理组件相关
 	std::unordered_map<std::string, std::unique_ptr<IComponent>> m_mapComponents;
-	//std::map<std::string, std::shared_ptr<void>> m_mapService;//在组件初始化时注册组件，因此不用使用锁
-	std::map<mmrComm::CTypeInfo, std::shared_ptr<void>> m_mapService; 
 	std::set<libHandle> m_libHandl;
 	
 	std::unique_ptr<CLoggerCtrl> m_loggerCtrl;//组件日志控制类
 	std::unique_ptr<CLicenseCtrl> m_licenseCtrl;//权限控制类
 };
 
-template<typename _T>
-class CCompRegister//组件自动注册类
-{
-public:
-	CCompRegister() 
-	{
-		std::unique_ptr<IComponent> compPtr = std::make_unique<_T>();
-		CCompFramework::getInstance()->addComponent(std::move(compPtr));
-	}
-	~CCompRegister() = default;
-};
-
 
 END_NAMESPACE(mmrCore)
 END_NAMESPACE(mmrService)
 
-#define CoreFrameworkIns mmrService::mmrCore::CCompFramework::getInstance()
+//定义服务管理策略
+#ifdef OS_MMR_WIN
+//using FramServicePolicy = mmrService::mmrCore::MapServKeyByTypeID;//使用map管理服务指针，typeID作为键
+using FramServicePolicy = mmrService::mmrCore::UnMapServKeyByGUID;//使用unodered_map管理服务指针，GUID作为键
+#else
+//using FramServicePolicy = mmrService::mmrCore::MapServKeyByTypeID;//使用map管理服务指针，typeID作为键
+//using FramServicePolicy = mmrService::mmrCore::UnMapServKeyByGUID;//使用unodered_map管理服务指针，GUID作为键
+using FramServicePolicy = mmrService::mmrCore::VecServByIndex;//使用静态索引管理作为服务指针地址，vs编译存在类导出问题，不同动态库中对基类中静态成员值不一致，这个策略无法使用
+#endif // OS_MMR_LINUX
 
-#define REGIST_COMPONENT(_Component) mmrService::mmrCore::CCompRegister<_Component> g_Comp
+
+template class COMPO_CORE_CLASS_API mmrService::mmrCore::CCompFramework<FramServicePolicy>;//到处模板类实例
+
+using ServiceType = mmrService::mmrCore::CCompFramework<FramServicePolicy>;
+
+#define CoreFrameworkIns ServiceType::getInstance()//服务框架单实例指针
+#define REGIST_COMPONENT(_Component) ServiceType::CCompRegister<_Component> g_Comp//定义组件全局实例
 
 #endif

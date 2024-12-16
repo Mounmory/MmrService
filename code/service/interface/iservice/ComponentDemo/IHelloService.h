@@ -2,6 +2,7 @@
 #define IHELLOSERVICE_H
 
 #include "Common_def.h"
+#include "ServiceCtrlPolicies.hpp"
 #include "iservice/InterfaceCommon.h"
 #include "util/UtilFunc.h"
 
@@ -10,7 +11,8 @@ BEGINE_NAMESPACE(mmrComp)
 
 class IHelloService
 {
-	//INTERFACE_GUID_DEFINE();
+	IMPLEMENT_INDEXABLE_CLASS
+	IMPLEMENT_GUID_CLASS("4EF84440-A747-49E9-993F-8CEDA873BA65")
 public:
 	IHelloService() = default;
 	virtual ~IHelloService() = default;

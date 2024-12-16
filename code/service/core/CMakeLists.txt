@@ -17,7 +17,8 @@ source_group("interface/core" FILES ${CORE_INTERFACE})
 #source_group("interface/common" FILES ${CORE_INTERFACE_COMM})
 
 file(GLOB CORE_HEADS 
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 source_group("include" FILES ${CORE_HEADS})
 
 file(GLOB CORE_SOURCE 

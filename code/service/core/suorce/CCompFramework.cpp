@@ -9,18 +9,24 @@
 
 using namespace mmrService::mmrCore;
 
-CCompFramework::CCompFramework()
-	: m_loggerCtrl(std::make_unique<CLoggerCtrl>())
+
+template<typename ServiceCtrl>
+CCompFramework<ServiceCtrl>::CCompFramework()
+	: m_upSerVPolicy(std::make_unique<ServiceCtrl>())
+	, m_loggerCtrl(std::make_unique<CLoggerCtrl>())
 	, m_licenseCtrl(nullptr)
 {
 	m_bRunning.store(false, std::memory_order_relaxed);
 }
 
-CCompFramework::~CCompFramework()
+template<typename ServiceCtrl>
+CCompFramework<ServiceCtrl>::~CCompFramework()
 {
 
 }
-bool CCompFramework::start()
+
+template<typename ServiceCtrl>
+bool CCompFramework<ServiceCtrl>::start()
 {
 	if (m_bRunning.load(std::memory_order_relaxed))
 	{
@@ -138,8 +144,8 @@ bool CCompFramework::start()
 	return true;
 }
 
-
-void CCompFramework::stop()
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::stop()
 {
 	//停掉线程
 	if (true == m_bRunning)
@@ -161,7 +167,7 @@ void CCompFramework::stop()
 	//在卸载库前，清空从动态库获取的指针数据
 	m_mapComponents.clear();
 
-	m_mapService.clear();
+	m_upSerVPolicy->clear();
 
 	m_loggerCtrl->getMapCtrollerPtr().clear();
 
@@ -191,14 +197,15 @@ void CCompFramework::stop()
 	LOG_INFO("framework stoped! processID[%d]", Process_ID);
 }
 
-void CCompFramework::addHandler(std::string strTopic,IEventHandler* pHandler)
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::addHandler(std::string strTopic,IEventHandler* pHandler)
 {
 	std::lock_guard<std::mutex> lock(m_mutexHander);
 	m_mapHandlers[strTopic].insert(pHandler);
 }
 
-
-void CCompFramework::removeHandler(std::string strTopic, IEventHandler* pHandler)
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::removeHandler(std::string strTopic, IEventHandler* pHandler)
 {
 	std::lock_guard<std::mutex> lock(m_mutexHander);
 	auto iterMap = m_mapHandlers.find(strTopic);
@@ -212,14 +219,16 @@ void CCompFramework::removeHandler(std::string strTopic, IEventHandler* pHandler
 	}
 }
 
-void CCompFramework::addEvenVartData(mmrUtil::CVarDatas varData)
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::addEvenVartData(mmrUtil::CVarDatas varData)
 {
 	std::unique_lock<std::mutex> lock(m_mutexData);
 	m_queueAddData.emplace(std::make_pair(varData.getName(), std::move(varData)));
 	m_cvData.notify_all();
 }
 
-void CCompFramework::dealThread()
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::dealThread()
 {
 	while (m_bRunning.load(std::memory_order_relaxed))
 	{
@@ -263,7 +272,8 @@ void CCompFramework::dealThread()
 	LOG_INFO("frame work deal thread exit!", m_queueAddData.size());
 }
 
-bool CCompFramework::addComponent(std::unique_ptr<IComponent> pComp)
+template<typename ServiceCtrl>
+bool CCompFramework<ServiceCtrl>::addComponent(std::unique_ptr<IComponent> pComp)
 {
 	std::string strCompName = pComp->getName();
 	auto iterComp = m_mapComponents.find(strCompName);
@@ -283,21 +293,21 @@ bool CCompFramework::addComponent(std::unique_ptr<IComponent> pComp)
 //{
 //	//暂不实现
 //}
-
-void CCompFramework::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
 {
 	uint16_t sIndex = m_loggerCtrl->getMapCtrollerPtr().size() + 1;
 	m_loggerCtrl->getMapCtrollerPtr()[sIndex] = std::make_pair(std::move(strCompName), logWrap);
 }
 
-
-
-void CCompFramework::loggerCtrlLoop(std::atomic_bool& bRunFlag)
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::loggerCtrlLoop(std::atomic_bool& bRunFlag)
 {
 	m_loggerCtrl->loop(bRunFlag);
 }
 
-void CCompFramework::licenseCtrlLoop(std::atomic_bool& bRunFlag)
+template<typename ServiceCtrl>
+void CCompFramework<ServiceCtrl>::licenseCtrlLoop(std::atomic_bool& bRunFlag)
 {
 	m_licenseCtrl->loop(bRunFlag);
 }

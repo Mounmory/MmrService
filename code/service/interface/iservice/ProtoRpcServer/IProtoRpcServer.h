@@ -2,7 +2,7 @@
 #define IRPCDISPATCHER_H
 
 #include "Common_def.h"
-
+#include "ServiceCtrlPolicies.hpp"
 #include "iservice/InterfaceCommon.h"
 #include "util/UtilFunc.h"
 
@@ -14,7 +14,8 @@ BEGINE_NAMESPACE(mmrComp)
 
 class IProtoRpcServer
 {
-	//INTERFACE_GUID_DEFINE();
+	IMPLEMENT_INDEXABLE_CLASS
+	IMPLEMENT_GUID_CLASS("27F32F5F-BBE8-4515-8A5D-EEACFAFACFA5")
 protected:
 	IProtoRpcServer() = default;
 
