@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package mmrService;
+
+message LoginRequest {
+    string  userName    = 1;
+    string  password    = 2;
+}
+
+message LoginResponse {
+    uint64  userId     = 1;
+    string  token       = 2;
+	uint32	errCode		=3;
+	string	message		=4;
+}

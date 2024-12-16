@@ -1,0 +1,14 @@
+windows
+https://zhuanlan.zhihu.com/p/643638097
+
+（1）VS本机工具命令提示符，例如VS2015 X64 本机工具命令提示符
+
+（2）进入SQLite源码目录
+	cd /d D:\VMs\mmrCode\3rdParty\code\sqlite3\sqlite-amalgamation-3450000
+	执行以下命令：
+	cl shell.c sqlite3.c -Fesqlite3.exe
+	cl sqlite3.c -link -dll -out:sqlite3.dll
+	
+但是无法生成sqlite3.lib，这就需要sqlite3.def文件，该文件在原始源码编译结果中会生成，找到后拷贝到源码目录，然后执行以下命令就可以生成sqlite3.lib
+
+lib /DEF:sqlite3.def

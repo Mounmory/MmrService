@@ -1,0 +1,20 @@
+Function  
+UserFunction 
+# 
+#   
+FirstButton 
+非模态对话框 
+# 
+#   
+secondbutton 
+模态对话框
+# 
+#  
+this button will show a message 
+this button will show a message 
+# 
+#   
+show first button 
+show first button 
+# 
+#

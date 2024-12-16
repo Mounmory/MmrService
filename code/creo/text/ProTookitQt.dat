@@ -1,0 +1,7 @@
+NAME CreoQtTest
+STARTUP    dll
+EXEC_FILE	D:\creo\ptcViewDemo.dll
+TEXT_DIR	D:\creo\text
+ALLOW_STOP TRUE
+REVISION 1.0
+END

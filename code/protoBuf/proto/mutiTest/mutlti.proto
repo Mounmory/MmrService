@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.example;
+ 
+
+message Message1 {
+  string data = 1;
+}
+ 
+
+message Message2 {
+  int32 id = 1;
+}

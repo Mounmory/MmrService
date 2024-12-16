@@ -1,0 +1,22 @@
+{
+	"Components" :
+	{
+		"AppController":
+		{
+			"LogLevel":4
+		},
+		"ComponentDemo" :
+		{
+			"LogLevel":5
+		},
+		"ProtoRpcServer" :
+		{
+			"LogLevel":5,
+			"ServThreadNum":4
+		},
+		"AuthorityManager" :
+		{
+			"LogLevel":5
+		}
+	}
+}
