@@ -1,9 +1,9 @@
-#ifndef IHELLOSERVICE_H
+ï»¿#ifndef IHELLOSERVICE_H
 #define IHELLOSERVICE_H
 
 #include "Common_def.h"
 #include "ServiceCtrlPolicies.hpp"
-#include "iservice/InterfaceCommon.h"
+//#include "iservice/InterfaceCommon.h"
 #include "util/UtilFunc.h"
 
 BEGINE_NAMESPACE(mmrService)
@@ -18,9 +18,9 @@ public:
 	virtual ~IHelloService() = default;
 	
 	/*
-		¶ÔÓÚÃ»ÓĞ¶àÌ¬£¨Ğé³ÉÔ±º¯Êı£©µÄ»ùÀà£¬²»ĞèÒªtypeidÊ¶±ğÀàĞÍ
-		½«Îö¹¹º¯Êı¶¨ÒåÎªprotected·ÇĞéº¯Êı£¬±ÜÃâÖ±½ÓdeleteÖ¸Õë²»µ÷ÓÃÅÉÉúÀàÎö¹¹º¯Êı
-		±ÜÃâ×ÓÀà²úÉúĞéº¯Êı±í£¬ÌáÉıĞ§ÂÊ
+		å¯¹äºæ²¡æœ‰å¤šæ€ï¼ˆè™šæˆå‘˜å‡½æ•°ï¼‰çš„åŸºç±»ï¼Œä¸éœ€è¦typeidè¯†åˆ«ç±»å‹
+		å°†ææ„å‡½æ•°å®šä¹‰ä¸ºprotectedéè™šå‡½æ•°ï¼Œé¿å…ç›´æ¥deleteæŒ‡é’ˆä¸è°ƒç”¨æ´¾ç”Ÿç±»ææ„å‡½æ•°
+		é¿å…å­ç±»äº§ç”Ÿè™šå‡½æ•°è¡¨ï¼Œæå‡æ•ˆç‡
 	*/
 //protected:
 //	IHelloService() = default;

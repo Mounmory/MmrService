@@ -35,7 +35,7 @@ void CAppControler::run()
 		std::thread(&CAppControler::dealCmd, this).detach();
 		//std::future<void> ft = std::async(std::launch::async, &CAppControler::dealCmd, this);
 		std::unique_lock<std::mutex> locker(m_mutex);
-		m_cond.wait(locker);
+		m_cond.wait(locker, [&]() {return !m_bRunflag.load(); });
 		//ft.get();
 		CoreFrameworkIns->stop();
 	}
@@ -43,7 +43,7 @@ void CAppControler::run()
 	{
 		std::cout << "Core framework start failed!\n";
 	}
-	m_bRunflag.store(false);
+	//m_bRunflag.store(false,std::memory_order_relaxed);
 }
 
 void CAppControler::dealCmd()
@@ -96,6 +96,7 @@ void CAppControler::dealCmd()
 			print_help();
 		}
 	}
+	m_bRunflag.store(false, std::memory_order_relaxed);
 	m_cond.notify_one();
 }
 
@@ -105,7 +106,8 @@ void CAppControler::handleEvent(const mmrUtil::CVarDatas& varData)
 	{
 		const std::string& strMsg = varData.getVar("message").getStringData();
 		std::cout << "stop app message : " << strMsg << std::endl;
-		
+
+		m_bRunflag.store(false, std::memory_order_relaxed);
 		m_cond.notify_one();
 	}
 }

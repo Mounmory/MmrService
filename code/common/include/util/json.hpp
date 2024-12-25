@@ -45,7 +45,7 @@ namespace {
 			case '\t': output += "\\t";  break;
 			default: output += iter; break;
 			}
-		return std::move(output);
+		return output;
 	}
 }
 
@@ -203,7 +203,8 @@ public:
 	Value(std::nullptr_t) : Internal(), Type(emJsonType::Null) {}
 
 	static Value Make(emJsonType type) {
-		Value ret; ret.SetType(type);
+		Value ret; 
+		ret.SetType(type);
 		return ret;
 	}
 
@@ -296,10 +297,10 @@ public:
 	/// Functions for getting primitives from the Value object.
 	bool IsNull() const { return Type == emJsonType::Null; }
 
-	string ToString() const { bool b; return std::move(ToString(b)); }
+	string ToString() const { bool b; return ToString(b); }
 	string ToString(bool &ok) const {
 		ok = (Type == emJsonType::String);
-		return ok ? std::move(json_escape(*Internal.String)) : string("");
+		return ok ? json_escape(*Internal.String) : string("");
 	}
 
 	double ToFloat() const { bool b; return ToFloat(b); }
@@ -346,89 +347,103 @@ public:
 	}
 
 	string dumpFast() const {
+		string strRet;//return value optimization
 		switch (Type) {
 		case emJsonType::Null:
-			return "null";
+			strRet = "null";
+			break;
 		case emJsonType::Object: {
-			string s = "{";
+			strRet = "{";
 			bool skip = true;
 			for (auto &p : *Internal.Map) {
-				if (!skip) s += ",";
-				s += ("\"" + p.first + "\":" + p.second.dumpFast());
+				if (!skip) strRet += ",";
+				strRet += ("\"" + p.first + "\":" + p.second.dumpFast());
 				skip = false;
 			}
-			s += "}";
-			return s;
+			strRet += "}";
+			break;
 		}
 		case emJsonType::Array: {
-			string s = "[";
+			strRet = "[";
 			bool skip = true;
 			for (auto &p : *Internal.List)
 			{
-				if (!skip) s += ",";
-				s += p.dumpFast();
+				if (!skip) strRet += ",";
+				strRet += p.dumpFast();
 				skip = false;
 			}
-			s += "]";
-			return s;
+			strRet += "]";
+			break;
 		}
 		case emJsonType::String:
-			return "\"" + json_escape(*Internal.String) + "\"";
+			strRet = "\"" + json_escape(*Internal.String) + "\"";
+			break;
 		case emJsonType::Floating:
-			return std::to_string(Internal.Float);
+			strRet = std::to_string(Internal.Float);
+			break;
 		case emJsonType::Integral:
-			return std::to_string(Internal.Int);
+			strRet = std::to_string(Internal.Int);
+			break;
 		case emJsonType::Boolean:
-			return Internal.Bool ? "true" : "false";
+			strRet = Internal.Bool ? "true" : "false";
+			break;
 		default:
-			return "";
+			break;
 		}
-		return "";
+		return strRet;
 	}
+
 	string dumpStyle(int depth = 0, string tab = "\t") const {
 		string pad = "";
 		for (int i = 0; i < depth; ++i, pad += tab);
+		string strRet;//return value optimization
 
 		switch (Type) {
 		case emJsonType::Null:
-			return "null";
+			strRet = "null";
+			break;
 		case emJsonType::Object: {
-			string s = depth == 0 ? pad + "{\n" : "\n" + pad + "{\n";
+			strRet = depth == 0 ? pad + "{\n" : "\n" + pad + "{\n";
 			bool skip = true;
-			for (auto &p : *Internal.Map) {
-				if (!skip) s += ",\n";
-				s += (pad + tab + "\"" + p.first + "\" : " + p.second.dumpStyle(depth + 1, tab));
+			for (auto &p : *Internal.Map) 
+			{
+				if (!skip) strRet += ",\n";
+				strRet += (pad + tab + "\"" + p.first + "\" : " + p.second.dumpStyle(depth + 1, tab));
 				skip = false;
 			}
-			s += ("\n" + pad + "}");
-			return s;
+			strRet += ("\n" + pad + "}");
+			break;
 		}
 		case emJsonType::Array: {
-			string s = "\n" + pad + "[\n";
+			strRet = "\n" + pad + "[\n";
 			string childPad = pad + tab;
 			bool skip = true;
 			for (auto &p : *Internal.List) 
 			{
-				if (!skip) s += ",\n";
-				s += childPad;
-				s += p.dumpStyle(depth + 1, tab);
+				if (!skip) strRet += ",\n";
+				strRet += childPad;
+				strRet += p.dumpStyle(depth + 1, tab);
 				skip = false;
 			}
-			s += "\n" + pad + "]";
-			return s;
+			strRet += "\n" + pad + "]";
+			break;
 		}
 		case emJsonType::String:
-			return "\"" + json_escape(*Internal.String) + "\"";
+			strRet = "\"" + json_escape(*Internal.String) + "\"";
+			break;
 		case emJsonType::Floating:
-			return std::to_string(Internal.Float);
+			strRet = std::to_string(Internal.Float);
+			break;
 		case emJsonType::Integral:
-			return std::to_string(Internal.Int);
+			strRet = std::to_string(Internal.Int);
+			break;
 		case emJsonType::Boolean:
-			return Internal.Bool ? "true" : "false";
+			strRet = Internal.Bool ? "true" : "false";
+			break;
 		default:
-			return "";
+			break;;
 		}
-		return "";
+		return strRet;
 	}
 
 	//friend std::ostream& operator<<(std::ostream&, const Value &);
@@ -475,8 +490,8 @@ private:
 template <typename... T>
 Value Array(T... args) {
 	Value arr = Value::Make(Value::emJsonType::Array);
-	arr.append(args...);
-	return std::move(arr);
+	arr.append(std::forward<decltype(args)>(args)...);
+	return arr;
 }
 
 //std::ostream& operator<<(std::ostream &os, const Value &json) {
@@ -531,72 +546,93 @@ namespace {
 	Value parse_object(const string &str, size_t &offset) {
 		Value Object = Value::Make(Value::emJsonType::Object);
 
-		++offset;
-		consume_ws(str, offset);
-		if (str[offset] == '}') {
-			++offset; return std::move(Object);
-		}
-
-		while (true) {
-			Value Key = parse_next(str, offset);
+		do 
+		{
+			++offset;
 			consume_ws(str, offset);
-			if (str[offset] != ':') {
-				std::stringstream ss;
-				ss << "Error: Object: Expected ':', found '" << str[offset] << "'.";
-				throw std::invalid_argument(ss.str());
-				break;
+			if (str[offset] == '}') 
+			{
+				++offset; 
+				break;;
 			}
-			consume_ws(str, ++offset);
-			Value Value = parse_next(str, offset);
-			Object[Key.ToString()] = Value;
 
-			consume_ws(str, offset);
-			if (str[offset] == ',') {
-				++offset; continue;
-			}
-			else if (str[offset] == '}') {
-				++offset; break;
-			}
-			else {
-				std::stringstream ss;
-				ss << "ERROR: Object: Expected ',' or '}', found '" << str[offset] << "'.";
-				throw std::invalid_argument(ss.str());
-				break;
-			}
-		}
+			while (true) 
+			{
+				Value Key = parse_next(str, offset);
+				consume_ws(str, offset);
+				if (str[offset] != ':') 
+				{
+					std::stringstream ss;
+					ss << "Error: Object: Expected ':', found '" << str[offset] << "'.";
+					throw std::invalid_argument(ss.str());
+					//break;
+				}
+				consume_ws(str, ++offset);
+				Value Value = parse_next(str, offset);
+				Object[Key.ToString()] = Value;
 
-		return std::move(Object);
+				consume_ws(str, offset);
+				if (str[offset] == ',') 
+				{
+					++offset; 
+					continue;
+				}
+				else if (str[offset] == '}') 
+				{
+					++offset;
+					break;
+				}
+				else 
+				{
+					std::stringstream ss;
+					ss << "ERROR: Object: Expected ',' or '}', found '" << str[offset] << "'.";
+					throw std::invalid_argument(ss.str());
+					//break;
+				}
+			}
+		} while (false);
+
+		return Object;
 	}
 
 	Value parse_array(const string &str, size_t &offset) {
 		Value Array = Value::Make(Value::emJsonType::Array);
 		unsigned index = 0;
 
-		++offset;
-		consume_ws(str, offset);
-		if (str[offset] == ']') {
-			++offset; return std::move(Array);
-		}
-
-		while (true) {
-			Array[index++] = parse_next(str, offset);
+		do 
+		{
+			++offset;
 			consume_ws(str, offset);
+			if (str[offset] == ']') 
+			{
+				++offset; 
+				break;;
+			}
 
-			if (str[offset] == ',') {
-				++offset; continue;
-			}
-			else if (str[offset] == ']') {
-				++offset; break;
-			}
-			else {
-				std::stringstream ss;
-				ss << "ERROR: Array: Expected ',' or ']', found '" << str[offset] << "'.";
-				throw std::invalid_argument(ss.str());
-				return std::move(Value::Make(Value::emJsonType::Array));
-			}
-		}
+			while (true) 
+			{
+				Array[index++] = parse_next(str, offset);
+				consume_ws(str, offset);
 
-		return std::move(Array);
+				if (str[offset] == ',') 
+				{
+					++offset; 
+					continue;
+				}
+				else if (str[offset] == ']') 
+				{
+					++offset; 
+					break;
+				}
+				else 
+				{
+					std::stringstream ss;
+					ss << "ERROR: Array: Expected ',' or ']', found '" << str[offset] << "'.";
+					throw std::invalid_argument(ss.str());
+				}
+			}
+		} while (false);
+		return Array;
 	}
 
 	Value parse_string(const string &str, size_t &offset) {
@@ -624,7 +660,6 @@ namespace {
 							std::stringstream ss;
 							ss << "ERROR: String: Expected hex character in unicode escape, found '" << c << "'.";
 							throw std::invalid_argument(ss.str());
-							return std::move(Value::Make(Value::emJsonType::String));
 						}
 					}
 					offset += 4;
@@ -637,7 +672,7 @@ namespace {
 		}
 		++offset;
 		String = val;
-		return std::move(String);
+		return String;
 	}
 
 	Value parse_number(const string &str, size_t &offset) {
@@ -668,7 +703,6 @@ namespace {
 					std::stringstream ss;
 					ss << "ERROR: Number: Expected a number for exponent, found '" << c << "'.";
 					throw std::invalid_argument(ss.str());
-					return std::move(Value::Make(Value::emJsonType::Null));
 				}
 				else
 					break;
@@ -679,7 +713,6 @@ namespace {
 			std::stringstream ss;
 			ss << "ERROR: Number: unexpected character '" << c << "'.";
 			throw std::invalid_argument(ss.str());
-			return std::move(Value::Make(Value::emJsonType::Null));
 		}
 		--offset;
 
@@ -691,7 +724,7 @@ namespace {
 			else
 				Number = std::stol(val);
 		}
-		return std::move(Number);
+		return Number;
 	}
 
 	Value parse_bool(const string &str, size_t &offset) {
@@ -704,11 +737,9 @@ namespace {
 			std::stringstream ss;
 			ss << "ERROR: Bool: Expected 'true' or 'false', found '" << str.substr(offset, 5) << "'.";
 			throw std::invalid_argument(ss.str());
-
-			return std::move(Value::Make(Value::emJsonType::Null));
 		}
 		offset += (Bool.ToBool() ? 4 : 5);
-		return std::move(Bool);
+		return Bool;
 	}
 
 	Value parse_null(const string &str, size_t &offset) {
@@ -717,10 +748,9 @@ namespace {
 			std::stringstream ss;
 			ss << "ERROR: Null: Expected 'null', found '" << str.substr(offset, 4) << "'.";
 			throw std::invalid_argument(ss.str());
-			return std::move(Value::Make(Value::emJsonType::Null));
 		}
 		offset += 4;
-		return std::move(Null);
+		return Null;
 	}
 
 	Value parse_next(const string &str, size_t &offset) {
@@ -728,14 +758,14 @@ namespace {
 		consume_ws(str, offset);
 		value = str[offset];
 		switch (value) {
-		case '[': return std::move(parse_array(str, offset));
-		case '{': return std::move(parse_object(str, offset));
-		case '\"': return std::move(parse_string(str, offset));
+		case '[': return parse_array(str, offset);
+		case '{': return parse_object(str, offset);
+		case '\"': return parse_string(str, offset);
 		case 't':
-		case 'f': return std::move(parse_bool(str, offset));
-		case 'n': return std::move(parse_null(str, offset));
+		case 'f': return parse_bool(str, offset);
+		case 'n': return parse_null(str, offset);
 		default: if ((value <= '9' && value >= '0') || value == '-')
-			return std::move(parse_number(str, offset));
+			return parse_number(str, offset);
 		}
 
 		{

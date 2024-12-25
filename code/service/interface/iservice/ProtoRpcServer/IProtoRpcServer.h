@@ -1,9 +1,9 @@
-#ifndef IRPCDISPATCHER_H
+﻿#ifndef IRPCDISPATCHER_H
 #define IRPCDISPATCHER_H
 
 #include "Common_def.h"
 #include "ServiceCtrlPolicies.hpp"
-#include "iservice/InterfaceCommon.h"
+//#include "iservice/InterfaceCommon.h"
 #include "util/UtilFunc.h"
 
 #include "protoBase/ProtobufDef.h"

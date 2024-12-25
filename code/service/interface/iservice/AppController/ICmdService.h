@@ -1,9 +1,9 @@
-#ifndef ICMDSERVICE_H
+﻿#ifndef ICMDSERVICE_H
 #define ICMDSERVICE_H
 
 #include "Common_def.h"
 #include "ServiceCtrlPolicies.hpp"
-#include "iservice/InterfaceCommon.h"
+//#include "iservice/InterfaceCommon.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrComp)
