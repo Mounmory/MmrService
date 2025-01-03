@@ -114,7 +114,7 @@ void CLicenseCtrl::licenseThread()
 
 void CLicenseCtrl::releaseFuture() 
 {
-	if (m_futureThread.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout)
+	if (m_futureThread.wait_for(std::chrono::milliseconds(0)) == std::future_status::timeout)
 	{
 		m_cv.notify_one();
 		m_futureThread.get();

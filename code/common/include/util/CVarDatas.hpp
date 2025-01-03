@@ -77,16 +77,25 @@ public:
 		m_data.strValue = new std::string(szValue);
 	}
 
-	CVariant(std::string strValue)
+	CVariant(const std::string& strValue)
 		:m_type(EM_DataType::VAR_TYPE_STRING) {
-		m_data.strValue = new std::string(std::move(strValue));
+		m_data.strValue = new std::string(strValue);
 	}
 
-	CVariant(std::vector<char> byteArrValue)
+	CVariant(std::string&& strValue)
+		:m_type(EM_DataType::VAR_TYPE_STRING) {
+		m_data.strValue = new std::string(std::forward<std::string>(strValue));
+	}
+
+	CVariant(const std::vector<char>& byteArrValue)
 		:m_type(EM_DataType::VAR_TYPE_BYTE_ARRAY){
 		m_data.byteArrValue = new std::vector<char>(std::move(byteArrValue));
 	}
 
+	CVariant(std::vector<char>&& byteArrValue)
+		:m_type(EM_DataType::VAR_TYPE_BYTE_ARRAY) {
+		m_data.byteArrValue = new std::vector<char>(std::forward<std::vector<char>>(byteArrValue));
+	}
 
 	CVariant(const CVariant& var)
 	{
@@ -168,6 +177,7 @@ public:
 
 	CVariant operator = (CVariant&& var) 
 	{
+		resetCheck();
 		this->m_type = std::exchange(var.m_type, EM_DataType::VAR_TYPE_INVALID);
 		switch (this->m_type)
 		{
@@ -412,13 +422,13 @@ class CVarDatas
 	using MapVars = std::unordered_map<std::string, CVariant>;
 public:
 	CVarDatas()	
-		:m_pMapVars(std::unique_ptr<MapVars>(new MapVars))
+		:m_pMapVars(std::make_unique<MapVars>())
 		, m_ulType(0)
 	{
 	}
 
 	CVarDatas(const CVarDatas& rhs)
-		:m_pMapVars(std::unique_ptr<MapVars>(new MapVars((*rhs.m_pMapVars))))
+		:m_pMapVars(std::make_unique<MapVars>(*rhs.m_pMapVars))
 		, m_strName(rhs.m_strName)
 		, m_ulType(rhs.m_ulType)
 	{
@@ -447,7 +457,7 @@ public:
 		m_ulType = std::exchange(rhs.m_ulType, 0);
 	}
 
-	bool isContain(std::string strKey) 
+	bool const isContain(const std::string& strKey) const
 	{
 		return m_pMapVars->count(strKey) != 0;
 	}
@@ -472,7 +482,7 @@ public:
 		m_pMapVars->insert(std::make_pair(std::move(strKey), var));
 	}
 
-	const CVariant& getVar(std::string&& strKey) const
+	const CVariant& getVar(const std::string& strKey) const
 	{
 		auto iterVar = m_pMapVars->find(strKey);
 		if (iterVar == m_pMapVars->end())

@@ -10,30 +10,25 @@
 using namespace mmrService::mmrCore;
 
 
-template<typename ServiceCtrl>
-CCompFramework<ServiceCtrl>::CCompFramework()
-	: m_upSerVPolicy(std::make_unique<ServiceCtrl>())
-	, m_loggerCtrl(std::make_unique<CLoggerCtrl>())
+template<typename ServiceCtrl, typename HandlerCtrl>
+CCompFramework<ServiceCtrl, HandlerCtrl>::CCompFramework()
+	: m_loggerCtrl(std::make_unique<CLoggerCtrl>())
 	, m_licenseCtrl(nullptr)
+	, m_upServPolicy(std::make_unique<ServiceCtrl>())
+	, m_ptrHandlerCtrl(std::make_unique<HandlerCtrl>())
 {
-	m_bRunning.store(false, std::memory_order_relaxed);
+	
 }
 
-template<typename ServiceCtrl>
-CCompFramework<ServiceCtrl>::~CCompFramework()
+template<typename ServiceCtrl, typename HandlerCtrl>
+CCompFramework<ServiceCtrl, HandlerCtrl>::~CCompFramework()
 {
 
 }
 
-template<typename ServiceCtrl>
-bool CCompFramework<ServiceCtrl>::start()
+template<typename ServiceCtrl, typename HandlerCtrl>
+bool CCompFramework<ServiceCtrl, HandlerCtrl>::start(const std::string& strCfgFile)
 {
-	if (m_bRunning.load(std::memory_order_relaxed))
-	{
-		LOG_WARN("component has been started!");
-		return false;
-	}
-
 	try
 	{
 		//启动日志
@@ -41,15 +36,22 @@ bool CCompFramework<ServiceCtrl>::start()
 
 		LOG_INFO("framework start! processID[%d]", Process_ID);
 
+		//启动订阅管理
+		m_ptrHandlerCtrl->start();
+
 		//读配置文件，加载所有组件
 		std::string strAppPath, strAppName;
 		mmrUtil::getAppPathAndName(strAppPath, strAppName);
 
-		//启动处理线程
-		m_bRunning.store(true, std::memory_order_relaxed);
-		m_threadDeal = std::make_unique<std::thread>(&CCompFramework::dealThread, this);
-
-		std::string strConfigPath = strAppPath + "config/"+ strAppName +".json";
+		std::string strConfigPath = strAppPath + "config/"; 
+		if (strCfgFile.empty())
+		{
+			strConfigPath += strAppName + ".json";
+		}
+		else 
+		{
+			strConfigPath += strCfgFile;
+		}
 
 		Json::Value jsonRoot;
 		std::string strErr = Json::json_from_file(strConfigPath, jsonRoot);
@@ -69,6 +71,15 @@ bool CCompFramework<ServiceCtrl>::start()
 
 		for (const auto& iterComp : components.ObjectRange())
 		{
+			if (!iterComp.second.hasKey("Enable"))
+			{
+				LOG_ERROR_PRINT("component [%s] config do not has key [Enable] !", iterComp.first.c_str());
+				continue;
+			}
+			if (iterComp.second.at("Enable").ToBool() == false)
+			{
+				continue;
+			}
 #ifdef OS_MMR_WIN
 			std::string strLibPath = strAppPath + "component/" + iterComp.first + ".dll";
 			HINSTANCE handle = LoadLibrary(strLibPath.c_str());
@@ -144,19 +155,12 @@ bool CCompFramework<ServiceCtrl>::start()
 	return true;
 }
 
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::stop()
+template<typename ServiceCtrl, typename HandlerCtrl>
+void CCompFramework<ServiceCtrl, HandlerCtrl>::stop()
 {
-	//停掉线程
-	if (true == m_bRunning)
-	{
-		m_bRunning.store(false, std::memory_order_relaxed);//退出线程
-		m_cvData.notify_all();
-		if (m_threadDeal->joinable())
-		{
-			m_threadDeal->join();//等待线程结束
-		}
-	}
+
+	//停止
+	m_ptrHandlerCtrl->stop();
 
 	//停止所有组件
 	for (const auto& iterComp : m_mapComponents)
@@ -167,7 +171,7 @@ void CCompFramework<ServiceCtrl>::stop()
 	//在卸载库前，清空从动态库获取的指针数据
 	m_mapComponents.clear();
 
-	m_upSerVPolicy->clear();
+	m_upServPolicy->clear();
 
 	m_loggerCtrl->getMapCtrollerPtr().clear();
 
@@ -180,16 +184,6 @@ void CCompFramework<ServiceCtrl>::stop()
 		dlclose(iterHandl);
 #endif
 	}
-
-	//清空数据
-	//m_mapHandlers.clear();不用清空，析构函数自动移除
-
-	while (m_queueDealData.size() > 0)
-		m_queueDealData.pop();
-
-	while (m_queueDealData.size() > 0)
-		m_queueDealData.pop();
-
 	m_libHandl.clear();
 
 	m_licenseCtrl.reset();
@@ -197,83 +191,8 @@ void CCompFramework<ServiceCtrl>::stop()
 	LOG_INFO("framework stoped! processID[%d]", Process_ID);
 }
 
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::addHandler(std::string strTopic,IEventHandler* pHandler)
-{
-	std::lock_guard<std::mutex> lock(m_mutexHander);
-	m_mapHandlers[strTopic].insert(pHandler);
-}
-
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::removeHandler(std::string strTopic, IEventHandler* pHandler)
-{
-	std::lock_guard<std::mutex> lock(m_mutexHander);
-	auto iterMap = m_mapHandlers.find(strTopic);
-	if (iterMap != m_mapHandlers.end())
-	{
-		iterMap->second.erase(pHandler);
-		if (iterMap->second.size() == 0)
-		{
-			m_mapHandlers.erase(iterMap);
-		}
-	}
-}
-
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::addEvenVartData(mmrUtil::CVarDatas varData)
-{
-	std::unique_lock<std::mutex> lock(m_mutexData);
-	m_queueAddData.emplace(std::make_pair(varData.getName(), std::move(varData)));
-	m_cvData.notify_all();
-}
-
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::dealThread()
-{
-	while (m_bRunning.load(std::memory_order_relaxed))
-	{
-		if (m_queueAddData.size() > 0)
-		{
-			LOG_INFO("Begine to deal event ,size[%d]", m_queueAddData.size());
-
-			{//交换数据
-				std::lock_guard<std::mutex> lock(m_mutexData);
-				std::swap(m_queueAddData, m_queueDealData);
-			}
-
-			{//处理数据
-				std::lock_guard<std::mutex> lock(m_mutexHander);
-				while (m_queueDealData.size() > 0)
-				{
-					const auto& data = m_queueDealData.front();
-
-					auto iterMap = m_mapHandlers.find(data.first);
-					if (iterMap != m_mapHandlers.end())
-					{
-						for (const auto iterHandler : iterMap->second)
-						{
-							iterHandler->handleEvent(data.second);
-						}
-					}
-					m_queueDealData.pop();
-				}
-			}
-		}
-
-		{
-			std::unique_lock<std::mutex> lock(m_mutexData);
-			while (m_queueAddData.empty() && m_bRunning.load(std::memory_order_relaxed))
-			{
-				m_cvData.wait_for(lock, std::chrono::seconds(100));
-			}
-		}
-	}
-
-	LOG_INFO("frame work deal thread exit!", m_queueAddData.size());
-}
-
-template<typename ServiceCtrl>
-bool CCompFramework<ServiceCtrl>::addComponent(std::unique_ptr<IComponent> pComp)
+template<typename ServiceCtrl, typename HandlerCtrl>
+bool CCompFramework<ServiceCtrl, HandlerCtrl>::addComponent(std::unique_ptr<IComponent> pComp)
 {
 	std::string strCompName = pComp->getName();
 	auto iterComp = m_mapComponents.find(strCompName);
@@ -293,21 +212,21 @@ bool CCompFramework<ServiceCtrl>::addComponent(std::unique_ptr<IComponent> pComp
 //{
 //	//暂不实现
 //}
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
+template<typename ServiceCtrl, typename HandlerCtrl>
+void CCompFramework<ServiceCtrl, HandlerCtrl>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
 {
 	uint16_t sIndex = m_loggerCtrl->getMapCtrollerPtr().size() + 1;
 	m_loggerCtrl->getMapCtrollerPtr()[sIndex] = std::make_pair(std::move(strCompName), logWrap);
 }
 
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::loggerCtrlLoop(std::atomic_bool& bRunFlag)
+template<typename ServiceCtrl, typename HandlerCtrl>
+void CCompFramework<ServiceCtrl, HandlerCtrl>::loggerCtrlLoop(std::atomic_bool& bRunFlag)
 {
 	m_loggerCtrl->loop(bRunFlag);
 }
 
-template<typename ServiceCtrl>
-void CCompFramework<ServiceCtrl>::licenseCtrlLoop(std::atomic_bool& bRunFlag)
+template<typename ServiceCtrl, typename HandlerCtrl>
+void CCompFramework<ServiceCtrl, HandlerCtrl>::licenseCtrlLoop(std::atomic_bool& bRunFlag)
 {
 	m_licenseCtrl->loop(bRunFlag);
 }

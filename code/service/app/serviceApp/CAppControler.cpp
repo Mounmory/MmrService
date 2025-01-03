@@ -18,13 +18,20 @@ void print_help()
 }
 
 CAppControler::CAppControler()
+	: m_bRunflag(false)
 {
-	CoreFrameworkIns->addHandler("stop", this);
+	auto func1 = std::make_shared<CallbackFunc>(std::bind(&CAppControler::handleEvent, this, std::placeholders::_1));
+	CoreFrameworkIns->addFunc("stop", func1);
+	m_listCallbackFun.emplace_back(std::move(func1));
 }
 
 CAppControler::~CAppControler()
 {
-	CoreFrameworkIns->removeHandler("stop", this);
+	//先清空订阅回调
+	m_listCallbackFun.clear();
+
+
+	//清理其它数据
 }
 
 void CAppControler::run()
@@ -76,7 +83,7 @@ void CAppControler::dealCmd()
 		}
 		else if (strCmd == "-q")
 		{
-			printf("qiut the application?[Y/N]\n");
+			printf("quit the application?[Y/N]\n");
 			printf("> ");
 			std::getline(std::cin, strCmd);
 
@@ -111,3 +118,4 @@ void CAppControler::handleEvent(const mmrUtil::CVarDatas& varData)
 		m_cond.notify_one();
 	}
 }
+

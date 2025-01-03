@@ -10,12 +10,13 @@
 
 
 #include "ComponentExport.h"
-#include "IEventHandler.h"
+//#include "IEventHandler.h"
 #include "IComponent.h"
 #include "CLoggerCtrl.h"
 #include "CLiceseCtrl.h"
 
 #include "ServiceCtrlPolicies.hpp"
+#include "EventCallbacks.h"
 
 #ifdef OS_MMR_WIN
 #include <Windows.h>
@@ -35,50 +36,58 @@ static const char* strLibExtension = ".so";
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)
 
-template<typename ServiceCtrl>/*服务管理策略*/
+template<typename ServiceCtrl/*服务管理策略*/
+	, typename HandlerCtrl>
 class COMPO_CORE_CLASS_API CCompFramework
 {
 	CCompFramework();
 	~CCompFramework();
 public:
-	static CCompFramework<ServiceCtrl>* getInstance()
+	static CCompFramework<ServiceCtrl, HandlerCtrl>* getInstance()
 	{
-		static CCompFramework<ServiceCtrl>* instalce = new CCompFramework<ServiceCtrl>;
+		static CCompFramework<ServiceCtrl, HandlerCtrl>* instalce = new CCompFramework<ServiceCtrl, HandlerCtrl>;
 		return instalce;
 	}
 
-	bool start();//配置文件路径
+	bool start(const std::string& strCfgFile = "");//配置文件路径
 
 	void stop();
-
-	//处理事件相关接口
-	void addHandler(std::string strTopic, IEventHandler* pHandler);
-
-	void removeHandler(std::string strTopic, IEventHandler* pHandler);
-
-	void addEvenVartData(mmrUtil::CVarDatas varData);
 
 	//处理组件相关
 	bool addComponent(std::unique_ptr<IComponent> pComp);
 
 	//void removeComponet(uint16_t usIndex);
 
+
+	//日志相关
 	void addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap);
 
 	void loggerCtrlLoop(std::atomic_bool& bRunFlag);
 
 	void licenseCtrlLoop(std::atomic_bool& bRunFlag);
 
+	//服务相关
 	template<typename _T>
 	void registService(std::shared_ptr<_T>&& pSer) 
 	{
-		m_upSerVPolicy->registService<_T>(std::forward<std::shared_ptr<_T>>(pSer));
+		m_upServPolicy->registService<_T>(std::forward<std::shared_ptr<_T>>(pSer));
 	}
 
 	template<typename _T>
 	std::shared_ptr<_T> getService() 
 	{
-		return m_upSerVPolicy->getService<_T>();
+		return m_upServPolicy->getService<_T>();
+	}
+
+	//处理事件相关接口
+	void addFunc(const std::string& strTopcs, const std::shared_ptr<CallbackFunc>& ptrFunc)
+	{
+		m_ptrHandlerCtrl->addFunc(strTopcs, ptrFunc);
+	}
+
+	void addEvenVartData(mmrUtil::CVarDatas&& varData)
+	{
+		m_ptrHandlerCtrl->addEvenVartData(std::forward<mmrUtil::CVarDatas>(varData));
 	}
 
 	template<typename CompType>
@@ -88,35 +97,23 @@ public:
 		CCompRegister()
 		{
 			std::unique_ptr<IComponent> compPtr = std::make_unique<CompType>();
-			CCompFramework<ServiceCtrl>::getInstance()->addComponent(std::move(compPtr));
+			CCompFramework<ServiceCtrl, HandlerCtrl>::getInstance()->addComponent(std::move(compPtr));
 		}
 		~CCompRegister() = default;
 	};
 
 private:
-	void dealThread();
+	std::unique_ptr<CLoggerCtrl> m_loggerCtrl;//组件日志控制类
 
-private:
-	std::unique_ptr<std::thread> m_threadDeal;
-	std::atomic_bool m_bRunning;
+	std::unique_ptr<CLicenseCtrl> m_licenseCtrl;//权限控制类
 
-	std::unique_ptr<ServiceCtrl> m_upSerVPolicy;//服务管理策略
+	std::unique_ptr<ServiceCtrl> m_upServPolicy;//服务管理策略
 
-	//处理事件相关成员
-	std::unordered_map<std::string, std::set<IEventHandler*>> m_mapHandlers;//所有事件处理者
-	std::mutex m_mutexHander;//事件处理集合互斥量
-
-	std::queue<std::pair<std::string, mmrUtil::CVarDatas>> m_queueAddData;
-	std::queue<std::pair<std::string, mmrUtil::CVarDatas>> m_queueDealData;
-	std::mutex m_mutexData;
-	std::condition_variable m_cvData;
+	std::unique_ptr<HandlerCtrl> m_ptrHandlerCtrl;//订阅事件管理
 
 	//处理组件相关
 	std::unordered_map<std::string, std::unique_ptr<IComponent>> m_mapComponents;
 	std::set<libHandle> m_libHandl;
-	
-	std::unique_ptr<CLoggerCtrl> m_loggerCtrl;//组件日志控制类
-	std::unique_ptr<CLicenseCtrl> m_licenseCtrl;//权限控制类
 };
 
 
@@ -133,10 +130,11 @@ using FramServicePolicy = mmrService::mmrCore::UnMapServKeyByGUID;//使用unoder
 using FramServicePolicy = mmrService::mmrCore::VecServByIndex;//使用静态索引管理作为服务指针地址，vs编译存在类导出问题，不同动态库中对基类中静态成员值不一致，这个策略无法使用
 #endif // OS_MMR_LINUX
 
+using FramHandlerPolicy = mmrService::mmrCore::CEventDealWithLock;//使用带锁的观察者
 
-template class COMPO_CORE_CLASS_API mmrService::mmrCore::CCompFramework<FramServicePolicy>;//到处模板类实例
+template class COMPO_CORE_CLASS_API mmrService::mmrCore::CCompFramework<FramServicePolicy, FramHandlerPolicy>;//到处模板类实例
 
-using ServiceType = mmrService::mmrCore::CCompFramework<FramServicePolicy>;
+using ServiceType = mmrService::mmrCore::CCompFramework<FramServicePolicy, FramHandlerPolicy>;
 
 #define CoreFrameworkIns ServiceType::getInstance()//服务框架单实例指针
 #define REGIST_COMPONENT(_Component) ServiceType::CCompRegister<_Component> g_Comp//定义组件全局实例

@@ -3,19 +3,23 @@
 	{
 		"AppController":
 		{
+			"Enable" : true,
 			"LogLevel":4
 		},
 		"ComponentDemo" :
 		{
+			"Enable" : true,
 			"LogLevel":5
 		},
 		"ProtoRpcServer" :
 		{
+			"Enable" : true,
 			"LogLevel":5,
 			"ServThreadNum":4
 		},
 		"AuthorityManager" :
 		{
+			"Enable" : true,
 			"LogLevel":5
 		}
 	}

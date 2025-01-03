@@ -12,20 +12,20 @@
 
 using namespace mmrService::mmrApp;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	std::cout << "\t" << mmrUtil::getFileName(argv[0]) << " start...." << std::endl;
 	//启动框架
 	std::cout << "********************************************" << std::endl;
 	std::cout << "Complied time: \t" << mmrUtil::getComplieTime() << std::endl;
-	std::cout << "Build type: \t" << BUILD_TYPE << std::endl; 
+	std::cout << "Build type: \t" << BUILD_TYPE << std::endl;
 	std::cout << "System type: \t" << OS_TYPE << std::endl;
 	std::cout << "********************************************" << std::endl;
 
 	CAppControler appCtl;
 
 	appCtl.run();
-	
+
 	std::cout << "输入任意字符继续..." << std::endl;
 	std::cin.get();
 	return 0;
