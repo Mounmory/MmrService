@@ -19,20 +19,12 @@ public:
 		//先进行数据初始化，确保回调在注册后，能够正常执行
 
 
-		//注册第一个函数，事件回调函数中保存的是弱引用，因此一定要将回调指针保存到list中
+		//在构造函数中添加回调，事件回调函数中保存的是弱引用，因此一定要将回调指针保存到list中
 		{
-			auto func1 = std::make_shared<CallbackFunc>(std::bind(&CEventDealler::dealEvent1, this, std::placeholders::_1));
+			auto func1 = std::make_shared<CallbackFunc>(std::bind(&CEventDealler::dealEvenOne, this, std::placeholders::_1));
 			CoreFrameworkIns->addFunc("strTopic", func1);
 			m_listFuncs.emplace_back(std::move(func1));
 		}
-
-		//注册第二个函数
-		{
-			auto func2 = std::make_shared<CallbackFunc>(std::bind(&CEventDealler::dealEvent2, this, std::placeholders::_1));
-			CoreFrameworkIns->addFunc("intTopic", func2);
-			m_listFuncs.emplace_back(std::move(func2));
-		}
-
 	}
 
 	~CEventDealler() 
@@ -45,25 +37,39 @@ public:
 
 	}
 
-	void dealEvent1(const mmrUtil::CVarDatas& varData)
+	void dealEvenOne(const mmrUtil::CVarDatas& varData)
 	{
 		if (varData.getName() == "strTopic")
 		{
 			if (varData.isContain("strValue"))
 			{
-				std::cout << "receive string event :" << varData.getVar("strValue").getStringData() << std::endl;
+				std::cout << "deal event one receive string event :" << varData.getVar("strValue").getStringData() << std::endl;
+			}
+		}
+		else if (varData.getName() == "intTopic")
+		{
+			if (varData.isContain("intValue"))
+			{
+				std::cout << "deal event one receive int event :" << varData.getVar("intValue").getInt32Data() << std::endl;
 			}
 		}
 		cv.notify_all();
 	}
 
-	void dealEvent2(const mmrUtil::CVarDatas& varData)
+	void dealEventTwo(const mmrUtil::CVarDatas& varData)
 	{
-		if (varData.getName() == "intTopic")
+		if (varData.getName() == "strTopic")
+		{
+			if (varData.isContain("strValue"))
+			{
+				std::cout << "deal event two receive string event :" << varData.getVar("strValue").getStringData() << std::endl;
+			}
+		}
+		else if (varData.getName() == "intTopic")
 		{
 			if (varData.isContain("intValue"))
 			{
-				std::cout << "receive int event :" << varData.getVar("intValue").getInt32Data() << std::endl;
+				std::cout << "deal event two receive int event :" << varData.getVar("intValue").getInt32Data() << std::endl;
 			}
 		}
 		cv.notify_all();
@@ -71,8 +77,9 @@ public:
 
 	void waitForDealEvent() 
 	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		cv.wait_for(lock, std::chrono::seconds(10));
+		//std::unique_lock<std::mutex> lock(m_mutex);
+		//cv.wait_for(lock, std::chrono::seconds(10));
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	}
 private:
@@ -102,6 +109,8 @@ int main(int argc ,char** argv)
 				CoreFrameworkIns->addEvenVartData(std::move(evDatas));
 			}
 
+
+
 			{//添加string事件
 				mmrUtil::CVarDatas evDatas;
 				evDatas.setName("strTopic");
@@ -111,7 +120,13 @@ int main(int argc ,char** argv)
 				evDealler.waitForDealEvent();
 			}
 
-			{//添加int事件
+			//添加成员函数到回调
+			auto funcClassMemberOne = std::make_shared<CallbackFunc>(std::bind(&CEventDealler::dealEventTwo, &evDealler, std::placeholders::_1));
+			CoreFrameworkIns->addFunc("intTopic", funcClassMemberOne);
+			CoreFrameworkIns->addFunc("strTopic", funcClassMemberOne);
+
+
+			{//添加int事件进入 CEventDealler::dealEvenOne
 				mmrUtil::CVarDatas evDatas;
 				evDatas.setName("intTopic");
 				evDatas.addVar("intValue", int(100));
@@ -119,6 +134,16 @@ int main(int argc ,char** argv)
 				CoreFrameworkIns->addEvenVartData(std::move(evDatas));
 				evDealler.waitForDealEvent();
 			}
+
+			{//添加string事件 CEventDealler::dealEvenOne和CEventDealler::dealEvenTwo同时处理
+				mmrUtil::CVarDatas evDatas;
+				evDatas.setName("strTopic");
+				evDatas.addVar("strValue", "This is an string event!");
+				std::cout << "add string event!" << std::endl;;
+				CoreFrameworkIns->addEvenVartData(std::move(evDatas));
+				evDealler.waitForDealEvent();
+			}
+
 		}
 
 		{//CEventDealler析构了，添加string事件，不会进行处理

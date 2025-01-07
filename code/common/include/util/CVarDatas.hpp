@@ -29,7 +29,8 @@ public:
 	};
 
 	CVariant()
-		:m_type(EM_DataType::VAR_TYPE_INVALID) {
+		: m_type(EM_DataType::VAR_TYPE_INVALID)	{
+		m_data.i64Value = 0;
 	}
 
 	CVariant(bool bValue)
@@ -89,7 +90,7 @@ public:
 
 	CVariant(const std::vector<char>& byteArrValue)
 		:m_type(EM_DataType::VAR_TYPE_BYTE_ARRAY){
-		m_data.byteArrValue = new std::vector<char>(std::move(byteArrValue));
+		m_data.byteArrValue = new std::vector<char>(byteArrValue);
 	}
 
 	CVariant(std::vector<char>&& byteArrValue)
@@ -177,38 +178,42 @@ public:
 
 	CVariant operator = (CVariant&& var) 
 	{
-		resetCheck();
-		this->m_type = std::exchange(var.m_type, EM_DataType::VAR_TYPE_INVALID);
-		switch (this->m_type)
+		if (this != &var)//避免自赋值
 		{
-		case EM_DataType::VAR_TYPE_INVALID:
-		case EM_DataType::VAR_TYPE_BOOL:
-		case EM_DataType::VAR_TYPE_CHAR:
-		case EM_DataType::VAR_TYPE_INT32:
-		case EM_DataType::VAR_TYPE_UINT32:
-		case EM_DataType::VAR_TYPE_INT64:
-		case EM_DataType::VAR_TYPE_UINT64:
-		case EM_DataType::VAR_TYPE_FLOAT:
-		case EM_DataType::VAR_TYPE_DOUBLE:
-			this->m_data = var.m_data;
+			resetCheck();
+			this->m_type = std::exchange(var.m_type, EM_DataType::VAR_TYPE_INVALID);
+			switch (this->m_type)
+			{
+			case EM_DataType::VAR_TYPE_INVALID:
+			case EM_DataType::VAR_TYPE_BOOL:
+			case EM_DataType::VAR_TYPE_CHAR:
+			case EM_DataType::VAR_TYPE_INT32:
+			case EM_DataType::VAR_TYPE_UINT32:
+			case EM_DataType::VAR_TYPE_INT64:
+			case EM_DataType::VAR_TYPE_UINT64:
+			case EM_DataType::VAR_TYPE_FLOAT:
+			case EM_DataType::VAR_TYPE_DOUBLE:
+				this->m_data = var.m_data;
+				break;
+			case EM_DataType::VAR_TYPE_STRING:
+			{
+				m_data.strValue = std::exchange(var.m_data.strValue, nullptr);
+			}
 			break;
-		case EM_DataType::VAR_TYPE_STRING:
-		{
-			m_data.strValue = std::exchange(var.m_data.strValue, nullptr);
-		}
-		break;
-		case EM_DataType::VAR_TYPE_BYTE_ARRAY:
-		{
-			m_data.byteArrValue = std::exchange(var.m_data.byteArrValue, nullptr);
-		}
-		break;
-		default:
-			this->m_type = EM_DataType::VAR_TYPE_INVALID;
+			case EM_DataType::VAR_TYPE_BYTE_ARRAY:
+			{
+				m_data.byteArrValue = std::exchange(var.m_data.byteArrValue, nullptr);
+			}
 			break;
+			default:
+				this->m_type = EM_DataType::VAR_TYPE_INVALID;
+				break;
+			}
 		}
+		return *this;
 	}
 
-	//设置数据
+	//显示的设置数据
 	void setBoolData(bool bValue)
 	{
 		resetCheck();
@@ -284,7 +289,7 @@ public:
 	{
 		if (EM_DataType::VAR_TYPE_BOOL != m_type) 
 		{
-			throw std::logic_error("variant m_type is not bool!");
+			throw std::logic_error("variant m_type is not bool!");//对获取数据类型严格，避免隐式转换出bug
 		}
 		return m_data.bValue;
 	}
@@ -373,6 +378,35 @@ public:
 	EM_DataType getType() { return m_type; }
 
 	const EM_DataType getType() const { return m_type; }
+
+	template<typename _T>
+	const _T CastToNum() const
+	{
+		static_assert(std::is_arithmetic<_T>::value, "Type _T is not convertible to a numeric type");
+		switch (m_type)
+		{
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_BOOL:
+			return static_cast<_T>(m_data.bValue);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_CHAR:
+			return static_cast<_T>(m_data.cValue);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_INT32:
+			return static_cast<_T>(m_data.i32Value);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_UINT32:
+			return static_cast<_T>(m_data.u32Value);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_INT64:
+			return static_cast<_T>(m_data.i64Value);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_UINT64:
+			return static_cast<_T>(m_data.u64Value);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_FLOAT:
+			return static_cast<_T>(m_data.fValue);
+		case mmrUtil::CVariant::EM_DataType::VAR_TYPE_DOUBLE:
+			return static_cast<_T>(m_data.dValue);
+		default:
+			throw std::logic_error("cast to number failed! variant m_type is not number!");
+			break;
+		}
+		return static_cast<_T>(0);
+	}
 private:
 	void resetCheck()
 	{
