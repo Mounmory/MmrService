@@ -1,14 +1,12 @@
 project(ProtoRpcServer)
 
 #包含网络库相关头文件
-#include_directories(${COMMON_INCLUDE_LIBNET_DIR}/cpputil)
+include_hv_lib_module(
+	HV_MODULES cppnet hv	#要包含的文件夹
+	)
 
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/cppnet)
-
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/hv)
-
-
-file(GLOB PROTO_COMM_INCLUDE "${COMMON_INCLUDE_DIR}/protoBase/*.h" "${COMMON_INCLUDE_DIR}/protoBase/*.hpp")
+file(GLOB PROTO_COMM_INCLUDE "${CMAKE_SOURCE_DIR}/common/include/protoBase/*.h" 
+								"${CMAKE_SOURCE_DIR}/common/include/protoBase/*.hpp")
 source_group("include/proto_base" FILES ${PROTO_COMM_INCLUDE})
 	
 #设置依赖库文件

@@ -1,6 +1,6 @@
 ﻿#include <stdio.h>
 #include <vector>
-#include "util/BufConvert.h"
+#include "common/include/util/BufConvert.h"
 
 /* ==========================alder32校验相关全局定义 begin==================================== */
 #define BASE 65521U     /* largest prime smaller than 65536 */

@@ -1,8 +1,8 @@
 ﻿#ifndef EVENTCALLBACKS_H
 #define EVENTCALLBACKS_H
 
-#include "Common_def.h"
-#include "util/CVarDatas.hpp"
+#include "common/include/Common_def.h"
+#include "common/include/util/CVarDatas.hpp"
 
 #include <atomic>
 #include <future>

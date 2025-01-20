@@ -12,7 +12,7 @@ foreach(QtComp ${QTCOMPONENT})
 endforeach()
 
 #文件分组
-file(GLOB COMMON_INTERFACE_FILES "${CMAKE_CREO_DIR}/creoCommon/interface/*.h")
+file(GLOB COMMON_INTERFACE_FILES "${CMAKE_SOURCE_DIR}/creo/creoCommon/interface/*.h")
 source_group("interface" FILES ${COMMON_INTERFACE_FILES})
 
 file(GLOB FILE_HEADS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")

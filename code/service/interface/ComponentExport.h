@@ -1,7 +1,7 @@
 ﻿#ifndef COMPONENTEXPORT_H
 #define COMPONENTEXPORT_H
 
-#include "Common_def.h"
+#include "common/include/Common_def.h"
 
 #if defined(OS_MMR_WIN)
 //#pragma execution_character_set("utf-8")

@@ -6,7 +6,7 @@
 #include <atomic>
 #include <condition_variable>
 
-#include "util/CLicenseObj.h"
+#include "common/include/util/CLicenseObj.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)

@@ -4,9 +4,9 @@
 	protobuf网络传输编解码相关
 */
 #include "google/protobuf/message.h"
-#include "protoBase/ProtobufDef.h"
-#include "util/UtilFunc.h"
-#include "util/BufConvert.h"
+#include "common/include/protoBase/ProtobufDef.h"
+#include "common/include/util/UtilFunc.h"
+#include "common/include/util/BufConvert.h"
 #include "Buffer.h"
 
 #define PROTO_MSG_MIN_LEN 16 //proto数据最小长度

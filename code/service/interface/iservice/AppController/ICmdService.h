@@ -1,8 +1,8 @@
 ﻿#ifndef ICMDSERVICE_H
 #define ICMDSERVICE_H
 
-#include "Common_def.h"
-#include "ServiceCtrlPolicies.hpp"
+#include "common/include/Common_def.h"
+#include "service/core/include/ServiceCtrlPolicies.hpp"
 //#include "iservice/InterfaceCommon.h"
 
 BEGINE_NAMESPACE(mmrService)

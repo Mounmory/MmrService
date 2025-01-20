@@ -1,10 +1,10 @@
 ﻿#ifndef IHELLOSERVICE_H
 #define IHELLOSERVICE_H
 
-#include "Common_def.h"
-#include "ServiceCtrlPolicies.hpp"
+#include "common/include/Common_def.h"
+#include "service/core/include/ServiceCtrlPolicies.hpp"
 //#include "iservice/InterfaceCommon.h"
-#include "util/UtilFunc.h"
+#include "common/include/util/UtilFunc.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrComp)

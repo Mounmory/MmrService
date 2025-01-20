@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "Common_def.h"
-#include "UtilExport.h"
-#include "util/CDataStream.hpp"
-#include "util/json.hpp"
+#include "common/include/Common_def.h"
+#include "common/include/util/UtilExport.h"
+#include "common/include/util/CDataStream.hpp"
+#include "common/include/util/json.hpp"
 
 BEGINE_NAMESPACE(mmrUtil)
 

@@ -1,4 +1,4 @@
-﻿#include "CCompFramework.h"
+﻿#include "service/core/include/CCompFramework.h"
 
 #include <list>
 #include <functional>

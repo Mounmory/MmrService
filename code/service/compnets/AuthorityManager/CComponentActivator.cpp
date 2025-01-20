@@ -1,9 +1,9 @@
 ﻿#include "CComponentActivator.h"
-#include "CCompFramework.h"
-#include "util/Clogger.h"
+#include "service/core/include/CCompFramework.h"
+#include "common/include/util/Clogger.h"
 
-#include "iservice/ProtoRpcServer/IProtoRpcServer.h"
-#include "protoBase/ProtoMsgCallback.h"
+#include "service/interface/iservice/ProtoRpcServer/IProtoRpcServer.h"
+#include "common/include/protoBase/ProtoMsgCallback.h"
 
 #include "CAlthorityProcessor.h"
 

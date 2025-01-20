@@ -1,7 +1,7 @@
 #ifndef COMMON_NOCOPYABLE_H
 #define COMMON_NOCOPYABLE_H
 
-#include "Common_def.h"
+#include "common/include/Common_def.h"
 
 BEGINE_NAMESPACE(mmrComm)
 

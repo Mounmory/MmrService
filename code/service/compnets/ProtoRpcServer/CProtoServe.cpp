@@ -1,6 +1,6 @@
 #include "CProtoServer.h"
-#include "util/Clogger.h"
-#include "protoBase/ProtoCodec.hpp"
+#include "common/include/util/Clogger.h"
+#include "common/include/protoBase/ProtoCodec.hpp"
 
 using namespace mmrService::mmrComp;
 

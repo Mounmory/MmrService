@@ -1,8 +1,8 @@
 #ifndef PTCVIEWWIDGET_H
 #define PTCVIEWWIDGET_H
 
-#include "interface/IPTCViewWidget.h"
-#include "pviewlib.h"
+#include "creo/creoCommon/interface/IPTCViewWidget.h"
+#include "creo/ptcViewWidget/pviewlib.h"
 #include <QVBoxLayout>
 #include <memory>
 

@@ -2,9 +2,9 @@
 #ifndef CTHREADPOOL_H_
 #define CTHREADPOOL_H_
 
-#include "Common_def.h"
-#include "util/UtilExport.h"
-#include "util/Clogger.h"
+#include "common/include/Common_def.h"
+#include "common/include/util/UtilExport.h"
+#include "common/include/util/Clogger.h"
 
 #include <iostream>
 #include <vector>

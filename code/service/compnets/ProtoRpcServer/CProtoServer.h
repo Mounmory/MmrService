@@ -2,7 +2,7 @@
 #define CPROTOSERVER_H
 
 #include "TcpServer.h"
-#include "iservice/ProtoRpcServer/IProtoRpcServer.h"
+#include "service/interface/iservice/ProtoRpcServer/IProtoRpcServer.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrComp)

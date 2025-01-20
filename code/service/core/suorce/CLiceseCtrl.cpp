@@ -1,7 +1,7 @@
-﻿#include "CLiceseCtrl.h"
-#include "CCompFramework.h"
-#include "util/json.hpp"
-#include "util/CVarDatas.hpp"
+﻿#include "service/core/include/CLiceseCtrl.h"
+#include "service/core/include/CCompFramework.h"
+#include "common/include/util/json.hpp"
+#include "common/include/util/CVarDatas.hpp"
 
 #include <sstream>
 

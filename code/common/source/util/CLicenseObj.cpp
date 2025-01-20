@@ -1,7 +1,7 @@
-﻿#include "util/CLicenseObj.h"
-#include "util/BufConvert.h"
-#include "util/Clogger.h"
-#include "util/UtilFunc.h"
+﻿#include "common/include/util/CLicenseObj.h"
+#include "common/include/util/BufConvert.h"
+#include "common/include/util/Clogger.h"
+#include "common/include/util/UtilFunc.h"
 #include <iostream>
 
 #define LICENSE_CODE_MIN_LEN 32//授权码最小长度

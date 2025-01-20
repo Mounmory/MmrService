@@ -1,5 +1,5 @@
 #include "CComponentActivator.h"
-#include "CCompFramework.h"
+#include "service/core/include/CCompFramework.h"
 #include "CHelloService.h"
 
 REGIST_COMPONENT(CComponentActivator);
@@ -28,6 +28,10 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 	{
 		g_LoggerPtr->logLevel = static_cast<mmrUtil::emLogLevel>(jsonConfig.at("LogLevel").ToInt());
 	}
+
+	//²âÊÔ±ÀÀ£
+	//int* lPtr = nullptr;
+	//g_LoggerPtr->logLevel = static_cast<mmrUtil::emLogLevel>(*lPtr);
 
 	//×¢²á·þÎñ
 	std::shared_ptr<IHelloService> serPtr = std::make_shared<CHelloService>();

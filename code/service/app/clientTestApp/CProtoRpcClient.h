@@ -1,7 +1,7 @@
 ﻿#ifndef CPROTORPCCLIENT_H
 #define CPROTORPCCLIENT_H
 
-#include "protoBase/ProtobufDef.h"
+#include "common/include/protoBase/ProtobufDef.h"
 #include "TcpClient.h"
 #include <condition_variable>
 #include <mutex>

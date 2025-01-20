@@ -2,9 +2,6 @@ project(mmrUtil)
 
 #generate_export_header(mmrUtil)
 
-#包含头文件
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 #文件分组
 file(GLOB COMMON_HEADS "${CMAKE_SOURCE_DIR}/common/include/*.h" "${CMAKE_SOURCE_DIR}/common/include/*.hpp")
 source_group("include" FILES ${COMMON_HEADS})

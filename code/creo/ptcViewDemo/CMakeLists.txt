@@ -14,11 +14,11 @@ endforeach()
 
 
 #文件分组
-file(GLOB COMMON_INCLUDE_FILES "${CMAKE_CREO_DIR}/creoCommon/*.h")
+file(GLOB COMMON_INCLUDE_FILES "${CMAKE_SOURCE_DIR}/creo/creoCommon/*.h")
 source_group("include/common" FILES ${COMMON_INCLUDE_FILES})
 #message(COMMON_INCLUDE_FILES is ${COMMON_INCLUDE_FILES})
 
-file(GLOB COMMON_SUORCE_FILES "${CMAKE_CREO_DIR}/creoCommon/*.cpp")
+file(GLOB COMMON_SUORCE_FILES "${CMAKE_SOURCE_DIR}/creo/creoCommon/*.cpp")
 source_group("source/common" FILES ${COMMON_SUORCE_FILES})
 #message(COMMON_SUORCE_FILES is ${COMMON_SUORCE_FILES})
 	

@@ -1,8 +1,8 @@
 ﻿#ifndef CUSERDATABASE_H
 #define CUSERDATABASE_H
 
-#include "Common_def.h"
-#include "SqliteCom.h"
+#include "common/include/Common_def.h"
+#include "common/include/SqliteCom.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrComp)

@@ -1,6 +1,6 @@
 ﻿#ifndef CCMDSERVICE_H
 #define CCMDSERVICE_H
-#include "iservice/AppController/ICmdService.h"
+#include "service/interface/iservice/AppController/ICmdService.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrComp)

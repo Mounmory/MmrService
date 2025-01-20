@@ -1,8 +1,3 @@
-include_directories(${CMAKE_SOURCE_DIR}/common/include)
-include_directories(${PROTO_FILE_PATH}/include)
-include_directories(${CMAKE_SOURCE_DIR}/service/core/include)
-include_directories(${CMAKE_SOURCE_DIR}/service/interface)
-
 SUBDIRLIST(SRC_DIR_LIST ${CMAKE_CURRENT_SOURCE_DIR})
 
 # 查找所有子文件夹和文件夹

@@ -1,13 +1,9 @@
 project(hvNet)
 
-#包含头文件
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/base)
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/cppnet)
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/cpputil)
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/event)
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/http)
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/util)
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/hv)
+#包含网络库相关头文件
+include_hv_lib_module(
+	HV_MODULES base cppnet cpputil event http util hv	#要包含的文件夹
+	)
 
 if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_NO_WARNINGS -D_WIN32_WINNT=0x0600)

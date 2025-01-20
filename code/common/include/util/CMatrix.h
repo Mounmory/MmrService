@@ -1,7 +1,7 @@
 #ifndef CMATRIX_H
 #define CMATRIX_H
-#include "Common_def.h"
-#include "util/UtilExport.h"
+#include "common/include/Common_def.h"
+#include "common/include/util/UtilExport.h"
 #include <string>
 #include <type_traits>
 
@@ -11,18 +11,13 @@ BEGINE_NAMESPACE(mmrUtil)
 template<class _Ty>
 class COMMON_CLASS_API CMatrix {
 
+	//static_assert(
+	//	std::is_arithmetic_v<_Ty> ||
+	//	std::is_same_v<_Ty, std::string> ,
+	//	"matrix type error!");
+
 	static_assert(
-		std::is_same<_Ty, bool>::value ||
-		std::is_same<_Ty, uint8_t>::value ||
-		std::is_same<_Ty, int8_t>::value ||
-		std::is_same<_Ty, uint16_t>::value ||
-		std::is_same<_Ty, int16_t>::value ||
-		std::is_same<_Ty, uint32_t>::value ||
-		std::is_same<_Ty, int32_t>::value ||
-		std::is_same<_Ty, uint64_t>::value ||
-		std::is_same<_Ty, int64_t>::value ||
-		std::is_same<_Ty, float>::value ||
-		std::is_same<_Ty, double>::value ||
+		std::is_arithmetic<_Ty>::value ||
 		std::is_same<_Ty, std::string>::value ,
 		"matrix type error!");
 public:

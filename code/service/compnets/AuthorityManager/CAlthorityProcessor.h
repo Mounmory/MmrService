@@ -1,6 +1,6 @@
 ﻿#ifndef CALTHORITYPROCESS_H
 #define CALTHORITYPROCESS_H
-#include "Common_def.h"
+#include "common/include/Common_def.h"
 #include "Login.pb.h"
 
 #include "CUserDatabase.h"

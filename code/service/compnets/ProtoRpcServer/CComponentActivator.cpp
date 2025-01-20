@@ -1,5 +1,5 @@
 #include "CComponentActivator.h"
-#include "CCompFramework.h"
+#include "service/core/include/CCompFramework.h"
 #include "CProtoServer.h"
 
 

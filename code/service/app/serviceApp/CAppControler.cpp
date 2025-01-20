@@ -1,7 +1,7 @@
-﻿#include <iostream>
-#include "CAppControler.h"
-#include "core/include/CCompFramework.h"
+﻿#include "service/app/serviceApp/CAppControler.h"
+#include "service/core/include/CCompFramework.h"
 #include <future>
+#include <iostream>
 
 using namespace mmrService::mmrApp;
 

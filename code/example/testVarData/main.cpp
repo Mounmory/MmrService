@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include "util/CVarDatas.hpp"
+#include "common/include/util/CVarDatas.hpp"
 
 int main(int argc ,char** argv)
 {

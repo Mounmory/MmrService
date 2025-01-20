@@ -1,6 +1,6 @@
 #ifndef CCOMPONENTACTIVATOR_H
 #define CCOMPONENTACTIVATOR_H
-#include "IComponent.h"
+#include "service/interface/IComponent.h"
 
 class CComponentActivator :public IComponent 
 {

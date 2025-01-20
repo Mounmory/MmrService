@@ -2,7 +2,7 @@
 #ifndef JSON_HPP
 #define JSON_HPP
 
-#include "util/UtilExport.h"
+#include "common/include/util/UtilExport.h"
 
 #include <cstdint>
 #include <cmath>

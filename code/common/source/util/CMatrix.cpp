@@ -1,4 +1,4 @@
-#include "util/CMatrix.h"
+#include "common/include/util/CMatrix.h"
 #include <string.h>
 
 using namespace mmrUtil;
@@ -49,7 +49,6 @@ CMatrix<_Ty>::~CMatrix()
 	destroyArray();
 }
 
-
 template<class _Ty>
 void CMatrix<_Ty>::reSizeArray(const size_t nRow, const size_t nCol)
 {
@@ -86,7 +85,6 @@ bool CMatrix<_Ty>::zeroArray()
 
 }
 
-
 template<class _Ty>
 _Ty* CMatrix<_Ty>::operator[](const size_t index)
 {
@@ -98,7 +96,6 @@ const _Ty* CMatrix<_Ty>::operator[](const size_t index) const
 {
 	return m_array[index];
 }
-
 
 template<class _Ty>
 CMatrix<_Ty>& CMatrix<_Ty>::operator=(const _Ty& value)
@@ -133,7 +130,6 @@ CMatrix<_Ty>& CMatrix<_Ty>::operator=(const _Ty& value)
 	return *this;
 }
 
-
 template<class _Ty>
 CMatrix<_Ty>& CMatrix<_Ty>::operator=(const CMatrix<_Ty> &rhs)
 {
@@ -164,7 +160,6 @@ CMatrix<_Ty>& CMatrix<_Ty>::operator=(const CMatrix<_Ty> &rhs)
 	return *this;
 }
 
-
 template<class _Ty>
 CMatrix<_Ty>& CMatrix<_Ty>::operator=(CMatrix<_Ty>&& rhs) noexcept
 {
@@ -177,7 +172,6 @@ CMatrix<_Ty>& CMatrix<_Ty>::operator=(CMatrix<_Ty>&& rhs) noexcept
 	}
 	return *this;
 }
-
 
 template<class _Ty>
 bool CMatrix<_Ty>::operator==(const CMatrix<_Ty> &rhs)

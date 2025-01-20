@@ -1,7 +1,7 @@
 ﻿#ifndef CHANDLERDEMO_H
 #define CHANDLERDEMO_H
 //#include "IEventHandler.h"
-#include "CCompFramework.h"
+#include "service/core/include/CCompFramework.h"
 #include <iostream>
 #include <vector>
 #include <string>

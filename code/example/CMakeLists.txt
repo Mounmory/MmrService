@@ -1,7 +1,4 @@
-﻿include_directories(${CMAKE_SOURCE_DIR}/common/include)
-include_directories(${CMAKE_SOURCE_DIR}/service/core/include)
-
-# 查找所有子文件夹和文件夹
+﻿# 查找所有子文件夹和文件夹
 file(GLOB subdirectories RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
 # 过滤出子文件夹
 foreach(subdirectory ${subdirectories})

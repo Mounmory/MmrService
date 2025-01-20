@@ -1,7 +1,7 @@
 ﻿#ifndef FILEOPERAOR_H
 #define FILEOPERAOR_H
-#include "Common_def.h"
-#include "util/UtilExport.h"
+#include "common/include/Common_def.h"
+#include "common/include/util/UtilExport.h"
 #include <string>
 #include <string.h>
 

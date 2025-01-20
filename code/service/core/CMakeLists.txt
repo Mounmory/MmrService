@@ -1,8 +1,5 @@
 project(serviceFramework)
 
-include_directories(${CMAKE_SOURCE_DIR}/common/include)
-include_directories(${CMAKE_SOURCE_DIR}/service/core/include)
-
 #文件分组
 file(GLOB CORE_COMMON_HEADS 
 	"${CMAKE_SOURCE_DIR}/common/include/*.h")

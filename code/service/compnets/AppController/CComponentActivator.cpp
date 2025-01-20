@@ -1,7 +1,7 @@
 #include "CComponentActivator.h"
-#include "CCompFramework.h"
+#include "service/core/include/CCompFramework.h"
 #include "CCmdService.h"
-//#include "util/Clogger.h"
+//#include "common/include/util/Clogger.h"
 
 
 REGIST_COMPONENT(CComponentActivator);

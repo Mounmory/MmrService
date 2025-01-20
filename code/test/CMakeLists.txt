@@ -1,6 +1,4 @@
-﻿include_directories(${CMAKE_SOURCE_DIR}/common/include)
-include_directories(${CMAKE_SOURCE_DIR}/service/core/include)
-#function(SUBDIRLIST curdir listname)
+﻿#function(SUBDIRLIST curdir listname)
 #    file(GLOB_RECURSE subdirectories "${curdir}/")
 #    foreach(subdirectory ${subdirectories})
 #        get_filename_component(subdir ${subdirectory} DIRECTORY)

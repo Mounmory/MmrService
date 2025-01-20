@@ -1,7 +1,7 @@
 ﻿#include "CUserDatabase.h"
-#include "util/FileOperator.h"
-#include "util/UtilFunc.h"
-#include "util/Clogger.h"
+#include "common/include/util/FileOperator.h"
+#include "common/include/util/UtilFunc.h"
+#include "common/include/util/Clogger.h"
 
 using namespace mmrService::mmrComp;
 

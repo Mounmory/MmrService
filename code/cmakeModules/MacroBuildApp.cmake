@@ -14,16 +14,6 @@ MACRO(build_app targetName)
 	
 	message("build_app ${targetName}")
 	
-	include_directories(${CMAKE_SOURCE_DIR}/common/include)
-	
-	include_directories(${CMAKE_SOURCE_DIR}/service)
-	
-	include_directories(${CMAKE_SOURCE_DIR}/service/interface)
-	
-	include_directories(${CMAKE_SOURCE_DIR}/service/interface/iservice)
-	
-	include_directories(${CMAKE_SOURCE_DIR}/tools/include)
-	
 	#file(GLOB COMMON_HEADS "${CMAKE_SOURCE_DIR}/common/include/*.h")
 	#source_group("include" FILES ${COMMON_HEADS})
 

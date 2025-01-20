@@ -4,11 +4,10 @@ project(clientTestApp)
 #设置protobuf源文件
 add_definitions(-DPROTOBUF_USE_DLLS)
 
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/cpputil)
-
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/hv)
-
-include_directories(${COMMON_INCLUDE_LIBNET_DIR}/cppnet)
+#包含的网络库文件夹
+include_hv_lib_module(
+	HV_MODULES cppnet cpputil hv	#要包含的文件夹
+	)
 
 include_directories(${PROTO_GENERATE_FILE_PATH}/AuthorityManager)
 

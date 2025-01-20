@@ -1,7 +1,7 @@
-﻿#include "CCompFramework.h"
+﻿#include "service/core/include/CCompFramework.h"
 
-#include "util/json.hpp"
-#include "util/UtilFunc.h"
+#include "common/include/util/json.hpp"
+#include "common/include/util/UtilFunc.h"
 
 #include <sstream>
 #include <fstream>

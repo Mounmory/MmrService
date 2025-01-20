@@ -9,13 +9,13 @@
 
 
 
-#include "ComponentExport.h"
+#include "service/interface/ComponentExport.h"
 //#include "IEventHandler.h"
-#include "IComponent.h"
+#include "service/interface/IComponent.h"
 #include "CLoggerCtrl.h"
 #include "CLiceseCtrl.h"
 
-#include "ServiceCtrlPolicies.hpp"
+#include "service/core/include/ServiceCtrlPolicies.hpp"
 #include "EventCallbacks.h"
 
 #ifdef OS_MMR_WIN

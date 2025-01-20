@@ -8,7 +8,7 @@
 
 //#include "interface/IEventHandler.h"
 
-#include "util/CVarDatas.hpp"
+#include "common/include/util/CVarDatas.hpp"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrApp)

@@ -12,8 +12,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "Common_def.h"
-#include "CTypeInfo.hpp"
+#include "common/include/Common_def.h"
+#include "common/include/CTypeInfo.hpp"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)

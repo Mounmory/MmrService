@@ -1,5 +1,5 @@
 ﻿#include "CCmdService.h"
-#include "CCompFramework.h"
+#include "service/core/include/CCompFramework.h"
 
 using namespace mmrService::mmrComp;
 

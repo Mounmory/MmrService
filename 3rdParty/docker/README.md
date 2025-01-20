@@ -1,20 +1,20 @@
-# 1、在虚拟机上编译好三方库
+#### 1、在虚拟机上编译好三方库
 
 ​		在路径\3rdParty\thirdSourceCode\linux中的源码，编译，然后安装到/usr/local/lib目录下
 
-# 2、制作镜像
+#### 2、制作镜像
 
-## 2.1、运行基础镜像
+##### 2.1、运行基础镜像
 
 ```shell
 docker run -it -v /usr/local/lib:/home/3rdInstall ubuntu:16.04 /bin/bash
 ```
 
+-v是将主机目录挂载到容器中 `-v /hostDirectory:/containerDirectory`
 
+##### 2.2安装软件
 
-## 2.2安装软件
-
-### 	方法1：逐步安装
+###### 	方法1：逐步安装
 
 ```shell
 apt update
@@ -39,7 +39,7 @@ cd /home/3rdInstall
 cp -f libprotobuf.so* libsqlite3.so* /usr/local/lib
 ```
 
-### 	方法2：一行代码安装
+###### 	方法2：一行代码安装
 
 ```shell
 apt update && \
@@ -49,7 +49,7 @@ cd /home/3rdInstall && \
 cp -f libprotobuf.so* libsqlite3.so* /usr/local/lib
 ```
 
-# 3、保存镜像
+#### 3、保存镜像
 
 ​		新启动一个终端
 ​		查看当前正在运行的镜像	
@@ -64,7 +64,7 @@ docker ps
 docker commit <container_id> mmr_service
 ```
 
-# 4、新建容器 并启动
+#### 4、新建容器 并启动
 
 ​		将程序安装到/mmr目录下，程序路径为/mmr/bin，运行如下docker命令
 
@@ -74,7 +74,7 @@ docker run -v /mmr:/mmr -p 30010:30010 -it --workdir=/mmr/bin --name mmrService 
 
 ​		这个命令使用镜像新建一个名字为mmrService的容器并执行，只执行一次即可。
 
-# 5、启动容器
+#### 5、启动容器
 
 ​		后续再启动容器，执行
 
@@ -82,7 +82,7 @@ docker run -v /mmr:/mmr -p 30010:30010 -it --workdir=/mmr/bin --name mmrService 
 docker start -ia mmrService
 ```
 
-# 6、其他docker操作
+#### 6、其他docker操作
 
 ​		拉取镜像
 

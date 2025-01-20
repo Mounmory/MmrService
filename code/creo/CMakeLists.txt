@@ -1,12 +1,4 @@
-﻿set(CMAKE_CREO_DIR ${CMAKE_SOURCE_DIR}/creo)
-
-include_directories(${CMAKE_SOURCE_DIR}/common/include)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/creoCommon)
-
-include_directories(${CREO_TOOKIT_INCLUDE_PATH})#包含creo头文件
-
-include_directories(${CMAKE_CREO_DIR}/creoCommon)#包含公共头文件
+﻿include_directories(${CREO_TOOKIT_INCLUDE_PATH})#包含creo头文件
 
 link_directories(${CREO_TOOKIT_LIB_PATH})#Creo库目录
 

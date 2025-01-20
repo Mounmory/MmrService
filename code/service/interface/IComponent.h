@@ -1,7 +1,7 @@
 ﻿#ifndef ICOMPONENT_H
 #define ICOMPONENT_H
-#include <Common_def.h>
-#include "util/json.hpp"
+#include "common/include/Common_def.h"
+#include "common/include/util/json.hpp"
 
 class IComponent 
 {

@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 
-#include "CLoggerCtrl.h"
+#include "service/core/include/CLoggerCtrl.h"
 
 using namespace mmrService::mmrCore;
 

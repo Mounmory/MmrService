@@ -1,7 +1,7 @@
 ﻿#ifndef CLOGGER_H
 #define CLOGGER_H
-#include "Common_def.h"
-#include "util/UtilExport.h"
+#include "common/include/Common_def.h"
+#include "common/include/util/UtilExport.h"
 #include <mutex>
 #include <condition_variable>
 #include <atomic>

@@ -1,13 +1,12 @@
 ﻿#ifndef IRPCDISPATCHER_H
 #define IRPCDISPATCHER_H
 
-#include "Common_def.h"
-#include "ServiceCtrlPolicies.hpp"
-//#include "iservice/InterfaceCommon.h"
-#include "util/UtilFunc.h"
+#include "common/include/Common_def.h"
+#include "common/include/util/UtilFunc.h"
+#include "common/include/protoBase/ProtobufDef.h"
+#include "common/include/protoBase/ProtoMsgCallback.h"
 
-#include "protoBase/ProtobufDef.h"
-#include "protoBase/ProtoMsgCallback.h"
+#include "service/core/include/ServiceCtrlPolicies.hpp"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrComp)

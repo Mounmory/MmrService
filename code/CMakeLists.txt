@@ -16,18 +16,23 @@ message(STATUS "THIRD_PART_DIR value is ${THIRD_PART_DIR}")
 option(BUILD_QT_PROJECT "build project with Qt" "OFF")
 
 if(WIN32)
-	#STRING(REPLACE "-O2" "-Od" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})#取消优化
+	message("platform windows")
 	if(MSVC)
+		#STRING(REPLACE "-O2" "-Od" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})#取消优化
 		if(MSVC_VERSION LESS 1900) # 判断编译器版本是否低于VS2015
 			message(FATAL_ERROR "MSVC version must be at least 14.0 (Visual Studio 2015)!")
 		endif()
+		
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+		link_directories(${THIRD_PART_DIR}/lib/win64)
+		#option(ENABLE_WINDUMP "Windows MiniDumpWriteDump" "OFF")
+		add_definitions(-DOS_MMR_WIN)#添加window系统宏
+	else()
+		message(FATAL_ERROR "only msvc project can be generated!")
 	endif()
-
-	link_directories(${THIRD_PART_DIR}/lib/win64)
-	#option(ENABLE_WINDUMP "Windows MiniDumpWriteDump" "OFF")
-	add_definitions(-DOS_MMR_WIN)#添加window系统宏
-	message("platform windows")
 elseif(UNIX)
+	message("platform linux")
+	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")#c++11 do not has make_unique
 	
 	if(BUILD_QT_PROJECT)
@@ -40,17 +45,17 @@ elseif(UNIX)
 	set(CMAKE_INSTALL_PREFIX /mmr)#安装目录
 	
 	set(CMAKE_BUILD_TYPE Release)#设置构建类型
+
+	#set(CMAKE_BUILD_TYPE Debug)#设置构建类型
 	
 	#link_directories(${THIRD_PART_DIR}/lib/linux)#提前安装到系统
 	#link_directories(${THIRD_PART_DIR}/bin/linux)
 	add_definitions(-DOS_MMR_LINUX)#添加linux系统宏
-	message("platform linux")
 else()	
 	message(FATAL_ERROR "Unsupported OS type!")
 endif()
 
 #包含目录
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)#可执行文件位置
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)#默认存放动态库的位置
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)#默认存放静态库的位置，以及MSVC中动态库的lib文件的位置。
@@ -63,22 +68,18 @@ include(MacroBuildToolPlugin)
 include(MacroBuildApp)
 include(MacroBuildComponent)
 
-SET(COMMON_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/common/include)
-SET(COMMON_INCLUDE_UTIL_DIR ${CMAKE_SOURCE_DIR}/common/include/util)
 SET(COMMON_INCLUDE_LIBNET_DIR ${CMAKE_SOURCE_DIR}/common/include/libnet)
 
 #protobuf生成源文件路径
-SET(PROTO_FILE_PATH ${CMAKE_SOURCE_DIR}/protoBuf)
 SET(PROTO_GENERATE_FILE_PATH ${CMAKE_SOURCE_DIR}/protoBuf/generate)
 
-include_directories(${THIRD_PART_DIR}/include)
-include_directories(${COMMON_INCLUDE_DIR})
-#include_directories(${CMAKE_SOURCE_DIR})
-#include_directories(${COMMON_INCLUDE_UTIL_DIR})
-#include_directories(${COMMON_INCLUDE_LIBNET_DIR})
+include_directories(${THIRD_PART_DIR}/include)#三方库头文件
+include_directories(${CMAKE_SOURCE_DIR})#根目录
 
 #包含当前目录
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+message("CMAKE_INCLUDE_CURRENT_DIR ${CMAKE_INCLUDE_CURRENT_DIR}")
 
 #输出可执行文件目录
 #SET(TARGET_BIN_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin")

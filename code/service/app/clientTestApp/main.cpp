@@ -1,19 +1,17 @@
-﻿#include "Common_def.h"
+﻿#include "common/include/Common_def.h"
+#include "common/include/util/Clogger.h"
+#include "common/include/util/UtilFunc.h"
+#include "common/include/util/CLicenseObj.h"
+#include "service/interface/iservice/ComponentDemo/IHelloService.h"
+#include "service/interface/iservice/AppController/ICmdService.h"
 
-#include <chrono>
-#include <iostream>
-#include "Common_def.h"
-#include "util/UtilFunc.h"
-#include "util/CLicenseObj.h"
-#include "util/Clogger.h"
-#include "ComponentDemo/IHelloService.h"
-#include "AppController/ICmdService.h"
-//#include "core/include/CCompFramework.h"
+#include "service/app/clientTestApp/CProtoRpcClient.h"
 
 #include "Login.pb.h"
 
-#include "CProtoRpcClient.h"
-#include "util/Clogger.h"
+#include <chrono>
+#include <iostream>
+
 
 #define MAX_STR_LEN 1024
 

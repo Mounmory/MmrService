@@ -1,6 +1,6 @@
-﻿#include "CProtoRpcClient.h"
-#include "util/Clogger.h"
-#include "protoBase/ProtoCodec.hpp"
+﻿#include "service/app/clientTestApp/CProtoRpcClient.h"
+#include "common/include/util/Clogger.h"
+#include "common/include/protoBase/ProtoCodec.hpp"
 
 CProtoRpcClient::CProtoRpcClient()
 {

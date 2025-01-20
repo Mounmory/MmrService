@@ -3,8 +3,8 @@
 #include <memory>
 #include <atomic>
 #include <map>
-#include "ComponentExport.h"
-#include "util/Clogger.h"
+#include "service/interface/ComponentExport.h"
+#include "common/include/util/Clogger.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)

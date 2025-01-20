@@ -1,7 +1,7 @@
 ﻿#ifndef CTYPEINFO_HPP
 #define CTYPEINFO_HPP
 
-#include "Common_def.h"
+#include "common/include/Common_def.h"
 #include <typeinfo>
 
 BEGINE_NAMESPACE(mmrComm)
