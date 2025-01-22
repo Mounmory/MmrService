@@ -36,7 +36,7 @@ CAppControler::~CAppControler()
 
 void CAppControler::run()
 {
-	if (CoreFrameworkIns->start())
+	if (CoreFrameworkIns->start("serviceApp.json"))
 	{
 		m_bRunflag.store(true);
 		std::thread(&CAppControler::dealCmd, this).detach();

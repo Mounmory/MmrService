@@ -33,6 +33,8 @@ COMMON_FUN_API std::string generateGUID();
 
 COMMON_FUN_API std::string getComplieTime();
 
+COMMON_FUN_API std::string getComplierInfo();
+
 COMMON_FUN_API std::string timeInt64ToString(int64_t llTime);
 
 END_NAMESPACE(mmrUtil)

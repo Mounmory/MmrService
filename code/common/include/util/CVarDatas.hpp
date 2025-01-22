@@ -479,9 +479,13 @@ public:
 
 	CVarDatas& operator = (const CVarDatas& rhs) 
 	{
-		*m_pMapVars = *rhs.m_pMapVars;
-		m_strName = rhs.m_strName;
-		m_ulType = rhs.m_ulType;
+		if (this != &rhs)
+		{
+			*m_pMapVars = *rhs.m_pMapVars;
+			m_strName = rhs.m_strName;
+			m_ulType = rhs.m_ulType;
+		}
+		return *this;
 	}
 
 	CVarDatas& operator = (CVarDatas&& rhs)
@@ -489,6 +493,7 @@ public:
 		m_pMapVars = std::move(rhs.m_pMapVars);
 		m_strName = std::move(rhs.m_strName);
 		m_ulType = std::exchange(rhs.m_ulType, 0);
+		return *this;
 	}
 
 	bool const isContain(const std::string& strKey) const

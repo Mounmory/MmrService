@@ -43,7 +43,7 @@ bool mmrUtil::utf8ToLocalString(const std::string& strIn, std::string& strOut)
 	//https://www.cnblogs.com/huojing/articles/16291647.html
 
 	iconv_t iconvDescriptor = iconv_open("gb2312", "UTF-8");
-	if (iconvDescriptor == (iconv_t)-1) 
+	if (iconvDescriptor == (iconv_t)-1)
 	{
 		STD_CERROR << "iconv_open failed!" << std::endl;
 		return false;
@@ -56,7 +56,7 @@ bool mmrUtil::utf8ToLocalString(const std::string& strIn, std::string& strOut)
 	strOut.resize(outputSize);
 	char* outputPointer = const_cast<char*>(strOut.c_str());
 
-	if (iconv(iconvDescriptor, (char**)&inputBuffer, &inputSize, &outputPointer, &outputSize) == (size_t)-1) 
+	if (iconv(iconvDescriptor, (char**)&inputBuffer, &inputSize, &outputPointer, &outputSize) == (size_t)-1)
 	{
 		STD_CERROR << "convert utf8 to local failed" << std::endl;
 		iconv_close(iconvDescriptor);
@@ -85,7 +85,7 @@ bool mmrUtil::localStringToUtf8(const std::string& strIn, std::string& strOut)
 	}
 #elif defined OS_MMR_LINUX
 	iconv_t iconvDescriptor = iconv_open("UTF-8", "gb2312");
-	if (iconvDescriptor == (iconv_t)-1) 
+	if (iconvDescriptor == (iconv_t)-1)
 	{
 		STD_CERROR << "iconv_open failed!" << std::endl;
 		return false;
@@ -98,7 +98,7 @@ bool mmrUtil::localStringToUtf8(const std::string& strIn, std::string& strOut)
 	strOut.resize(outputSize);
 	char* outputPointer = const_cast<char*>(strOut.c_str());
 
-	if (iconv(iconvDescriptor, (char**)&inputBuffer, &inputSize, &outputPointer, &outputSize) == (size_t)-1) 
+	if (iconv(iconvDescriptor, (char**)&inputBuffer, &inputSize, &outputPointer, &outputSize) == (size_t)-1)
 	{
 		STD_CERROR << "convert local to utf8 failed" << std::endl;
 		iconv_close(iconvDescriptor);
@@ -121,7 +121,7 @@ COMMON_FUN_API bool mmrUtil::getAppPathAndName(std::string& filePath, std::strin
 	filePath = path;
 
 	auto pos = filePath.rfind('.');
-	if (pos != std::string::npos) 
+	if (pos != std::string::npos)
 	{
 		filePath.erase(filePath.begin() + pos, filePath.end());
 	}
@@ -144,7 +144,7 @@ COMMON_FUN_API bool mmrUtil::getAppPathAndName(std::string& filePath, std::strin
 	if (len <= 0)
 		return false;
 	tmpPath[len] = '\0';
-	char *path_end = strrchr(tmpPath, '/');
+	char* path_end = strrchr(tmpPath, '/');
 	if (path_end == NULL)
 		return false;
 	++path_end;
@@ -184,11 +184,60 @@ COMMON_FUN_API std::string mmrUtil::getComplieTime()
 	return std::string(__DATE__) + " " + std::string(__TIME__);
 }
 
+COMMON_FUN_API std::string mmrUtil::getComplierInfo()
+{
+#if defined(OS_MMR_WIN)
+	// Windows platform
+#if defined(_MSC_VER)
+	// Microsoft Visual C++
+	std::string version = "_MSC_VER=";
+	version += std::to_string(_MSC_VER);
+#if defined(_MSC_FULL_VER)
+	version += " (_MSC_FULL_VER=" + std::to_string(_MSC_FULL_VER) + ")";
+#endif
+#if defined(_MSC_BUILD)
+	version += " (_MSC_BUILD=" + std::to_string(_MSC_BUILD) + ")";
+#endif
+	return version;
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+	// MinGW (GCC for Windows)
+	const char* version = __VERSION__;
+	return std::string("MinGW version: ") + version;
+#else
+	// Unknown compiler on Windows
+	return "Unknown compiler on Windows";
+#endif
+#elif defined(OS_MMR_LINUX)
+	// Linux platform
+#if defined(__GNUC__)
+	// GCC or Clang in GCC compatibility mode
+	std::string version = "__GNUC__=" + std::to_string(__GNUC__) +
+		", __GNUC_MINOR__=" + std::to_string(__GNUC_MINOR__) +
+		", __GNUC_PATCHLEVEL__=" + std::to_string(__GNUC_PATCHLEVEL__);
+#if defined(__clang__)
+	// Clang
+	version += ", Clang version: " + __clang_version__;
+#else
+	// GCC
+	version += ", GCC version: " + std::string(__VERSION__);
+#endif
+	return version;
+#else
+	// Unknown compiler on Linux
+	return "Unknown compiler on Linux";
+#endif
+#else
+	// Unknown platform
+	return "Unknown platform";
+#endif
+}
+
+
 #define TIME_STR_LEN 19
 
 COMMON_FUN_API std::string mmrUtil::timeInt64ToString(int64_t llTime)
 {
-	std::string stRet(TIME_STR_LEN,0);
+	std::string stRet(TIME_STR_LEN, 0);
 	std::tm* time_info = std::localtime(&llTime);
 	snprintf(&stRet[0], stRet.size() + 1, "%04d-%02d-%02d %02d:%02d:%02d",
 		time_info->tm_year + 1900, time_info->tm_mon + 1, time_info->tm_mday,

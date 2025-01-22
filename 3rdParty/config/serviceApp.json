@@ -15,7 +15,8 @@
 		{
 			"Enable" : true,
 			"LogLevel":5,
-			"ServThreadNum":4
+			"ServThreadNum":4,
+			"ServPort" : 30020
 		},
 		"AuthorityManager" :
 		{

@@ -17,6 +17,7 @@ int main(int argc, char** argv)
 	//启动框架
 	std::cout << "********************************************" << std::endl;
 	std::cout << "Complied time: \t" << mmrUtil::getComplieTime() << std::endl;
+	std::cout << "Complier: \t" << mmrUtil::getComplierInfo() << std::endl;
 	std::cout << "Build type: \t" << BUILD_TYPE << std::endl;
 	std::cout << "System type: \t" << OS_TYPE << std::endl;
 	std::cout << "********************************************" << std::endl;

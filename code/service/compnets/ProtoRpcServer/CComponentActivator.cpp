@@ -36,13 +36,18 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 	g_rpcServer = std::make_shared<CProtoServer>();
 	
 	std::string strIP = "0.0.0.0";
-	uint16_t usPort = 30010;
+	uint16_t usPort = 30020;
 	uint32_t ulTreadNum = std::thread::hardware_concurrency();
+	if (jsonConfig.hasKey("ServPort"))
+	{
+		usPort = jsonConfig.at("ServPort").ToInt();
+	}
 
 	if (jsonConfig.hasKey("ServThreadNum") && jsonConfig.at("ServThreadNum").ToInt() <= ulTreadNum)
 	{
 		ulTreadNum = jsonConfig.at("ServThreadNum").ToInt();
 	}
+
 	g_rpcServer->setConnectInfo(strIP, usPort);
 	g_rpcServer->setThreadNum(std::thread::hardware_concurrency());
 

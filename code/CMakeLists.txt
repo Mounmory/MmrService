@@ -23,7 +23,7 @@ if(WIN32)
 			message(FATAL_ERROR "MSVC version must be at least 14.0 (Visual Studio 2015)!")
 		endif()
 		
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++14")
 		link_directories(${THIRD_PART_DIR}/lib/win64)
 		#option(ENABLE_WINDUMP "Windows MiniDumpWriteDump" "OFF")
 		add_definitions(-DOS_MMR_WIN)#添加window系统宏
@@ -33,8 +33,9 @@ if(WIN32)
 elseif(UNIX)
 	message("platform linux")
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")#c++11 do not has make_unique
-	
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fpermissive -fPIC")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+
 	if(BUILD_QT_PROJECT)
 		set(CMAKE_PREFIX_PATH "/opt/Qt5.12.0/5.12.0/gcc_64/" CACHE PATH "set path for find packet, multiple paths using ';' segmentation")
 		set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${CMAKE_PREFIX_PATH}/lib)#设置运行依赖库目录
@@ -79,8 +80,6 @@ include_directories(${CMAKE_SOURCE_DIR})#根目录
 #包含当前目录
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-message("CMAKE_INCLUDE_CURRENT_DIR ${CMAKE_INCLUDE_CURRENT_DIR}")
-
 #输出可执行文件目录
 #SET(TARGET_BIN_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin")
 
@@ -117,6 +116,6 @@ endif(BUILD_TESTS)
 
 option(BUILD_EXAMPLES "build examples" "ON")
 if(BUILD_EXAMPLES)
-	option(INSTALL_EXAMPLE "install" "ON")
+	option(INSTALL_EXAMPLE "install" "OFF")
 	ADD_SUBDIRECTORY(example)
 endif(BUILD_EXAMPLES)
