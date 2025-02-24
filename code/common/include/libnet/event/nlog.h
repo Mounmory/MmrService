@@ -10,8 +10,8 @@
 
 /*
  * @see examples/hloop_test.c
-#include "hlog.h"
-#include "nlog.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/event/nlog.h"
 
 void timer_write_log(htimer_t* timer) {
     static int cnt = 0;
@@ -29,8 +29,8 @@ int main() {
  */
 
 
-#include "hexport.h"
-#include "hloop.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/event/hloop.h"
 
 #define DEFAULT_LOG_PORT    10514
 

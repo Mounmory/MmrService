@@ -1,4 +1,4 @@
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifdef OS_WIN
 #ifdef ENABLE_WINDUMP
@@ -28,7 +28,7 @@ static LONG UnhandledException(EXCEPTION_POINTERS *pException) {
 }
 #endif
 
-#include "hsocket.h"
+#include "common/include/libnet/base/hsocket.h"
 class WsaRAII {
 public:
     WsaRAII() {

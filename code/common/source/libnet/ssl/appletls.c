@@ -1,4 +1,4 @@
-#include "hssl.h"
+#include "common/include/libnet/ssl/hssl.h"
 
 #ifdef WITH_APPLETLS
 
@@ -11,7 +11,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CommonCrypto/CommonDigest.h>
 
-#include "hsocket.h"
+#include "common/include/libnet/base/hsocket.h"
 
 /* The Security framework has changed greatly between iOS and different macOS
    versions, and we will try to support as many of them as we can (back to

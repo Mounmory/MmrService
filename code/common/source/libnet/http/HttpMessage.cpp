@@ -1,11 +1,11 @@
-#include "HttpMessage.h"
+#include "common/include/libnet/http/HttpMessage.h"
 
 #include <string.h>
 
-#include "htime.h"
-#include "hlog.h"
-#include "hurl.h"
-#include "base64.h"
+#include "common/include/libnet/base/htime.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/cpputil/hurl.h"
+#include "common/include/libnet/util/base64.h"
 
 using namespace hv;
 

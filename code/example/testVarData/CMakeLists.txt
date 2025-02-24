@@ -3,5 +3,6 @@ project(testVarData)
 
 build_app(${PROJECT_NAME}
 	TARGET_LIBRARIES mmrUtil 
-	#INSTALL_FLAG INSTALL_EXAMPLE #install flag
+	INSTALL_FLAG INSTALL_EXAMPLE #install flag
+	TARGET_INSTALL_PATH example
 	)

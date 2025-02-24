@@ -1,8 +1,8 @@
 #ifndef HV_VERSION_H_
 #define HV_VERSION_H_
 
-#include "hexport.h"
-#include "hdef.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hdef.h"
 
 BEGIN_EXTERN_C
 

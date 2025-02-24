@@ -1,9 +1,9 @@
-#include "hsocket.h"
+#include "common/include/libnet/base/hsocket.h"
 
-#include "hdef.h"
+#include "common/include/libnet/base/hdef.h"
 
 #ifdef OS_WIN
-#include "hatomic.h"
+#include "common/include/libnet/base/hatomic.h"
 static hatomic_flag_t s_wsa_initialized = HATOMIC_FLAG_INIT;
 void WSAInit() {
     if (!hatomic_flag_test_and_set(&s_wsa_initialized)) {

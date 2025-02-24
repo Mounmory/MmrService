@@ -1,8 +1,8 @@
-#include "rudp.h"
+#include "common/include/libnet/event/rudp.h"
 
 #if WITH_RUDP
 
-#include "hevent.h"
+#include "common/include/libnet/event/hevent.h"
 
 void rudp_entry_free(rudp_entry_t* entry) {
 #if WITH_KCP

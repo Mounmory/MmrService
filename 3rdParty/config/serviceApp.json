@@ -1,11 +1,6 @@
 {
 	"Components" :
 	{
-		"AppController":
-		{
-			"Enable" : true,
-			"LogLevel":4
-		},
 		"ComponentDemo" :
 		{
 			"Enable" : true,

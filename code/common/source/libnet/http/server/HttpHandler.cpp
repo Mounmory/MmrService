@@ -1,19 +1,19 @@
-#include "HttpHandler.h"
+#include "common/include/libnet/http/server/HttpHandler.h"
 
-#include "hversion.h"
-#include "herr.h"
-#include "hlog.h"
-#include "htime.h"
-#include "hurl.h"
-#include "hasync.h" // import hv::async for http_async_handler
+#include "common/include/libnet/base/hversion.h"
+#include "common/include/libnet/base/herr.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/base/htime.h"
+#include "common/include/libnet/cpputil/hurl.h"
+#include "common/include/libnet/cpputil/hasync.h" // import hv::async for http_async_handler
 
-#include "httpdef.h"
-#include "http2def.h"
-#include "wsdef.h"
+#include "common/include/libnet/http/httpdef.h"
+#include "common/include/libnet/http/http2def.h"
+#include "common/include/libnet/http/wsdef.h"
 
-#include "http_page.h"
+#include "common/include/libnet/http/server/http_page.h"
 
-#include "EventLoop.h" // import hv::setInterval
+#include "common/include/libnet/cppnet/EventLoop.h" // import hv::setInterval
 using namespace hv;
 
 #define MIN_HTTP_REQUEST        "GET / HTTP/1.1\r\n\r\n"

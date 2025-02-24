@@ -1,9 +1,9 @@
-#include "iowatcher.h"
+#include "common/include/libnet/event/iowatcher.h"
 
 #ifdef EVENT_POLL
-#include "hplatform.h"
-#include "hdef.h"
-#include "hevent.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/event/hevent.h"
 
 #ifdef OS_WIN
 #define poll        WSAPoll
@@ -13,7 +13,7 @@
 #include <sys/poll.h>
 #endif
 
-#include "array.h"
+#include "common/include/libnet/base/array.h"
 #define FDS_INIT_SIZE   64
 ARRAY_DECL(struct pollfd, pollfds);
 

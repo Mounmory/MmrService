@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib, "iphlpapi.lib")

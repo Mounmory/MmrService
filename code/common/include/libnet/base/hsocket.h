@@ -1,8 +1,8 @@
 #ifndef HV_SOCKET_H_
 #define HV_SOCKET_H_
 
-#include "hexport.h"
-#include "hplatform.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifdef ENABLE_UDS
 #ifdef OS_WIN

@@ -1,7 +1,6 @@
-#include "HttpService.h"
-#include "HttpMiddleware.h"
-
-#include "hbase.h" // import hv_strendswith
+#include "common/include/libnet/http/server/HttpService.h"
+#include "common/include/libnet/http/server/HttpMiddleware.h"
+#include "common/include/libnet/base/hbase.h" // import hv_strendswith
 
 namespace hv {
 

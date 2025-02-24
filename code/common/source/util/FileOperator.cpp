@@ -1,4 +1,4 @@
-﻿#include "common/include/util/FileOperator.h"
+#include "common/include/util/FileOperator.h"
 
 #ifdef OS_MMR_WIN
 #include <corecrt_io.h>	//_access头文件

@@ -1,6 +1,6 @@
-#include "http_page.h"
-#include "hdir.h"
-#include "hurl.h"
+#include "common/include/libnet/http/server/http_page.h"
+#include "common/include/libnet/cpputil/hdir.h"
+#include "common/include/libnet/cpputil/hurl.h"
 
 #define AUTOINDEX_FILENAME_MAXLEN       50
 

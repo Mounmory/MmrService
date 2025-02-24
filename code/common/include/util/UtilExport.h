@@ -1,4 +1,4 @@
-﻿#ifndef UTILCOMMON_H
+#ifndef UTILCOMMON_H
 #define UTILCOMMON_H
 
 #include "common/include/Common_def.h"

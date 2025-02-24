@@ -1,6 +1,6 @@
-#include "hdir.h"
+#include "common/include/libnet/cpputil/hdir.h"
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifdef OS_WIN
 //FILETIME starts from 1601-01-01 UTC, epoch from 1970-01-01 UTC

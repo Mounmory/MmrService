@@ -2,7 +2,7 @@
 #ifndef JSON_HPP
 #define JSON_HPP
 
-#include "common/include/util/UtilExport.h"
+#include "common/include/Common_def.h"
 
 #include <cstdint>
 #include <cmath>
@@ -502,14 +502,14 @@ Value Array(T... args) {
 namespace {
 	Value parse_next(const string &, size_t &);
 
-	//去掉空格和注释
+	//鍘绘帀绌烘牸鍜屾敞閲?
 	void consume_ws(const string &str, size_t &offset) 
 	{
 		static const std::string strEndLind = "\n";
 		static const std::string strEndComment = "*/";
 		while (isspace(str[offset])) ++offset;
 
-		if (str[offset] == '#')//使用“#”注释
+		if (str[offset] == '#')//浣跨敤鈥?鈥濇敞閲?
 		{
 			size_t endPos = 0;
 			endPos = str.find(strEndLind, offset);
@@ -522,7 +522,7 @@ namespace {
 		else if (str[offset] == '/')
 		{
 			size_t endPos = 0;
-			if (str[offset + 1] == '/')//使用“//”注释
+			if (str[offset + 1] == '/')//浣跨敤鈥?/鈥濇敞閲?
 			{
 				endPos = str.find(strEndLind, offset);
 				if (endPos != std::string::npos)
@@ -531,7 +531,7 @@ namespace {
 					consume_ws(str, offset);
 				}
 			}
-			else if (str[offset + 1] == '*')//使用“/* */”多行注释
+			else if (str[offset + 1] == '*')//浣跨敤鈥?* */鈥濆琛屾敞閲?
 			{
 				endPos = str.find(strEndComment, offset);
 				if (endPos != std::string::npos)
@@ -776,7 +776,7 @@ namespace {
 		return Value();
 	}
 
-	std::string Load(const string &str, Value& jsonRoot)
+	std::string load(const string &str, Value& jsonRoot)
 	{
 		size_t offset = 0;
 		std::string strErr;
@@ -791,7 +791,7 @@ namespace {
 			uint32_t colNum = 0;
 			if (offset > 0)
 			{
-				size_t posLineEnd = 0;//记录最后一个回车的offset
+				size_t posLineEnd = 0;//璁板綍鏈�鍚庝竴涓洖杞︾殑offset
 				do
 				{
 					auto poslastEnd = str.find_first_of('\n', posLineEnd);
@@ -817,7 +817,7 @@ namespace {
 		return strErr;
 	}
 
-	std::string json_from_file(const std::string& strFile, Value& jsRoot) {
+	std::string load_from_file(const std::string& strFile, Value& jsRoot) {
 		std::string retStr;
 		do
 		{
@@ -836,7 +836,7 @@ namespace {
 				std::istreambuf_iterator<char>());
 
 			input.close();
-			retStr = Load(contents, jsRoot);
+			retStr = load(contents, jsRoot);
 
 		} while (false);
 

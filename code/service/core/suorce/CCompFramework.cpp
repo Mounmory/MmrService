@@ -1,4 +1,6 @@
 ﻿#include "service/core/include/CCompFramework.h"
+#include "service/core/include/CLoggerCtrl.h"
+#include "service/core/include/CLiceseCtrl.h"
 
 #include "common/include/util/json.hpp"
 #include "common/include/util/UtilFunc.h"
@@ -6,28 +8,111 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <set>
+#include <mutex>
+#include <queue>
+#include <atomic>
+#include <condition_variable>
 
 using namespace mmrService::mmrCore;
 
+const char g_detail_options[] = R"(
+  -h |--help                 Print this information
+  -lg|--log                  Component logger settings and viewing
+  -lc|--license              License info setting and viewing
+  -q |--quit                 quit
+)";
 
-template<typename ServiceCtrl, typename HandlerCtrl>
-CCompFramework<ServiceCtrl, HandlerCtrl>::CCompFramework()
-	: m_loggerCtrl(std::make_unique<CLoggerCtrl>())
-	, m_licenseCtrl(nullptr)
-	, m_upServPolicy(std::make_unique<ServiceCtrl>())
-	, m_ptrHandlerCtrl(std::make_unique<HandlerCtrl>())
+void print_help()
+{
+	printf("Options:%s", g_detail_options);
+}
+
+template<typename ServiceCtrl, typename EventCtrl>
+struct CCompFramework<ServiceCtrl, EventCtrl>::CFrameData
+{
+	CFrameData() 
+		: ptrLoggerCtrl(std::make_unique<CLoggerCtrl>())
+		, ptrLicenseCtrl(nullptr)
+		, bRunflag(false)
+		, ptrFunc(nullptr)
+	{
+	}
+	~CFrameData() 
+	{
+	}
+
+	void clear()
+	{
+		ptrLoggerCtrl->getMapCtrollerPtr().clear();
+		//ptrLicenseCtrl.reset();
+	}
+
+	std::unique_ptr<CLoggerCtrl> ptrLoggerCtrl;//组件日志控制类,使用了组件中创建的变量，要在组件卸载前释放
+	std::unique_ptr<CLicenseCtrl> ptrLicenseCtrl;//权限控制类
+
+	std::atomic_bool		bRunflag;
+	std::mutex				mutex;
+	std::condition_variable	cv;
+	std::shared_ptr<CallbackFunc> ptrFunc;
+};
+
+
+
+template<typename ServiceCtrl, typename EventCtrl>
+CCompFramework<ServiceCtrl, EventCtrl>::CCompFramework()
+	: m_upServPolicy(std::make_unique<ServiceCtrl>())
+	, m_ptrEventCtrl(std::make_unique<EventCtrl>())
+	, m_ptrData(std::make_unique<CFrameData>())
 {
 	
 }
 
-template<typename ServiceCtrl, typename HandlerCtrl>
-CCompFramework<ServiceCtrl, HandlerCtrl>::~CCompFramework()
+template<typename ServiceCtrl, typename EventCtrl>
+CCompFramework<ServiceCtrl, EventCtrl>::~CCompFramework()
 {
 
 }
 
-template<typename ServiceCtrl, typename HandlerCtrl>
-bool CCompFramework<ServiceCtrl, HandlerCtrl>::start(const std::string& strCfgFile)
+template<typename ServiceCtrl, typename EventCtrl>
+void CCompFramework<ServiceCtrl, EventCtrl>::handleEvent(const mmrUtil::CVarDatas& varData) 
+{
+	if (varData.getName() == "stop")
+	{
+		if (m_ptrData->bRunflag.load() == false)//不是通过run函数运行的，直接终止
+		{
+			return std::terminate();
+		}
+
+		const std::string& strMsg = varData.getVar("message").getStringData();
+		std::cout << "stop app message : " << strMsg << std::endl;
+
+		m_ptrData->bRunflag.store(false, std::memory_order_relaxed);
+		m_ptrData->cv.notify_one();
+	}
+}
+
+template<typename ServiceCtrl, typename EventCtrl>
+void CCompFramework<ServiceCtrl, EventCtrl>::run(const std::string& strCfg)
+{
+	if (this->start(strCfg))
+	{
+		m_ptrData->bRunflag.store(true);
+		std::thread(&CCompFramework<ServiceCtrl, EventCtrl>::dealCmd, this).detach();
+		//std::future<void> ft = std::async(std::launch::async, &CAppControler::dealCmd, this);
+		std::unique_lock<std::mutex> locker(m_ptrData->mutex);
+		m_ptrData->cv.wait(locker, [&]() {return !m_ptrData->bRunflag.load(); });
+		//ft.get();
+		this->stop();
+	}
+	else
+	{
+		std::cout << "Core framework start failed!\n";
+	}
+}
+
+template<typename ServiceCtrl, typename EventCtrl>
+bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
 {
 	try
 	{
@@ -37,25 +122,15 @@ bool CCompFramework<ServiceCtrl, HandlerCtrl>::start(const std::string& strCfgFi
 		LOG_INFO("framework start! processID[%d]", Process_ID);
 
 		//启动订阅管理
-		m_ptrHandlerCtrl->start();
+		m_ptrEventCtrl->start();
 
 		//读配置文件，加载所有组件
 		std::string strAppPath, strAppName;
-		mmrUtil::getAppPathAndName(strAppPath, strAppName);
-
-		std::string strConfigPath = strAppPath + "config/"; 
-		if (strCfgFile.empty())
-		{
-			strConfigPath += strAppName + ".json";
-		}
-		else 
-		{
-			strConfigPath += strCfgFile;
-		}
-
 		Json::Value jsonRoot;
-		std::string strErr = Json::json_from_file(strConfigPath, jsonRoot);
 
+		mmrUtil::getAppPathAndName(strAppPath, strAppName);
+		std::string strConfigPath = strAppPath + "config/" + strCfg + ".json";
+		std::string strErr = Json::load_from_file(strConfigPath, jsonRoot);
 		if (jsonRoot.IsNull() || !strErr.empty())
 		{
 			LOG_ERROR_PRINT("parse json file [%s] failed! error message is: %s.", strConfigPath.c_str(), strErr.c_str());
@@ -130,12 +205,16 @@ bool CCompFramework<ServiceCtrl, HandlerCtrl>::start(const std::string& strCfgFi
 		}
 
 		//权限校验
-		if (nullptr == m_licenseCtrl)
+		if (nullptr == m_ptrData->ptrLicenseCtrl)
 		{
 			std::string strLicFilePath = strAppPath + "config/";
-			m_licenseCtrl = std::make_unique<CLicenseCtrl>(std::move(strLicFilePath), strAppName);
-			m_licenseCtrl->initLicense();
+			m_ptrData->ptrLicenseCtrl = std::make_unique<CLicenseCtrl>(std::move(strLicFilePath), strAppName);
+			m_ptrData->ptrLicenseCtrl->initLicense();
 		}
+
+		//注册回调
+		m_ptrData->ptrFunc = std::make_shared<CallbackFunc>(std::bind(&CCompFramework<ServiceCtrl, EventCtrl>::handleEvent, this, std::placeholders::_1));
+		this->addFunc("stop", m_ptrData->ptrFunc);
 
 		LOG_INFO("framework start success ....");
 		std::cout << "framework start success ...." << std::endl;
@@ -155,12 +234,11 @@ bool CCompFramework<ServiceCtrl, HandlerCtrl>::start(const std::string& strCfgFi
 	return true;
 }
 
-template<typename ServiceCtrl, typename HandlerCtrl>
-void CCompFramework<ServiceCtrl, HandlerCtrl>::stop()
+template<typename ServiceCtrl, typename EventCtrl>
+void CCompFramework<ServiceCtrl, EventCtrl>::stop()
 {
-
-	//停止
-	m_ptrHandlerCtrl->stop();
+	//停止事件回调
+	m_ptrEventCtrl->stop();
 
 	//停止所有组件
 	for (const auto& iterComp : m_mapComponents)
@@ -173,7 +251,7 @@ void CCompFramework<ServiceCtrl, HandlerCtrl>::stop()
 
 	m_upServPolicy->clear();
 
-	m_loggerCtrl->getMapCtrollerPtr().clear();
+	m_ptrData->clear();
 
 	//卸载所有动态库
 	for (const auto& iterHandl:m_libHandl)
@@ -186,13 +264,13 @@ void CCompFramework<ServiceCtrl, HandlerCtrl>::stop()
 	}
 	m_libHandl.clear();
 
-	m_licenseCtrl.reset();
-
 	LOG_INFO("framework stoped! processID[%d]", Process_ID);
+
+	logInstancePtr->stop();
 }
 
-template<typename ServiceCtrl, typename HandlerCtrl>
-bool CCompFramework<ServiceCtrl, HandlerCtrl>::addComponent(std::unique_ptr<IComponent> pComp)
+template<typename ServiceCtrl, typename EventCtrl>
+bool CCompFramework<ServiceCtrl, EventCtrl>::addComponent(std::unique_ptr<IComponent> pComp)
 {
 	std::string strCompName = pComp->getName();
 	auto iterComp = m_mapComponents.find(strCompName);
@@ -208,27 +286,65 @@ bool CCompFramework<ServiceCtrl, HandlerCtrl>::addComponent(std::unique_ptr<ICom
 	return true;
 }
 
-//void mmrCore::CCompFramework::removeComponet(uint16_t usIndex)
-//{
-//	//暂不实现
-//}
-template<typename ServiceCtrl, typename HandlerCtrl>
-void CCompFramework<ServiceCtrl, HandlerCtrl>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
+template<typename ServiceCtrl, typename EventCtrl>
+void CCompFramework<ServiceCtrl, EventCtrl>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
 {
-	uint16_t sIndex = m_loggerCtrl->getMapCtrollerPtr().size() + 1;
-	m_loggerCtrl->getMapCtrollerPtr()[sIndex] = std::make_pair(std::move(strCompName), logWrap);
+	uint16_t sIndex = m_ptrData->ptrLoggerCtrl->getMapCtrollerPtr().size() + 1;
+	m_ptrData->ptrLoggerCtrl->getMapCtrollerPtr()[sIndex] = std::make_pair(std::move(strCompName), logWrap);
 }
 
-template<typename ServiceCtrl, typename HandlerCtrl>
-void CCompFramework<ServiceCtrl, HandlerCtrl>::loggerCtrlLoop(std::atomic_bool& bRunFlag)
+template<typename ServiceCtrl, typename EventCtrl>
+void CCompFramework<ServiceCtrl, EventCtrl>::dealCmd()
 {
-	m_loggerCtrl->loop(bRunFlag);
+	print_help();
+	std::atomic_bool& rfRunFlag(m_ptrData->bRunflag);
+
+	while (rfRunFlag.load(std::memory_order_relaxed))
+	{
+		std::string strCmd;
+		printf("> ");
+		std::getline(std::cin, strCmd);
+
+		if (strCmd == "-h")
+		{
+			print_help();
+
+			////测试通过handler停止
+			//mmrUtil::CVarDatas vars;
+			//vars.setName("stop");
+			//vars.addVar("message", "stop by event test!");
+			//CoreFrameworkIns->addEvenVartData(std::move(vars));
+		}
+		else if (strCmd == "-lg")
+		{
+			m_ptrData->ptrLoggerCtrl->loop(rfRunFlag);
+		}
+		else if (strCmd == "-lc")
+		{
+			m_ptrData->ptrLicenseCtrl->loop(rfRunFlag);
+		}
+		else if (strCmd == "-q")
+		{
+			printf("quit the application?[Y/N]\n");
+			printf("> ");
+			std::getline(std::cin, strCmd);
+
+			if ("Y" == strCmd || "y" == strCmd)
+			{
+				printf("app stopped!\n");
+				break;
+			}
+			else
+			{
+				print_help();
+			}
+		}
+		else
+		{
+			printf("invalid command[%s]!\n", strCmd.c_str());
+			print_help();
+		}
+	}
+	rfRunFlag.store(false, std::memory_order_relaxed);
+	m_ptrData->cv.notify_one();
 }
-
-template<typename ServiceCtrl, typename HandlerCtrl>
-void CCompFramework<ServiceCtrl, HandlerCtrl>::licenseCtrlLoop(std::atomic_bool& bRunFlag)
-{
-	m_licenseCtrl->loop(bRunFlag);
-}
-
-

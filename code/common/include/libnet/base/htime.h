@@ -1,8 +1,8 @@
 #ifndef HV_TIME_H_
 #define HV_TIME_H_
 
-#include "hexport.h"
-#include "hplatform.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h"
 
 BEGIN_EXTERN_C
 

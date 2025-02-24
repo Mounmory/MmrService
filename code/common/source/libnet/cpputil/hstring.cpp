@@ -1,4 +1,4 @@
-#include "hstring.h"
+#include "common/include/libnet/cpputil/hstring.h"
 
 #include <stdio.h>
 #include <stdlib.h>

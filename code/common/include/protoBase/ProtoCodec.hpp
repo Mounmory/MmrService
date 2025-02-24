@@ -7,7 +7,7 @@
 #include "common/include/protoBase/ProtobufDef.h"
 #include "common/include/util/UtilFunc.h"
 #include "common/include/util/BufConvert.h"
-#include "Buffer.h"
+#include "common/include/libnet/cppnet/Buffer.h"
 
 #define PROTO_MSG_MIN_LEN 16 //proto数据最小长度
 

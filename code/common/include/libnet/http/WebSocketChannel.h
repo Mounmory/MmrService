@@ -3,10 +3,10 @@
 
 #include <mutex>
 
-#include "Channel.h"
+#include "common/include/libnet/cppnet/Channel.h"
 
-#include "wsdef.h"
-#include "hmath.h"
+#include "common/include/libnet/http/wsdef.h"
+#include "common/include/libnet/base/hmath.h"
 
 namespace hv {
 

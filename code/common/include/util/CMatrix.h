@@ -25,9 +25,9 @@ public:
 
 	CMatrix(const size_t nRow, const size_t nCol);
 
-	/*explicit */CMatrix(const CMatrix<_Ty> &rhs);//øΩ±¥ππ‘Ï∫Ø ˝
+	/*explicit */CMatrix(const CMatrix<_Ty> &rhs);
 
-	CMatrix(CMatrix<_Ty>&& rhs) noexcept;//“∆∂Øππ‘Ï∫Ø ˝
+	CMatrix(CMatrix<_Ty>&& rhs) noexcept;
 
 	~CMatrix();
 
@@ -83,7 +83,7 @@ INSTANTIATE_TYPE_CLASS(int64_t)
 INSTANTIATE_TYPE_CLASS(float)
 INSTANTIATE_TYPE_CLASS(double)
 
-//INSTANTIATE_TYPE_CLASS(char*)//–Ë“™ÃÿªØ
+//INSTANTIATE_TYPE_CLASS(char*)//ÈúÄË¶ÅÁâπÂåñ
 INSTANTIATE_TYPE_CLASS(std::string)
 
 END_NAMESPACE(mmrUtil)

@@ -4,11 +4,6 @@ project(clientTestApp)
 #设置protobuf源文件
 add_definitions(-DPROTOBUF_USE_DLLS)
 
-#包含的网络库文件夹
-include_hv_lib_module(
-	HV_MODULES cppnet cpputil hv	#要包含的文件夹
-	)
-
 include_directories(${PROTO_GENERATE_FILE_PATH}/AuthorityManager)
 
 file(GLOB PROTO_HEADS "${PROTO_GENERATE_FILE_PATH}/AuthorityManager/*.h")

@@ -8,7 +8,7 @@ MACRO(build_app targetName)
 	MMR #prifix
     "" # no options
     "FOLDER;INSTALL_FLAG" # one value args
-    "TARGET_LIBRARIES;TARGET_WIN_LIBS;TARGET_LINUX_LIBS;TARGET_SRC_FILES" # multi value args
+    "TARGET_LIBRARIES;TARGET_WIN_LIBS;TARGET_LINUX_LIBS;TARGET_SRC_FILES;TARGET_INSTALL_PATH" # multi value args
     ${ARGN}
     )
 	
@@ -63,7 +63,9 @@ MACRO(build_app targetName)
 	endforeach()
 ]]
 	if(MMR_INSTALL_FLAG)
-		INSTALL(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "bin")
+		foreach(path ${MMR_TARGET_INSTALL_PATH})
+			INSTALL(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION "bin/${path}")
+		endforeach()
 	endif(MMR_INSTALL_FLAG)
 	
 ENDMACRO()

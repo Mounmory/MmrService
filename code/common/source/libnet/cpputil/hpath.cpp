@@ -1,6 +1,6 @@
-#include "hpath.h"
+#include "common/include/libnet/cpputil/hpath.h"
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 bool HPath::exists(const char* path) {
     return access(path, 0) == 0;

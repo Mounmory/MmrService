@@ -20,7 +20,7 @@ A million repetitions of "a"
 #include <stdio.h>
 #include <string.h>
 
-#include "sha1.h"
+#include "common/include/libnet/util/sha1.h"
 
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 

@@ -1,9 +1,9 @@
 #ifndef HV_ASYNC_H_
 #define HV_ASYNC_H_
 
-#include "hexport.h"
-#include "hthreadpool.h"
-#include "singleton.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/cpputil/hthreadpool.h"
+#include "common/include/libnet/cpputil/singleton.h"
 
 namespace hv {
 

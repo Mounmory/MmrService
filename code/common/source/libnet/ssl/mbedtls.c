@@ -1,5 +1,5 @@
-#include "hssl.h"
-#include "hsocket.h"
+#include "common/include/libnet/ssl/hssl.h"
+#include "common/include/libnet/base/hsocket.h"
 
 #ifdef WITH_MBEDTLS
 

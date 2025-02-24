@@ -1,7 +1,7 @@
-#include "HttpParser.h"
+#include "common/include/libnet/http/HttpParser.h"
 
-#include "Http1Parser.h"
-#include "Http2Parser.h"
+#include "common/include/libnet/http/Http1Parser.h"
+#include "common/include/libnet/http/Http2Parser.h"
 
 HttpParser* HttpParser::New(http_session_type type, http_version version) {
     HttpParser* hp = NULL;

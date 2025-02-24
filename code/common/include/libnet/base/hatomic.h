@@ -14,7 +14,7 @@ using std::atomic_long;
 
 #else
 
-#include "hplatform.h"  // for HAVE_STDATOMIC_H
+#include "common/include/libnet/base/hplatform.h"  // for HAVE_STDATOMIC_H
 #if HAVE_STDATOMIC_H
 
 // c11

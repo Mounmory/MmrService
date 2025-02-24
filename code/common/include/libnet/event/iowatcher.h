@@ -1,9 +1,9 @@
 #ifndef IO_WATCHER_H_
 #define IO_WATCHER_H_
 
-#include "hloop.h"
+#include "common/include/libnet/event/hloop.h"
+#include "common/include/libnet/base/hplatform.h"
 
-#include "hplatform.h"
 #if !defined(EVENT_SELECT) &&   \
     !defined(EVENT_POLL) &&     \
     !defined(EVENT_EPOLL) &&    \

@@ -1,6 +1,6 @@
-#include "ifconfig.h"
+#include "common/include/libnet/cpputil/ifconfig.h"
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifdef OS_LINUX
 #include <unistd.h>

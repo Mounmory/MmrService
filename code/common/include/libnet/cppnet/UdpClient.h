@@ -1,10 +1,10 @@
 #ifndef HV_UDP_CLIENT_HPP_
 #define HV_UDP_CLIENT_HPP_
 
-#include "hsocket.h"
+#include "common/include/libnet/base/hsocket.h"
 
-#include "EventLoopThread.h"
-#include "Channel.h"
+#include "common/include/libnet/cppnet/EventLoopThread.h"
+#include "common/include/libnet/cppnet/Channel.h"
 
 namespace hv {
 

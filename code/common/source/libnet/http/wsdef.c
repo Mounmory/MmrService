@@ -1,11 +1,12 @@
-#include "wsdef.h"
+#include "common/include/libnet/http/wsdef.h"
+#include "common/include/libnet/http/websocket_parser.h"
 
 #include <string.h>
 
-#include "sha1.h"
-#include "base64.h"
+#include "common/include/libnet/util/sha1.h"
+#include "common/include/libnet/util/base64.h"
 
-#include "websocket_parser.h"
+
 
 // base64_encode( SHA1(key + magic) )
 void ws_encode_key(const char* key, char accept[]) {

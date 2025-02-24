@@ -1,10 +1,10 @@
-#include "hmain.h"
+#include "common/include/libnet/base/hmain.h"
 
-#include "hbase.h"
-#include "hlog.h"
-#include "herr.h"
-#include "htime.h"
-#include "hthread.h"
+#include "common/include/libnet/base/hbase.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/base/herr.h"
+#include "common/include/libnet/base/htime.h"
+#include "common/include/libnet/base/hthread.h"
 
 #ifdef OS_DARWIN
 #include <crt_externs.h>

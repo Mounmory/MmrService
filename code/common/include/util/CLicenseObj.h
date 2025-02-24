@@ -1,4 +1,4 @@
-﻿#ifndef CLICENSEOBJ_H
+#ifndef CLICENSEOBJ_H
 #define CLICENSEOBJ_H
 
 #include <fstream>
@@ -15,9 +15,12 @@ BEGINE_NAMESPACE(mmrUtil)
 #define LICENSE_VER_10		"V1.0"//权限版本
 
 //#define LICENSE_CODE_APP_NAME	"AppName"//权限数据字段
-#define LICENSE_CODE_VALID_TIME	"ValidTime"//权限可用时间
-#define LICENSE_CODE_LIC_CODE	"LicenseCode"//权限数据字段
+#define STR_LICENSE_CODE_VALID_TIME	"ValidTime"//权限可用时间
+#define STR_LICENSE_CODE_LIC_CODE	"LicenseCode"//权限数据字段
+#define STR_LICENSE_CODE_PC_ID	"PCId"//权限数据字段
+#define STR_LICENSE_VER	"LicVer"//权限数据字段
 
+#define STR_LICENSE_FILE_NAME "license.lic"
 enum class emLicenseState : uint8_t
 {
 	LICENSE_OK = 0,
@@ -26,30 +29,42 @@ enum class emLicenseState : uint8_t
 	LICENSE_OVERDUE//授权过期
 };
 
-//define the license data struct
 class COMMON_CLASS_API CLicData 
 {
 public:
 	CLicData()
 		: m_strVer(LICENSE_VER_10)
+		, m_strModule()
+		, m_strPCID()
+		, m_llValidTime(0)
+		, m_llcurTime(0)
 	{}
 
 	~CLicData() = default;
 	
+	CLicData& operator = (const CLicData& rhs) 
+	{
+		if (this != &rhs) 
+		{
+			m_strModule = rhs.m_strModule;
+			m_strPCID = rhs.m_strPCID;
+			m_llValidTime = rhs.m_llValidTime;
+			m_llcurTime = rhs.m_llcurTime;
+		}
+		return *this;
+	}
+
 	const std::string m_strVer;//版本
-
-	//other members
-
-
-
-
-
+	std::string m_strModule;//授权模块
+	std::string m_strPCID;//计算机唯一ID
+	int64_t m_llValidTime;//有效日期
+	int64_t m_llcurTime;//当前时间
 };
 
 class COMMON_CLASS_API CLicenseObj
 {
 public:
-	CLicenseObj(std::string strFilePath, std::string strModule = "license");
+	CLicenseObj(std::string strFilePath, std::string strModule = "");
 
 	~CLicenseObj();
 
@@ -60,6 +75,8 @@ public:
 	const emLicenseState getLicenseState() const { return m_licState; }
 
 	CLicData& getLicenseData() { return m_licData; }
+
+	std::string& getModeleName() { return m_strModule; }
 
 	bool parseLicenseCode(const std::string& strLicCode);
 

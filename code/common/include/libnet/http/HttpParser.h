@@ -1,8 +1,8 @@
 #ifndef HV_HTTP_PARSER_H_
 #define HV_HTTP_PARSER_H_
 
-#include "hexport.h"
-#include "HttpMessage.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/http/HttpMessage.h"
 
 class HV_EXPORT HttpParser {
 public:

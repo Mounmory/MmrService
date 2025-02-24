@@ -1,12 +1,12 @@
 #ifndef HV_TCP_SERVER_HPP_
 #define HV_TCP_SERVER_HPP_
 
-#include "hsocket.h"
-#include "hssl.h"
-#include "hlog.h"
+#include "common/include/libnet/base/hsocket.h"
+#include "common/include/libnet/ssl/hssl.h"
+#include "common/include/libnet/base/hlog.h"
 
-#include "EventLoopThreadPool.h"
-#include "Channel.h"
+#include "common/include/libnet/cppnet/EventLoopThreadPool.h"
+#include "common/include/libnet/cppnet/Channel.h"
 
 namespace hv {
 

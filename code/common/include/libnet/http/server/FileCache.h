@@ -6,8 +6,8 @@
 #include <string>
 #include <mutex>
 
-#include "hbuf.h"
-#include "hstring.h"
+#include "common/include/libnet/base/hbuf.h"
+#include "common/include/libnet/cpputil/hstring.h"
 
 #define HTTP_HEADER_MAX_LENGTH      1024        // 1K
 #define FILE_CACHE_MAX_SIZE         (1 << 22)   // 4M

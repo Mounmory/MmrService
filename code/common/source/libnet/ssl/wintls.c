@@ -1,10 +1,10 @@
-#include "hssl.h"
+#include "common/include/libnet/ssl/hssl.h"
 
 #ifdef WITH_WINTLS
 
 // #define PRINT_DEBUG
 // #define PRINT_ERROR
-#include "hdef.h"
+#include "common/include/libnet/base/hdef.h"
 #include <schannel.h>
 #include <wincrypt.h>
 #include <windows.h>

@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "hbuf.h"
+#include "common/include/libnet/base/hbuf.h"
 
 namespace hv {
 

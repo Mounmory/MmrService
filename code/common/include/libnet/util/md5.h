@@ -1,7 +1,7 @@
 #ifndef HV_MD5_H_
 #define HV_MD5_H_
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 typedef struct {
     unsigned int    count[2];

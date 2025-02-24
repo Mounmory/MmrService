@@ -1,10 +1,10 @@
-#include "hbase.h"
+#include "common/include/libnet/base/hbase.h"
 
 #ifdef OS_DARWIN
 #include <mach-o/dyld.h> // for _NSGetExecutablePath
 #endif
 
-#include "hatomic.h"
+#include "common/include/libnet/base/hatomic.h"
 
 #ifndef RAND_MAX
 #define RAND_MAX 2147483647

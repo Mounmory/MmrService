@@ -1,9 +1,9 @@
 #ifndef HV_BASE_H_
 #define HV_BASE_H_
 
-#include "hexport.h"
-#include "hplatform.h" // for bool
-#include "hdef.h" // for printd
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h" // for bool
+#include "common/include/libnet/base/hdef.h" // for printd
 
 BEGIN_EXTERN_C
 

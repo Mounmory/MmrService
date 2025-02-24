@@ -8,7 +8,7 @@ MACRO(build_shared_library targetName)
 	MMR
     "" # no options
     "FOLDER" # one value args
-    "SRCS;MOC_SRCS;UI_FORMS;SRC_FILES;TARGET_LIBRARIES;TARGET_WIN_LIBS;TARGET_LINUX_LIBS;RESOURCES" # multi value args
+    "SRCS;MOC_SRCS;UI_FORMS;SRC_FILES;TARGET_LIBRARIES;TARGET_WIN_LIBS;TARGET_LINUX_LIBS;TARGET_INSTALL_PATH;RESOURCES" # multi value args
     ${ARGN}
     )
 	
@@ -59,15 +59,18 @@ MACRO(build_shared_library targetName)
 ]]
 
 	#install libs
-	if(WIN32)
-		install(TARGETS ${targetName} 
-			RUNTIME DESTINATION bin #window下dll文件
-			LIBRARY DESTINATION bin #linux下.so文件
-			ARCHIVE DESTINATION lib)#静态库
-	else(UNIX)	
-		install(TARGETS ${targetName} 
-			LIBRARY DESTINATION bin) #linux下.so文件#静态库
-		install(TARGETS ${targetName} 
-			LIBRARY DESTINATION lib) #linux下.so文件#静态库
-	endif()
+	foreach(path ${MMR_TARGET_INSTALL_PATH})
+		if(WIN32)
+			install(TARGETS ${targetName} 
+				RUNTIME DESTINATION bin/${path} #window下dll文件
+				LIBRARY DESTINATION bin/${path} #linux下.so文件
+				ARCHIVE DESTINATION lib)#静态库
+		else(UNIX)	
+			install(TARGETS ${targetName} 
+				LIBRARY DESTINATION bin/${path}) #linux下.so文件#静态库
+			install(TARGETS ${targetName} 
+				LIBRARY DESTINATION lib) #linux下.so文件#静态库
+		endif()
+	endforeach()
+	
 ENDMACRO()

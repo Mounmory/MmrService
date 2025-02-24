@@ -1,15 +1,11 @@
-﻿#ifndef UTILFUNC_H
+#ifndef UTILFUNC_H
 #define UTILFUNC_H
-#include "common/include/Common_def.h"
 #include "common/include/util/UtilExport.h"
 #include <string>
 #include <string.h>
 
 
 BEGINE_NAMESPACE(mmrUtil)
-
-//获取计算机唯一ID
-COMMON_FUN_API std::string getComputerID();
 
 //UTF-8转本地字符
 COMMON_FUN_API bool utf8ToLocalString(const std::string& strIn,std::string& strOut);
@@ -23,9 +19,13 @@ COMMON_FUN_API bool localStringToUtf8(const std::string& strIn, std::string& str
 ////将编码字符转换为字节序
 //COMMON_FUN_API bool codeToString(const std::string strIn, std::string& strOut);
 
+//获取计算机唯一ID
+COMMON_FUN_API std::string getComputerID();
+
 //路径带最后一个"/"
 COMMON_FUN_API bool getAppPathAndName(std::string& filePath, std::string& exeName);
 
+COMMON_FUN_API std::string getAppPath();
 
 COMMON_FUN_API const char* getFileName(const char* szFullPath);
 

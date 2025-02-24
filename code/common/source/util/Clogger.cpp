@@ -1,4 +1,4 @@
-﻿#include "common/include/util/Clogger.h"
+#include "common/include/util/Clogger.h"
 #include "common/include/util/UtilFunc.h"
 #include <stdarg.h>
 
@@ -183,7 +183,8 @@ bool mmrUtil::CLogger::start(bool bAsynLog/* = true*/)
 
 	if (!m_logStream.is_open())
 	{
-		m_logStream.open(m_strFilePath.c_str(), std::ios::app);
+		//m_logStream.open(m_strFilePath.c_str(), std::ios::app);
+		m_logStream.open(m_strFilePath.c_str(), std::ios::app | std::ios::binary);
 		if (m_logStream.fail())
 		{
 			STD_CERROR << "open file " << m_strFilePath.c_str() << "failed!" << std::endl;
@@ -208,6 +209,7 @@ void mmrUtil::CLogger::stop()
 	//停掉线程
 	if (true == m_bRunning)
 	{
+		logWrite("[%d][A][%s][%d]----------------- stop -----------------", Thread_ID, __FUNCTION__, __LINE__);
 		m_bRunning.store(false, std::memory_order_relaxed);//退出线程
 		m_cv.notify_all();
 		if (m_threadDeal && m_threadDeal->joinable())
@@ -320,7 +322,7 @@ void mmrUtil::CLogger::logWrite(const char *format, ...)
 
 	if (!m_bAsynLog)
 	{
-		m_logStream << m_pBufWrite->getBuf();
+		m_logStream.write(m_pBufWrite->getBuf(), m_pBufWrite->getSize());
 		m_logStream.flush();
 		m_pBufWrite->clear();
 	}
@@ -329,7 +331,7 @@ void mmrUtil::CLogger::logWrite(const char *format, ...)
 
 void mmrUtil::CLogger::dealThread()
 {
-	while (m_bRunning.load(std::memory_order_relaxed))
+	while (m_bRunning.load(std::memory_order_relaxed) || m_pBufWrite->getSize() || m_queBufsWrite.size())
 	{
 		if (m_pBufWrite->getSize() > 0 || m_queBufsWrite.size() > 0)
 		{
@@ -344,8 +346,8 @@ void mmrUtil::CLogger::dealThread()
 				m_pBufDeal = std::move(m_queBufsDeal.front());
 				m_queBufsDeal.pop();
 				//std::cout << "log write!" << std::endl;
-				m_logStream << m_pBufDeal->getBuf();
-				m_logStream.flush();
+				m_logStream.write(m_pBufDeal->getBuf(), m_pBufDeal->getSize());
+				m_logStream.flush();//异步日志写入到文件
 				m_pBufDeal->clear();
 
 				fileSizeCheck();
@@ -359,7 +361,7 @@ void mmrUtil::CLogger::dealThread()
 
 		{
 			std::unique_lock<std::mutex> lock(m_mutWrite);
-			m_cv.wait_for(lock, std::chrono::milliseconds(1000));
+			m_cv.wait_for(lock, std::chrono::milliseconds(5000));//异步日志5秒写一次
 		}
 	}
 }

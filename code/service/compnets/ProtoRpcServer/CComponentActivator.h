@@ -1,4 +1,4 @@
-#ifndef CCOMPONENTACTIVATOR_H
+﻿#ifndef CCOMPONENTACTIVATOR_H
 #define CCOMPONENTACTIVATOR_H
 #include "service/interface/IComponent.h"
 

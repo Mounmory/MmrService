@@ -1,9 +1,9 @@
 #ifndef HV_MUTEX_H_
 #define HV_MUTEX_H_
 
-#include "hexport.h"
-#include "hplatform.h"
-#include "htime.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/base/htime.h"
 
 BEGIN_EXTERN_C
 

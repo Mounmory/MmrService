@@ -1,10 +1,10 @@
 #ifndef HV_HTTP_SERVER_H_
 #define HV_HTTP_SERVER_H_
 
-#include "hexport.h"
-#include "hssl.h"
-#include "HttpService.h"
-// #include "WebSocketServer.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/ssl/hssl.h"
+#include "common/include/libnet/http/server/HttpService.h"
+// #include "common/include/libnet/http/server/WebSocketServer.h"
 namespace hv {
 struct WebSocketService;
 }
@@ -62,7 +62,7 @@ HV_EXPORT int http_server_run(http_server_t* server, int wait = 1);
 HV_EXPORT int http_server_stop(http_server_t* server);
 
 /*
-#include "HttpServer.h"
+#include "common/include/libnet/http/server/HttpServer.h"
 using namespace hv;
 
 int main() {

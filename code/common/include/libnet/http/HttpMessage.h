@@ -37,14 +37,14 @@
 #include <map>
 #include <functional>
 
-#include "hexport.h"
-#include "hbase.h"
-#include "hstring.h"
-#include "hfile.h"
-#include "hpath.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hbase.h"
+#include "common/include/libnet/cpputil/hstring.h"
+#include "common/include/libnet/cpputil/hfile.h"
+#include "common/include/libnet/cpputil/hpath.h"
 
-#include "httpdef.h"
-#include "http_content.h"
+#include "common/include/libnet/http/httpdef.h"
+#include "common/include/libnet/http/http_content.h"
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
 // Cookie: sessionid=1; domain=.example.com; path=/; max-age=86400; secure; httponly

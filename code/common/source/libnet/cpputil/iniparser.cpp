@@ -1,12 +1,11 @@
-#include "iniparser.h"
+#include "common/include/libnet/cpputil/iniparser.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/base/herr.h"
+#include "common/include/libnet/cpputil/hstring.h"
+#include "common/include/libnet/cpputil/hfile.h"
+#include "common/include/libnet/base/hbase.h"
 
 #include <sstream>
-
-#include "hdef.h"
-#include "herr.h"
-#include "hstring.h"
-#include "hfile.h"
-#include "hbase.h"
 
 using namespace hv;
 

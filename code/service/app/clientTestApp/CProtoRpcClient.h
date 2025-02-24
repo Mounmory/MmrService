@@ -2,7 +2,7 @@
 #define CPROTORPCCLIENT_H
 
 #include "common/include/protoBase/ProtobufDef.h"
-#include "TcpClient.h"
+#include "common/include/libnet/cppnet/TcpClient.h"
 #include <condition_variable>
 #include <mutex>
 
@@ -50,6 +50,8 @@ public:
 
 	int connect(std::string strHost, uint16_t port);
 
+	void waitConnecting();
+
 	MessagePtr call(MessagePtr req, int timeout_ms = 10000);
 
 	const int32_t getConnectState() const { return m_connState.load(std::memory_order_relaxed); }
@@ -71,6 +73,10 @@ private:
 
 	std::map<uint32_t, ContextPtr> m_calls;//所有调用
 	std::mutex m_callsMutex;//调用互斥量
+
+	std::mutex m_mutexConnct;
+	std::condition_variable m_cvConnect;//连接条件变量
+
 };
 
 

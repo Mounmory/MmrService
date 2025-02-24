@@ -1,14 +1,14 @@
 #ifndef HV_HTTP_CLIENT_H_
 #define HV_HTTP_CLIENT_H_
 
-#include "hexport.h"
-#include "hssl.h"
-#include "HttpMessage.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/ssl/hssl.h"
+#include "common/include/libnet/http/HttpMessage.h"
 
 /*
 #include <stdio.h>
 
-#include "HttpClient.h"
+#include "common/include/libnet/http/client/HttpClient.h"
 
 int main(int argc, char* argv[]) {
     HttpRequest req;

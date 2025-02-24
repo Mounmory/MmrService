@@ -6,11 +6,12 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 BEGINE_NAMESPACE(mmrUtil)
 
 
-class CVariant//×¢Òâ£ºstring³¤¶È×î´óÎ¢255£¬´óÓÚ²¿·Ö½«½Ø¶Ï
+class CVariant//æ³¨æ„ï¼šstringé•¿åº¦æœ€å¤§å¾®255ï¼Œå¤§äºéƒ¨åˆ†å°†æˆªæ–­
 {
 public:
 	enum class EM_DataType : uint16_t
@@ -141,7 +142,7 @@ public:
 
 	CVariant& operator = (const CVariant& var)
 	{
-		if (this != &var)//±ÜÃâ×Ô¸³Öµ
+		if (this != &var)//é¿å…è‡ªèµ‹å€¼
 		{
 			resetCheck();
 			this->m_type = var.m_type;
@@ -178,7 +179,7 @@ public:
 
 	CVariant operator = (CVariant&& var) 
 	{
-		if (this != &var)//±ÜÃâ×Ô¸³Öµ
+		if (this != &var)//é¿å…è‡ªèµ‹å€¼
 		{
 			resetCheck();
 			this->m_type = std::exchange(var.m_type, EM_DataType::VAR_TYPE_INVALID);
@@ -213,7 +214,7 @@ public:
 		return *this;
 	}
 
-	//ÏÔÊ¾µÄÉèÖÃÊı¾İ
+	//æ˜¾ç¤ºçš„è®¾ç½®æ•°æ®
 	void setBoolData(bool bValue)
 	{
 		resetCheck();
@@ -284,12 +285,12 @@ public:
 		m_data.byteArrValue = new std::vector<char>(std::move(arrValue));
 	}
 
-	//»ñÈ¡Êı¾İ
+	//è·å–æ•°æ®
 	const bool getBoolData() const
 	{
 		if (EM_DataType::VAR_TYPE_BOOL != m_type) 
 		{
-			throw std::logic_error("variant m_type is not bool!");//¶Ô»ñÈ¡Êı¾İÀàĞÍÑÏ¸ñ£¬±ÜÃâÒşÊ½×ª»»³öbug
+			throw std::logic_error("variant m_type is not bool!");//å¯¹è·å–æ•°æ®ç±»å‹ä¸¥æ ¼ï¼Œé¿å…éšå¼è½¬æ¢å‡ºbug
 		}
 		return m_data.bValue;
 	}
@@ -450,7 +451,7 @@ private:
 	unData m_data;
 };
 
-//Êı¾İ½âÎöÀà
+//æ•°æ®è§£æç±»
 class CVarDatas
 {
 	using MapVars = std::unordered_map<std::string, CVariant>;
@@ -542,7 +543,7 @@ public:
 private:
 	std::unique_ptr<MapVars> m_pMapVars;
 	std::string m_strName;
-	uint32_t m_ulType;//ÊÂ¼şÀàĞÍ£¬ÓëstrName¶şÑ¡Ò»Ê¹ÓÃ£¬ÓÃÓÚÃ¶¾Ù
+	uint32_t m_ulType;//äº‹ä»¶ç±»å‹ï¼Œä¸strNameäºŒé€‰ä¸€ä½¿ç”¨ï¼Œç”¨äºæšä¸¾
 };
 
 

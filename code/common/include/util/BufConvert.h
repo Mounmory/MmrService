@@ -1,4 +1,4 @@
-﻿#ifndef BUFCONVERT_H
+#ifndef BUFCONVERT_H
 #define BUFCONVERT_H
 #include "common/include/Common_def.h"
 #include "common/include/util/UtilExport.h"
@@ -41,6 +41,9 @@ static inline std::string inBase64Decode(const char* str, uint32_t len = 0) {
 	decoded_buf.resize(decoded_size);
 	return decoded_buf;
 }
+
+
+
 
 END_NAMESPACE(mmrUtil)
 #endif

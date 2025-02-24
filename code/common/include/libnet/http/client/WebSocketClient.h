@@ -5,13 +5,13 @@
  * @demo examples/websocket_client_test.cpp
  */
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
-#include "TcpClient.h"
-#include "WebSocketChannel.h"
+#include "common/include/libnet/cppnet/TcpClient.h"
+#include "common/include/libnet/http/WebSocketChannel.h"
 
-#include "HttpParser.h"
-#include "WebSocketParser.h"
+#include "common/include/libnet/http/HttpParser.h"
+#include "common/include/libnet/http/WebSocketParser.h"
 
 namespace hv {
 

@@ -1,12 +1,12 @@
 #ifndef HV_HTTP_HANDLER_H_
 #define HV_HTTP_HANDLER_H_
 
-#include "HttpService.h"
-#include "HttpParser.h"
-#include "FileCache.h"
+#include "common/include/libnet/http/server/HttpService.h"
+#include "common/include/libnet/http/HttpParser.h"
+#include "common/include/libnet/http/server/FileCache.h"
 
-#include "WebSocketServer.h"
-#include "WebSocketParser.h"
+#include "common/include/libnet/http/server/WebSocketServer.h"
+#include "common/include/libnet/http/WebSocketParser.h"
 
 class HttpHandler {
 public:

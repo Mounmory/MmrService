@@ -1,10 +1,10 @@
 #ifndef HV_MAIN_H_
 #define HV_MAIN_H_
 
-#include "hexport.h"
-#include "hplatform.h"
-#include "hdef.h"
-#include "hproc.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/base/hproc.h"
 
 #ifdef _MSC_VER
 #pragma comment(lib, "winmm.lib") // for timeSetEvent

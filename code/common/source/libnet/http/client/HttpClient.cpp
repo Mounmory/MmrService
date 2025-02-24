@@ -1,4 +1,4 @@
-#include "HttpClient.h"
+#include "common/include/libnet/http/client/HttpClient.h"
 
 #include <mutex>
 
@@ -6,16 +6,16 @@
 #include "curl/curl.h"
 #endif
 
-#include "herr.h"
-#include "hlog.h"
-#include "htime.h"
-#include "hstring.h"
-#include "hsocket.h"
-#include "hssl.h"
-#include "HttpParser.h"
+#include "common/include/libnet/base/herr.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/base/htime.h"
+#include "common/include/libnet/cpputil/hstring.h"
+#include "common/include/libnet/base/hsocket.h"
+#include "common/include/libnet/ssl/hssl.h"
+#include "common/include/libnet/http/HttpParser.h"
 
 // for async
-#include "AsyncHttpClient.h"
+#include "common/include/libnet/http/client/AsyncHttpClient.h"
 
 using namespace hv;
 

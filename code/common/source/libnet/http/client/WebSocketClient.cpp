@@ -1,7 +1,7 @@
-#include "WebSocketClient.h"
+#include "common/include/libnet/http/client/WebSocketClient.h"
 
-#include "base64.h"
-#include "hlog.h"
+#include "common/include/libnet/util/base64.h"
+#include "common/include/libnet/base/hlog.h"
 
 #define DEFAULT_WS_PING_INTERVAL    3000 // ms
 

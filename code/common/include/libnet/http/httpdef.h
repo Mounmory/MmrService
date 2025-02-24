@@ -1,7 +1,7 @@
 #ifndef HV_HTTP_DEF_H_
 #define HV_HTTP_DEF_H_
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #define DEFAULT_HTTP_PORT       80
 #define DEFAULT_HTTPS_PORT      443

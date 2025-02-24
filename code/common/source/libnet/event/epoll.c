@@ -1,12 +1,12 @@
-#include "iowatcher.h"
+#include "common/include/libnet/event/iowatcher.h"
 
 #ifdef EVENT_EPOLL
-#include "hplatform.h"
-#include "hdef.h"
-#include "hevent.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/event/hevent.h"
 
 #ifdef OS_WIN
-#include "wepoll/wepoll.h"
+#include "common/include/libnet/event/wepoll/wepoll.h"
 typedef HANDLE  epoll_handle_t;
 #else
 #include <sys/epoll.h>
@@ -14,7 +14,7 @@ typedef int     epoll_handle_t;
 #define epoll_close(epfd) close(epfd)
 #endif
 
-#include "array.h"
+#include "common/include/libnet/base/array.h"
 #define EVENTS_INIT_SIZE    64
 ARRAY_DECL(struct epoll_event, events);
 

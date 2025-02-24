@@ -1,7 +1,7 @@
-#ifndef CPROTOSERVER_H
+ï»¿#ifndef CPROTOSERVER_H
 #define CPROTOSERVER_H
 
-#include "TcpServer.h"
+#include "common/include/libnet/cppnet/TcpServer.h"
 #include "service/interface/iservice/ProtoRpcServer/IProtoRpcServer.h"
 
 BEGINE_NAMESPACE(mmrService)
@@ -25,18 +25,18 @@ private:
 	void onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer* buf);
 
 	/*
-		´¦Àí¿Í»§¶ËµÚÒ»ÌõÏûÏ¢£¬Ó¦ÎªµÇÂ¼ĞÅÏ¢
+		å¤„ç†å®¢æˆ·ç«¯ç¬¬ä¸€æ¡æ¶ˆæ¯ï¼Œåº”ä¸ºç™»å½•ä¿¡æ¯
 	*/
 	void onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::Buffer* buf);
 
 	MessagePtr dealProtobufMessage(const MessagePtr& request);
 private:
-	//»ùÀàÀïÃæÓĞ¶¨Òå
+	//åŸºç±»é‡Œé¢æœ‰å®šä¹‰
 	//std::string m_strIP;
 	//uint16_t m_usPort;
 
 };
 
-END_NAMESPACE(mmrService)
 END_NAMESPACE(mmrComp)
+END_NAMESPACE(mmrService)
 #endif

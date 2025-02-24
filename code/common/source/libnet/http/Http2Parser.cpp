@@ -1,6 +1,6 @@
 #ifdef WITH_NGHTTP2
 
-#include "Http2Parser.h"
+#include "common/include/libnet/http/Http2Parser.h"
 
 static nghttp2_nv make_nv(const char* name, const char* value) {
     nghttp2_nv nv;

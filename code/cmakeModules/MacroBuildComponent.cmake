@@ -8,7 +8,7 @@ MACRO(build_service_component targetName)
 	MMR
     "" # no options
     "NAME;EXPORT_DIRECTIVE;FOLDER;PLUGIN_DIR" # one value args
-    "SRCS;MOC_SRCS;UI_FORMS;INCLUDE_DIRECTORIES;TARGET_LIBRARIES;TARGET_WIN_LIBS;TARGET_LINUX_LIBS;RESOURCES;TARGET_SRC_FILES" # multi value args
+    "SRCS;MOC_SRCS;UI_FORMS;INCLUDE_DIRECTORIES;TARGET_LIBRARIES;TARGET_WIN_LIBS;TARGET_INSTALL_PATH;TARGET_LINUX_LIBS;RESOURCES;TARGET_SRC_FILES" # multi value args
     ${ARGN}
     )
 	message("build_service_component ${targetName}")
@@ -103,9 +103,12 @@ MACRO(build_service_component targetName)
 	endforeach()
 
 	#set install folder
-	install(TARGETS ${targetName} 
-	RUNTIME DESTINATION bin/component #window下dll文件
-	LIBRARY DESTINATION bin/component #linux下.so文件
-	#ARCHIVE DESTINATION lib#静态库,这里用不上
-	)
+	foreach(path ${MMR_TARGET_INSTALL_PATH})
+		install(TARGETS ${targetName} 
+			RUNTIME DESTINATION bin/${path}/component #window下dll文件
+			LIBRARY DESTINATION bin/${path}/component #linux下.so文件
+			#ARCHIVE DESTINATION lib#静态库,这里用不上
+			)
+	endforeach()
+
 ENDMACRO()

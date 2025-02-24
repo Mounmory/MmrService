@@ -1,4 +1,4 @@
-#ifndef COMMON_H
+ï»¿#ifndef COMMON_H
 #define COMMON_H
 
 //#if defined(_WIN64) || defined(WIN32)
@@ -15,13 +15,13 @@
 #define IN
 #define OUT
 
-#include <chrono>
-#include <ctime>
-#include <thread>
-#include <iomanip>
+//#include <chrono>
+//#include <ctime>
+//#include <thread>
+//#include <iomanip>
 
 #ifdef OS_MMR_WIN
-	//#ifndef WIN32_LEAN_AND_MEAN//WINDOWS APIÓÃÓÚÆÁ±ÎÒ»Ğ©²»³£ÓÃµÄAPI£¨ÓÅ»¯Ó¦ÓÃ³ÌĞò£©²ÅÓÃµÄ¡£
+	//#ifndef WIN32_LEAN_AND_MEAN//WINDOWS APIç”¨äºå±è”½ä¸€äº›ä¸å¸¸ç”¨çš„APIï¼ˆä¼˜åŒ–åº”ç”¨ç¨‹åºï¼‰æ‰ç”¨çš„ã€‚
 	//	#define WIN32_LEAN_AND_MEAN
 	//#endif
 	//#ifndef _CRT_NONSTDC_NO_DEPRECATE
@@ -40,21 +40,28 @@
 #define DIR_SEPARATOR       '\\'
 #define DIR_SEPARATOR_STR   "\\"
 
-#define Thread_ID GetCurrentThreadId()		//»ñÈ¡Ïß³ÌID
-#define Process_ID GetCurrentProcessId()	//»ñÈ¡½ø³ÌID
+#define Thread_ID GetCurrentThreadId()		//è·å–çº¿ç¨‹ID
+#define Process_ID GetCurrentProcessId()	//è·å–è¿›ç¨‹ID
+#define libHandle HINSTANCE					//åŠ¨æ€åº“å¥æŸ„ç±»å‹
+#define STR_OS_TYPE "Windows"	
 
-#define OS_TYPE "Windows"
+static const char* strLibExtension = ".dll";	//åŠ¨æ€åº“æ‰©å±•å
 #else
 #include <pthread.h>  
 #include <unistd.h>  
+#include <dirent.h>
+#include <dlfcn.h>
 #include <sys/syscall.h>  
 #include <string>
 
 #define DIR_SEPARATOR       '/'
 #define DIR_SEPARATOR_STR   "/"
 
-#define Thread_ID syscall(SYS_gettid)	//»ñÈ¡Ïß³ÌID
-#define Process_ID getpid()				//»ñÈ¡½ø³ÌID
+#define Thread_ID syscall(SYS_gettid)	//è·å–çº¿ç¨‹ID
+#define Process_ID getpid()				//è·å–è¿›ç¨‹ID
+#define libHandle void*					//åŠ¨æ€åº“å¥æŸ„ç±»å‹
+#define STR_OS_TYPE "Linux"
+static const char* strLibExtension = ".so";		//åŠ¨æ€åº“æ‰©å±•å
 
 static std::string _CutParenthesesNTail(std::string&& prettyFuncon)
 {
@@ -62,13 +69,11 @@ static std::string _CutParenthesesNTail(std::string&& prettyFuncon)
 	if (pos != std::string::npos)
 		prettyFuncon.erase(prettyFuncon.begin() + pos, prettyFuncon.end());
 	pos = prettyFuncon.find(' ');
-	if (pos != std::string::npos)//É¾³ı·µ»ØÀàĞÍ
+	if (pos != std::string::npos)//åˆ é™¤è¿”å›ç±»å‹
 		prettyFuncon.erase(prettyFuncon.begin(), prettyFuncon.begin() + pos + 1);
 	return std::move(prettyFuncon);
 }
-#define __FUNCTION__ _CutParenthesesNTail(__PRETTY_FUNCTION__).c_str()//ÏµÍ³×Ô´øµÄºê²»ÏÔÊ¾×÷ÓÃÓòĞÅÏ¢
-
-#define OS_TYPE "Linux"
+#define __FUNCTION__ _CutParenthesesNTail(__PRETTY_FUNCTION__).c_str()//ç³»ç»Ÿè‡ªå¸¦çš„å®ä¸æ˜¾ç¤ºä½œç”¨åŸŸä¿¡æ¯
 #endif
 
 #ifndef __FILENAME__
@@ -77,9 +82,9 @@ static std::string _CutParenthesesNTail(std::string&& prettyFuncon)
 #endif
 
 #ifdef NDEBUG
-#define BUILD_TYPE "Release"
+#define STR_BUILD_TYPE "Release"
 #else
-#define BUILD_TYPE "Debug"
+#define STR_BUILD_TYPE "Debug"
 #endif
 
 #define STD_CERROR \

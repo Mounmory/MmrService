@@ -1,17 +1,17 @@
 #ifndef HV_EVENT_H_
 #define HV_EVENT_H_
 
-#include "hloop.h"
-#include "iowatcher.h"
-#include "rudp.h"
+#include "common/include/libnet/event/hloop.h"
+#include "common/include/libnet/event/iowatcher.h"
+#include "common/include/libnet/event/rudp.h"
 
-#include "hbuf.h"
-#include "hmutex.h"
+#include "common/include/libnet/base/hbuf.h"
+#include "common/include/libnet/base/hmutex.h"
 
-#include "array.h"
-#include "list.h"
-#include "heap.h"
-#include "queue.h"
+#include "common/include/libnet/base/array.h"
+#include "common/include/libnet/base/list.h"
+#include "common/include/libnet/base/heap.h"
+#include "common/include/libnet/base/queue.h"
 
 #define HLOOP_READ_BUFSIZE          8192        // 8K
 #define READ_BUFSIZE_HIGH_WATER     65536       // 64K

@@ -1,10 +1,10 @@
-#include "hevent.h"
-#include "hsocket.h"
-#include "hatomic.h"
-#include "hlog.h"
-#include "herr.h"
+#include "common/include/libnet/event/hevent.h"
+#include "common/include/libnet/base/hsocket.h"
+#include "common/include/libnet/base/hatomic.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/base/herr.h"
 
-#include "unpack.h"
+#include "common/include/libnet/event/unpack.h"
 
 uint64_t hloop_next_event_id() {
     static hatomic_t s_id = HATOMIC_VAR_INIT(0);

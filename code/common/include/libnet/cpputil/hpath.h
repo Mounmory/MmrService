@@ -3,7 +3,7 @@
 
 #include <string> // for std::string
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 class HV_EXPORT HPath {
 public:

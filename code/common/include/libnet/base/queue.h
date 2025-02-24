@@ -13,7 +13,7 @@
 #include <stdlib.h> // for malloc,realloc,free
 #include <string.h> // for memset,memmove
 
-#include "hbase.h"  // for HV_ALLOC, HV_FREE
+#include "common/include/libnet/base/hbase.h"  // for HV_ALLOC, HV_FREE
 
 #define QUEUE_INIT_SIZE     16
 

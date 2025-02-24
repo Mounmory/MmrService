@@ -20,80 +20,80 @@
 
 BEGINE_NAMESPACE(mmrUtil)
 
-//Ïß³Ì³ØÖ§³ÖµÄÄ£Ê½
+//çº¿ç¨‹æ± æ”¯æŒçš„æ¨¡å¼
 enum class PoolMode
 {
-	MODE_FIXED,		//¹Ì¶¨ÊıÁ¿µÄÏß³Ì
-	MODE_CACHED,	//Ïß³ÌÊıÁ¿¿ÉÒÔ¶¯Ì¬Ôö³¤
+	MODE_FIXED,		//å›ºå®šæ•°é‡çš„çº¿ç¨‹
+	MODE_CACHED,	//çº¿ç¨‹æ•°é‡å¯ä»¥åŠ¨æ€å¢é•¿
 };
 
-//Ïß³ÌÀàĞÍ
+//çº¿ç¨‹ç±»å‹
 class COMMON_CLASS_API Thread
 {
 public:
-	//Ïß³Ìº¯Êı¶ÔÏóÀàĞÍ
+	//çº¿ç¨‹å‡½æ•°å¯¹è±¡ç±»å‹
 	using ThreadFunc = std::function<void(int)>;
-	// Ïß³Ì¹¹Ôì
+	// çº¿ç¨‹æ„é€ 
 	Thread(ThreadFunc func);
-	// Ïß³ÌÎö¹¹
+	// çº¿ç¨‹ææ„
 	~Thread() = default;
-	// Æô¶¯Ïß³Ì
+	// å¯åŠ¨çº¿ç¨‹
 	void start();
 
-	//»ñÈ¡Ïß³ÌID
+	//è·å–çº¿ç¨‹ID
 	int getId()const;
 private:
 	ThreadFunc m_func;
 	static int m_generateId;
-	int m_threadId;		//±£´æÏß³Ìid
+	int m_threadId;		//ä¿å­˜çº¿ç¨‹id
 };
 
 
-//Ïß³Ì³ØÀàĞÍ
+//çº¿ç¨‹æ± ç±»å‹
 class COMMON_CLASS_API ThreadPool
 {
 private:
-	//Ïß³Ì³Ø¹¹Ôì
+	//çº¿ç¨‹æ± æ„é€ 
 	ThreadPool();
 public:
 	ThreadPool(const ThreadPool&) = delete;
-	//Ïß³Ì³ØÎö¹¹
+	//çº¿ç¨‹æ± ææ„
 	~ThreadPool();
 	ThreadPool& operator=(const ThreadPool&) = delete;
 public:
 	static ThreadPool* getThreadPool();
 
-	//ÉèÖÃÏß³Ì³ØµÄ¹¤×÷Ä£Ê½
+	//è®¾ç½®çº¿ç¨‹æ± çš„å·¥ä½œæ¨¡å¼
 	void setMode(PoolMode mode);
 
-	//ÉèÖÃtaskÈÎÎñ¶ÓÁĞÉÏÏßµÄãĞÖµ
+	//è®¾ç½®taskä»»åŠ¡é˜Ÿåˆ—ä¸Šçº¿çš„é˜ˆå€¼
 	void setTaskQueMaxThrshHold(const uint32_t& threshhold);
 
-	//ÉèÖÃÏß³Ì³ØcachedÄ£Ê½ÏÂÏß³ÌãĞÖµ
+	//è®¾ç½®çº¿ç¨‹æ± cachedæ¨¡å¼ä¸‹çº¿ç¨‹é˜ˆå€¼
 	void setThreadSizeThreshHold(const uint16_t& threshHold);
 
 	void setThreadSize(const uint16_t& treadSize);
 
-	//¸øÏß³Ì³ØÌá½»ÈÎÎñ
-	//Ê¹ÓÃ¿É±ä²ÎÄ£°å±ä²Î ÈÃsubmitTask¿ÉÒÔ½ÓÊÜÈÎÒâÈÎÎñº¯ÊıºÍÈÎÒâÊıÁ¿µÄ²ÎÊı
+	//ç»™çº¿ç¨‹æ± æäº¤ä»»åŠ¡
+	//ä½¿ç”¨å¯å˜å‚æ¨¡æ¿å˜å‚ è®©submitTaskå¯ä»¥æ¥å—ä»»æ„ä»»åŠ¡å‡½æ•°å’Œä»»æ„æ•°é‡çš„å‚æ•°
 	//Result submitTask(std::shared_ptr<Task> sp);
 	template<typename Func, typename... Args>
 	auto submit(Func&& func, Args&&... args)->std::future<decltype(func(args...))>
 	{
-		//´ò°üÈÎÎñ ·ÅÈëÈÎÎñ¶ÓÁĞ
+		//æ‰“åŒ…ä»»åŠ¡ æ”¾å…¥ä»»åŠ¡é˜Ÿåˆ—
 		using RType = decltype(func(args...));
 		auto task = std::make_shared<std::packaged_task<RType()>>(std::bind(std::forward<Func>(func),
 			std::forward<Args>(args)...));
 
 		std::future<RType> result = task->get_future();
 
-		//»ñÈ¡Ëø
+		//è·å–é”
 		std::unique_lock<std::mutex> lock(m_taskQueMtx);
-		//ÓÃ»§Ìá½»ÈÎÎñ£¬×î³¤²»¿É³¬¹ıÒ»Ãë£¬·ñÔòËãÌá½»ÈÎÎñÊ§°Ü
+		//ç”¨æˆ·æäº¤ä»»åŠ¡ï¼Œæœ€é•¿ä¸å¯è¶…è¿‡ä¸€ç§’ï¼Œå¦åˆ™ç®—æäº¤ä»»åŠ¡å¤±è´¥
 		if (!m_notFull.wait_for(lock, std::chrono::seconds(1),
 			[&]()->bool {return m_taskque.size() < (size_t)m_taskqueMaxThresHold; }))
 		{
-			//±íÊ¾µÈ´ıÒ»Ãë Ìõ¼şÒÀÈ»Ã»ÓĞÂú×ã
+			//è¡¨ç¤ºç­‰å¾…ä¸€ç§’ æ¡ä»¶ä¾ç„¶æ²¡æœ‰æ»¡è¶³
 			STD_CERROR << "task queue is full, submit task failed." << std::endl;
 			auto task = std::make_shared<std::packaged_task<RType()>>(
 				[]()->RType {return RType(); });
@@ -101,34 +101,34 @@ public:
 			return task->get_future();
 		}
 
-		//Èç¹ûÓĞ¿ÕÓà£¬ °ÑÈÎÎñ·ÅÈëÈÎÎñ¶ÓÁĞÖĞ
+		//å¦‚æœæœ‰ç©ºä½™ï¼Œ æŠŠä»»åŠ¡æ”¾å…¥ä»»åŠ¡é˜Ÿåˆ—ä¸­
 		m_taskque.emplace([task]() {(*task)(); });
 		m_taskSize++;
 
-		//ÒòÎªĞÂ·ÅÁËÈÎÎñ ËùÒÔÈÎÎñ¶ÓÁĞ¿Ï¶¨²»Îª¿ÕÁË£¬ÔÚm_notEmptyÉÏÃæ½øĞĞÍ¨Öª£¬¸Ï¿ì·ÖÅäÏß³ÌÖ´ĞĞÖ´ĞĞ×ÊÔ´
+		//å› ä¸ºæ–°æ”¾äº†ä»»åŠ¡ æ‰€ä»¥ä»»åŠ¡é˜Ÿåˆ—è‚¯å®šä¸ä¸ºç©ºäº†ï¼Œåœ¨m_notEmptyä¸Šé¢è¿›è¡Œé€šçŸ¥ï¼Œèµ¶å¿«åˆ†é…çº¿ç¨‹æ‰§è¡Œæ‰§è¡Œèµ„æº
 		m_notEmpty.notify_all();
 
-		// cachedÄ£Ê½ ÈÎÎñ´¦Àí±È½Ï½ô¼± ³¡¾°£ºĞ¡¶ø¿ìµÄÈÎÎñ 
-		//ĞèÒª¸ù¾İÈÎÎñÊıÁ¿ºÍ¿ÕÏĞÏß³ÌµÄÊıÁ¿£¬ÅĞ¶ÏÊÇ·ñĞèÒª´´½¨ĞÂµÄÏß³Ì³öÀ´
+		// cachedæ¨¡å¼ ä»»åŠ¡å¤„ç†æ¯”è¾ƒç´§æ€¥ åœºæ™¯ï¼šå°è€Œå¿«çš„ä»»åŠ¡ 
+		//éœ€è¦æ ¹æ®ä»»åŠ¡æ•°é‡å’Œç©ºé—²çº¿ç¨‹çš„æ•°é‡ï¼Œåˆ¤æ–­æ˜¯å¦éœ€è¦åˆ›å»ºæ–°çš„çº¿ç¨‹å‡ºæ¥
 		if (m_poolMode == PoolMode::MODE_CACHED && m_taskSize > m_idleThreadSize
 			&& m_curThreadSize < m_threadSizeThreshHold)
 		{
 			std::cout << ">>> create new thread..." << std::endl;
-			//´´½¨ĞÂµÄÏß³Ì¶ÔÏó
-			auto ptr = std::make_unique<Thread>(std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1));//c++14²ÅÓĞ
+			//åˆ›å»ºæ–°çš„çº¿ç¨‹å¯¹è±¡
+			auto ptr = std::make_unique<Thread>(std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1));//c++14æ‰æœ‰
 			//auto ptr = std::unique_ptr<Thread>(new Thread(std::bind(&ThreadPool::threadFunc, this, std::placeholders::_1)));
 			int threadId = ptr->getId();
 			m_threads.emplace(threadId, std::move(ptr));
-			//Æô¶¯Ïß³Ì
+			//å¯åŠ¨çº¿ç¨‹
 			m_threads[threadId]->start();
-			//ĞŞ¸ÄÏß³Ì¸öÊıÏà¹ØµÄ±äÁ¿
+			//ä¿®æ”¹çº¿ç¨‹ä¸ªæ•°ç›¸å…³çš„å˜é‡
 			m_curThreadSize++;
 			m_idleThreadSize++;
 		}
 		return result;
 	}
 
-	//¿ªÆôÏß³Ì³Ø
+	//å¼€å¯çº¿ç¨‹æ± 
 	void start();
 
 	void stop();
@@ -136,52 +136,52 @@ public:
 
 
 private:
-	//¶¨ÒåÏß³Ìº¯Êı
+	//å®šä¹‰çº¿ç¨‹å‡½æ•°
 	void threadFunc(int threadId);
 
-	//¼ì²époolµÄÔËĞĞ×´Ì¬
+	//æ£€æŸ¥poolçš„è¿è¡ŒçŠ¶æ€
 	bool checkRunningState() const;
 private:
-	//std::vector<std::unique_ptr<Thread>> m_threads;	//Ïß³ÌÁĞ±í
+	//std::vector<std::unique_ptr<Thread>> m_threads;	//çº¿ç¨‹åˆ—è¡¨
 	std::unordered_map <int, std::unique_ptr<Thread>> m_threads;
-	//³õÊ¼µÄÏß³ÌÊıÁ¿
+	//åˆå§‹çš„çº¿ç¨‹æ•°é‡
 	int m_initThreadSize;
 
-	//¼ÇÂ¼µ±Ç°Ïß³Ì³ØÀïÃæÏß³ÌµÄ×ÜÊıÁ¿
+	//è®°å½•å½“å‰çº¿ç¨‹æ± é‡Œé¢çº¿ç¨‹çš„æ€»æ•°é‡
 	std::atomic_int m_curThreadSize;
 
-	//Ïß³ÌÊıÁ¿ÉÏÏŞãĞÖµ
+	//çº¿ç¨‹æ•°é‡ä¸Šé™é˜ˆå€¼
 	int m_threadSizeThreshHold;
 
-	//¼ÇÂ¼¿ÕÏĞÏß³ÌµÄÊıÁ¿
+	//è®°å½•ç©ºé—²çº¿ç¨‹çš„æ•°é‡
 	std::atomic_int m_idleThreadSize;
 
-	//TaskÈÎÎñ º¯Êı¶ÔÏó
+	//Taskä»»åŠ¡ å‡½æ•°å¯¹è±¡
 	using Task = std::function<void()>;
 
-	//ÈÎÎñ¶ÓÁĞ
+	//ä»»åŠ¡é˜Ÿåˆ—
 	std::queue<Task> m_taskque;
 
-	//ÈÎÎñµÄÊıÁ¿
+	//ä»»åŠ¡çš„æ•°é‡
 	std::atomic_int m_taskSize;
-	//ÈÎÎñ¶ÓÁĞÊıÁ¿ÉÏÏŞµÄãĞÖµ
+	//ä»»åŠ¡é˜Ÿåˆ—æ•°é‡ä¸Šé™çš„é˜ˆå€¼
 	int m_taskqueMaxThresHold;
 
-	//°ü×°ÈÎÎñ¶ÓÁĞµÄÏß³Ì°²È«
+	//åŒ…è£…ä»»åŠ¡é˜Ÿåˆ—çš„çº¿ç¨‹å®‰å…¨
 	std::mutex m_taskQueMtx;
 
-	//±íÊ¾ÈÎÎñ¶ÓÁĞ²»Âú
+	//è¡¨ç¤ºä»»åŠ¡é˜Ÿåˆ—ä¸æ»¡
 	std::condition_variable m_notFull;
-	//±íÊ¾ÈÎÎñ¶ÓÁĞ²»¿Õ
+	//è¡¨ç¤ºä»»åŠ¡é˜Ÿåˆ—ä¸ç©º
 	std::condition_variable m_notEmpty;
 
-	//±íÊ¾µÈ´ıÏß³Ì×ÊÔ´È«²¿»ØÊÕ
+	//è¡¨ç¤ºç­‰å¾…çº¿ç¨‹èµ„æºå…¨éƒ¨å›æ”¶
 	std::condition_variable m_exitCond;
 
-	//µ±Ç°Ïß³Ì³ØµÄ¹¤×÷Ä£Ê½
+	//å½“å‰çº¿ç¨‹æ± çš„å·¥ä½œæ¨¡å¼
 	PoolMode m_poolMode;
 
-	//±íÊ¾µ±Ç°Ïß³Ì³ØµÄÆô¶¯×´Ì¬
+	//è¡¨ç¤ºå½“å‰çº¿ç¨‹æ± çš„å¯åŠ¨çŠ¶æ€
 	std::atomic_bool m_isPoolRunning;
 };
 

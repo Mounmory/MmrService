@@ -1,7 +1,7 @@
 #ifndef HV_PLATFORM_H_
 #define HV_PLATFORM_H_
 
-#include "hconfig.h"
+#include "common/include/libnet/hconfig.h"
 
 // OS
 #if defined(WIN64) || defined(_WIN64)

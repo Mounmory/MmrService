@@ -6,10 +6,10 @@
 #include <memory>
 #include <atomic>
 
-#include "hloop.h"
-#include "hsocket.h"
+#include "common/include/libnet/event/hloop.h"
+#include "common/include/libnet/base/hsocket.h"
 
-#include "Buffer.h"
+#include "common/include/libnet/cppnet/Buffer.h"
 
 namespace hv {
 

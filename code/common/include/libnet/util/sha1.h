@@ -10,7 +10,7 @@
 /* for uint32_t */
 #include <stdint.h>
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 typedef struct {
     uint32_t state[5];

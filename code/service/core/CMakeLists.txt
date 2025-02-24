@@ -37,4 +37,5 @@ build_shared_library( serviceFramework
 	#依赖库
 	TARGET_LIBRARIES mmrUtil hvNet
 	TARGET_LINUX_LIBS dl
+	TARGET_INSTALL_PATH service
 	)

@@ -1,7 +1,7 @@
 #ifndef HV_THREAD_H_
 #define HV_THREAD_H_
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifdef OS_WIN
 #define hv_getpid   (long)GetCurrentProcessId
@@ -29,7 +29,7 @@ static inline long hv_gettid() {
 #endif
 
 /*
-#include "hthread.h"
+#include "common/include/libnet/base/hthread.h"
 
 HTHREAD_ROUTINE(thread_demo) {
     printf("thread[%ld] start\n", hv_gettid());

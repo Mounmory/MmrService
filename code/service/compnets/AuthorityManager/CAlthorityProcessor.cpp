@@ -20,7 +20,7 @@ std::shared_ptr<mmrService::LoginResponse> CAlthorityProcessor::onLogin(const st
 
 	std::shared_ptr<mmrService::LoginResponse> response = std::make_shared<mmrService::LoginResponse>();
 	response->set_errcode(1000);
-	response->set_message(u8"登录成功！");
+	response->set_message(u8"login success!");
 	//std::cout << "login response data \n" << response->DebugString();
 	return response;
 }

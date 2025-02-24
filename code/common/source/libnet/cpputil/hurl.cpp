@@ -1,7 +1,7 @@
-#include "hurl.h"
+#include "common/include/libnet/cpputil/hurl.h"
 
-#include "hdef.h"
-#include "hbase.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/base/hbase.h"
 
 /*
 static bool Curl_isunreserved(unsigned char in)

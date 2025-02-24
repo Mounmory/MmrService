@@ -9,10 +9,10 @@
 #include <memory>
 #include <functional>
 
-#include "hexport.h"
-#include "HttpMessage.h"
-#include "HttpResponseWriter.h"
-#include "HttpContext.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/http/HttpMessage.h"
+#include "common/include/libnet/http/server/HttpResponseWriter.h"
+#include "common/include/libnet/http/server/HttpContext.h"
 
 #define DEFAULT_BASE_URL        "/api/v1"
 #define DEFAULT_DOCUMENT_ROOT   "/var/www/html"

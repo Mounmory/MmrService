@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 
 #include <list>
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 typedef struct hdir_s {
     char    name[256];

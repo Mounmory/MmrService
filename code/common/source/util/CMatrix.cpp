@@ -1,5 +1,7 @@
 #include "common/include/util/CMatrix.h"
 #include <string.h>
+#include <iomanip>
+#include <typeinfo>
 
 using namespace mmrUtil;
 
@@ -54,8 +56,8 @@ void CMatrix<_Ty>::reSizeArray(const size_t nRow, const size_t nCol)
 {
 	if (this->m_rows != nRow || this->m_cols != nCol)
 	{
-		//new·ÖÅäµÄÊ±ºò£¬Ò»°ã»á·ÖÅä³ýÁËËü±¾Éí´óÐ¡ÒÔÍâµÄÄÚ´æÍ·ºÍÄÚ´æÎ²£¬Ò»°ãÐÎÊ½Îª£º[ÄÚ´æÍ·][¿ÉÓÃÊý¾Ý][ÄÚ´æÎ²]¡£
-		//¶øÄãµÄptrÖ¸Õë·µ»ØµÄÊÇ[¿ÉÓÃÊý¾Ý]²¿·ÖµÄÆðÊ¼µØÖ·¡£´ó²¿·Ö±àÒëÆ÷ÔÚÓÃ»§·ÖÅäµÄsizeÎª0µÄÇé¿öÏÂ£¬»á×Ô¶¯·ÖÅä1×Ö½ÚµÄ¿ÉÓÃÄÚ´æ£¬¿ÉÒÔÓÃdeleteÉ¾³ý
+		//newåˆ†é…çš„æ—¶å€™ï¼Œä¸€èˆ¬ä¼šåˆ†é…é™¤äº†å®ƒæœ¬èº«å¤§å°ä»¥å¤–çš„å†…å­˜å¤´å’Œå†…å­˜å°¾ï¼Œä¸€èˆ¬å½¢å¼ä¸ºï¼š[å†…å­˜å¤´][å¯ç”¨æ•°æ®][å†…å­˜å°¾]ã€?
+		//è€Œä½ çš„ptræŒ‡é’ˆè¿”å›žçš„æ˜¯[å¯ç”¨æ•°æ®]éƒ¨åˆ†çš„èµ·å§‹åœ°å€ã€‚å¤§éƒ¨åˆ†ç¼–è¯‘å™¨åœ¨ç”¨æˆ·åˆ†é…çš„sizeä¸?çš„æƒ…å†µä¸‹ï¼Œä¼šè‡ªåŠ¨åˆ†é…1å­—èŠ‚çš„å¯ç”¨å†…å­˜ï¼Œå¯ä»¥ç”¨deleteåˆ é™¤
 		destroyArray();
 		m_rows = nRow;
 		m_cols = nCol;
@@ -133,7 +135,7 @@ CMatrix<_Ty>& CMatrix<_Ty>::operator=(const _Ty& value)
 template<class _Ty>
 CMatrix<_Ty>& CMatrix<_Ty>::operator=(const CMatrix<_Ty> &rhs)
 {
-	if (m_array != rhs.m_array || m_rows != rhs.m_rows || m_cols != rhs.m_cols)//·Ç×ÔÉí¸³Öµ
+	if (m_array != rhs.m_array || m_rows != rhs.m_rows || m_cols != rhs.m_cols)//éžè‡ªèº«èµ‹å€?
 	{
 		if (m_rows != rhs.m_rows || m_cols != rhs.m_cols)
 		{

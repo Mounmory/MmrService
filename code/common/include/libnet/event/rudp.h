@@ -1,15 +1,15 @@
 #ifndef HV_RUDP_H_
 #define HV_RUDP_H_
 
-#include "hloop.h"
+#include "common/include/libnet/event/hloop.h"
 
 #if WITH_RUDP
 
-#include "rbtree.h"
-#include "hsocket.h"
-#include "hmutex.h"
+#include "common/include/libnet/base/rbtree.h"
+#include "common/include/libnet/base/hsocket.h"
+#include "common/include/libnet/base/hmutex.h"
 #if WITH_KCP
-#include "kcp/hkcp.h"
+#include "common/include/libnet/event/kcp/hkcp.h"
 #endif
 
 typedef struct rudp_s {

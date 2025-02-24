@@ -5,8 +5,8 @@
  * @demo examples/websocket_server_test.cpp
  */
 
-#include "HttpServer.h"
-#include "WebSocketChannel.h"
+#include "common/include/libnet/http/server/HttpServer.h"
+#include "common/include/libnet/http/WebSocketChannel.h"
 
 #define websocket_server_t      http_server_t
 #define websocket_server_run    http_server_run

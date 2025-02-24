@@ -13,4 +13,7 @@ foreach(subdirectory ${subdirectories})
     endif()
 endforeach()
 
-#message("Subdirectories: ${subdirectories_list}")
+if(INSTALL_EXAMPLE)
+	INSTALL(FILES ${THIRD_PART_DIR}/config/fmServTest.json
+		DESTINATION bin/service/config)
+endif()

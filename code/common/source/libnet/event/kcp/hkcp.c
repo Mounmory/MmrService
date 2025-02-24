@@ -1,10 +1,10 @@
-#include "kcp/hkcp.h"
+#include "common/include/libnet/event/kcp/hkcp.h"
 
 #if WITH_KCP
 
-#include "hevent.h"
-#include "hlog.h"
-#include "hthread.h"
+#include "common/include/libnet/event/hevent.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/base/hthread.h"
 
 static kcp_setting_t s_kcp_setting;
 

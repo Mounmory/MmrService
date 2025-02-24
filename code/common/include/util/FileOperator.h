@@ -1,4 +1,4 @@
-﻿#ifndef FILEOPERAOR_H
+#ifndef FILEOPERAOR_H
 #define FILEOPERAOR_H
 #include "common/include/Common_def.h"
 #include "common/include/util/UtilExport.h"

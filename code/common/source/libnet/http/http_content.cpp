@@ -1,6 +1,6 @@
-#include "http_content.h"
+#include "common/include/libnet/http/http_content.h"
 
-#include "hurl.h"
+#include "common/include/libnet/cpputil/hurl.h"
 
 #include <string.h>
 
@@ -63,9 +63,9 @@ int parse_query_params(const char* query_string, QueryParams& query_params) {
 
 #ifndef WITHOUT_HTTP_CONTENT
 
-#include "hstring.h" // for split
-#include "hfile.h"
-#include "httpdef.h" // for http_content_type_str_by_suffix
+#include "common/include/libnet/cpputil/hstring.h" // for split
+#include "common/include/libnet/cpputil/hfile.h"
+#include "common/include/libnet/http/httpdef.h" // for http_content_type_str_by_suffix
 
 std::string dump_multipart(MultiPart& mp, const char* boundary) {
     char c_str[256] = {0};
@@ -108,7 +108,7 @@ std::string dump_multipart(MultiPart& mp, const char* boundary) {
     return str;
 }
 
-#include "multipart_parser.h"
+#include "common/include/libnet/http/multipart_parser.h"
 enum multipart_parser_state_e {
     MP_START,
     MP_PART_DATA_BEGIN,

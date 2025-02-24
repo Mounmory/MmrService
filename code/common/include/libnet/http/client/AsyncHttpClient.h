@@ -4,11 +4,11 @@
 #include <map>
 #include <list>
 
-#include "EventLoopThread.h"
-#include "Channel.h"
+#include "common/include/libnet/cppnet/EventLoopThread.h"
+#include "common/include/libnet/cppnet/Channel.h"
 
-#include "HttpMessage.h"
-#include "HttpParser.h"
+#include "common/include/libnet/http/HttpMessage.h"
+#include "common/include/libnet/http/HttpParser.h"
 
 namespace hv {
 

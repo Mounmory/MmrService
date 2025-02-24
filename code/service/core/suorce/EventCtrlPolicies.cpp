@@ -1,4 +1,4 @@
-﻿#include "service/core/include/EventCallbacks.h"
+﻿#include "service/core/include/EventCtrlPolicies.h"
 
 #include <string>
 #include <unordered_map>
@@ -73,6 +73,7 @@ void CEventDealWithLock::stop()
 		m_data->m_cvData.notify_all();
 		m_future.get();
 	}
+	m_data->clear();
 }
 
 void CEventDealWithLock::addFunc(const std::string& strTopcs, const std::shared_ptr<CallbackFunc>& ptrFunc)

@@ -1,8 +1,8 @@
 #ifndef HV_AXIOS_H_
 #define HV_AXIOS_H_
 
-#include "json.hpp"
-#include "requests.h"
+#include "common/include/libnet/hv/json.hpp"
+#include "common/include/libnet/http/client/requests.h"
 
 /*
  * Inspired by js axios

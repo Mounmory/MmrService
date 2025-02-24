@@ -1,12 +1,12 @@
 #ifndef HV_KCP_H_
 #define HV_KCP_H_
 
-#include "hloop.h"
+#include "common/include/libnet/event/hloop.h"
 
 #if WITH_KCP
 
-#include "ikcp.h"
-#include "hbuf.h"
+#include "common/include/libnet/event/ikcp.h"
+#include "common/include/libnet/base/hbuf.h"
 
 #define DEFAULT_KCP_UPDATE_INTERVAL 10 // ms
 #define DEFAULT_KCP_READ_BUFSIZE    1400

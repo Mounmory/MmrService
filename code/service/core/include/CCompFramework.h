@@ -1,70 +1,46 @@
 ﻿#ifndef CCOMPFRAMEWORK_H
 #define CCOMPFRAMEWORK_H
-#include <set>
-#include <mutex>
-#include <queue>
-#include <atomic>
-#include <memory>
-#include <condition_variable>
-
-
-
+#include "common/include/util/Clogger.h"
 #include "service/interface/ComponentExport.h"
-//#include "IEventHandler.h"
 #include "service/interface/IComponent.h"
-#include "CLoggerCtrl.h"
-#include "CLiceseCtrl.h"
-
 #include "service/core/include/ServiceCtrlPolicies.hpp"
-#include "EventCallbacks.h"
+#include "service/core/include/EventCtrlPolicies.h"
 
-#ifdef OS_MMR_WIN
-#include <Windows.h>
-static const char* strLibExtension = ".dll";
-#define libHandle HINSTANCE
-
-
-#elif defined OS_MMR_LINUX
-#include <dirent.h>
-#include <dlfcn.h>
-static const char* strLibExtension = ".so";
-#define libHandle void*
-
-
-#endif
+#include <set>
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)
 
+
 template<typename ServiceCtrl/*服务管理策略*/
-	, typename HandlerCtrl>
+	, typename EventCtrl>/*事件管理策略*/
 class COMPO_CORE_CLASS_API CCompFramework
 {
 	CCompFramework();
 	~CCompFramework();
 public:
-	static CCompFramework<ServiceCtrl, HandlerCtrl>* getInstance()
+	static CCompFramework<ServiceCtrl, EventCtrl>* getInstance()
 	{
-		static CCompFramework<ServiceCtrl, HandlerCtrl>* instalce = new CCompFramework<ServiceCtrl, HandlerCtrl>;
+		static CCompFramework<ServiceCtrl, EventCtrl>* instalce = new CCompFramework<ServiceCtrl, EventCtrl>;
 		return instalce;
 	}
 
-	bool start(const std::string& strCfgFile = "");//配置文件路径
+	void handleEvent(const mmrUtil::CVarDatas& varData);//处理回调信息
+
+	void run(const std::string& strCfg);//运行程序，自动控制start和stop
+
+	bool start(const std::string& strCfg);//配置文件路径
 
 	void stop();
 
 	//处理组件相关
 	bool addComponent(std::unique_ptr<IComponent> pComp);
 
-	//void removeComponet(uint16_t usIndex);
-
-
 	//日志相关
 	void addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap);
 
-	void loggerCtrlLoop(std::atomic_bool& bRunFlag);
-
-	void licenseCtrlLoop(std::atomic_bool& bRunFlag);
+	//程序控制相关
+	void dealCmd();
 
 	//服务相关
 #if GCC_VER_OVER_5
@@ -97,18 +73,15 @@ public:
 	}
 #endif
 
-
-
-
 	//处理事件相关接口
 	void addFunc(const std::string& strTopcs, const std::shared_ptr<CallbackFunc>& ptrFunc)
 	{
-		m_ptrHandlerCtrl->addFunc(strTopcs, ptrFunc);
+		m_ptrEventCtrl->addFunc(strTopcs, ptrFunc);
 	}
 
 	void addEvenVartData(mmrUtil::CVarDatas&& varData)
 	{
-		m_ptrHandlerCtrl->addEvenVartData(std::forward<mmrUtil::CVarDatas>(varData));
+		m_ptrEventCtrl->addEvenVartData(std::forward<mmrUtil::CVarDatas>(varData));
 	}
 
 	template<typename CompType>
@@ -118,23 +91,22 @@ public:
 		CCompRegister()
 		{
 			std::unique_ptr<IComponent> compPtr = std::make_unique<CompType>();
-			CCompFramework<ServiceCtrl, HandlerCtrl>::getInstance()->addComponent(std::move(compPtr));
+			CCompFramework<ServiceCtrl, EventCtrl>::getInstance()->addComponent(std::move(compPtr));
 		}
 		~CCompRegister() = default;
 	};
 
 private:
-	std::unique_ptr<CLoggerCtrl> m_loggerCtrl;//组件日志控制类
-
-	std::unique_ptr<CLicenseCtrl> m_licenseCtrl;//权限控制类
-
 	std::unique_ptr<ServiceCtrl> m_upServPolicy;//服务管理策略
 
-	std::unique_ptr<HandlerCtrl> m_ptrHandlerCtrl;//订阅事件管理
+	std::unique_ptr<EventCtrl> m_ptrEventCtrl;//订阅事件管理
 
 	//处理组件相关
-	std::unordered_map<std::string, std::unique_ptr<IComponent>> m_mapComponents;
-	std::set<libHandle> m_libHandl;
+	std::unordered_map<std::string, std::unique_ptr<IComponent>> m_mapComponents;//所有组件模块
+	std::set<libHandle> m_libHandl;//组件动态库handle
+
+	struct CFrameData;//framework中的其它数据
+	std::unique_ptr<CFrameData> m_ptrData;
 };
 
 

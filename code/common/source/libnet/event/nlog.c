@@ -1,10 +1,10 @@
-#include "nlog.h"
+#include "common/include/libnet/event/nlog.h"
 
-#include "list.h"
-#include "hdef.h"
-#include "hbase.h"
-#include "hsocket.h"
-#include "hmutex.h"
+#include "common/include/libnet/base/list.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/base/hbase.h"
+#include "common/include/libnet/base/hsocket.h"
+#include "common/include/libnet/base/hmutex.h"
 
 typedef struct network_logger_s {
     hloop_t*            loop;

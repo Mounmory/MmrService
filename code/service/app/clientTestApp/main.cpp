@@ -2,8 +2,8 @@
 #include "common/include/util/Clogger.h"
 #include "common/include/util/UtilFunc.h"
 #include "common/include/util/CLicenseObj.h"
-#include "service/interface/iservice/ComponentDemo/IHelloService.h"
-#include "service/interface/iservice/AppController/ICmdService.h"
+//#include "service/interface/iservice/ComponentDemo/IHelloService.h"
+//#include "service/interface/iservice/AppController/ICmdService.h"
 
 #include "service/app/clientTestApp/CProtoRpcClient.h"
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 		protoClient.connect(strIP.c_str(), usPort);
 		//protoClient.connect("192.168.43.23", 30010);
 
-		std::this_thread::sleep_for(std::chrono::microseconds(1000));
+		protoClient.waitConnecting();
 
 		//std::cout <<"after connect" << std::endl;
 
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	}
 	else 
 	{
-		std::cout << "使用命令行输入IP和端口，如127.0.0.1 30010" << std::endl;
+		std::cout << "使用命令行输入IP和端口，如：127.0.0.1 30010" << std::endl;
 	}
 
 	std::cout << "输入任意字符继续..." << std::endl;

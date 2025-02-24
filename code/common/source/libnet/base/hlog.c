@@ -1,4 +1,4 @@
-#include "hlog.h"
+#include "common/include/libnet/base/hlog.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <time.h>
 
-//#include "hmutex.h"
+//#include "common/include/libnet/base/hmutex.h"
 #ifdef _WIN32
 #pragma warning (disable: 4244) // conversion loss of data
 #include <windows.h>
@@ -25,7 +25,7 @@
 #define hmutex_unlock       pthread_mutex_unlock
 #endif
 
-//#include "htime.h"
+//#include "common/include/libnet/base/htime.h"
 #define SECONDS_PER_HOUR    3600
 #define SECONDS_PER_DAY     86400   // 24*3600
 #define SECONDS_PER_WEEK    604800  // 7*24*3600;

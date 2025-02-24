@@ -1,9 +1,9 @@
 #ifndef HV_SSL_H_
 #define HV_SSL_H_
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 #if !defined(WITH_OPENSSL) &&   \
     !defined(WITH_GNUTLS)  &&   \
     !defined(WITH_MBEDTLS)

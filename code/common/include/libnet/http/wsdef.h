@@ -1,7 +1,7 @@
 #ifndef HV_WS_DEF_H_
 #define HV_WS_DEF_H_
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #include <stdbool.h>
 #include <stdlib.h> // import rand

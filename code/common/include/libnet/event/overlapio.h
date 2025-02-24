@@ -1,12 +1,12 @@
 #ifndef HV_OVERLAPPED_H_
 #define HV_OVERLAPPED_H_
 
-#include "iowatcher.h"
+#include "common/include/libnet/event/iowatcher.h"
 
 #ifdef EVENT_IOCP
 
-#include "hbuf.h"
-#include "hsocket.h"
+#include "common/include/libnet/base/hbuf.h"
+#include "common/include/libnet/base/hsocket.h"
 #include <mswsock.h>
 #ifdef _MSC_VER
 #pragma comment(lib, "mswsock.lib")

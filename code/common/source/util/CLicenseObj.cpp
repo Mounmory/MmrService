@@ -13,7 +13,7 @@ CLicenseObj::CLicenseObj(std::string strFilePath, std::string strModule /*= "lic
 	, m_strFile(std::move(strFilePath))
 	, m_strModule(std::move(strModule))
 {
-	m_strFile = m_strFile + m_strModule + ".lic";
+	m_strFile = m_strFile + "license.lic";
 }
 
 CLicenseObj::~CLicenseObj()
@@ -29,7 +29,7 @@ bool CLicenseObj::parseLicenFile(std::string strFilePath /*= ""*/)
 		const std::string& strRef = strFilePath.empty() ? m_strFile : strFilePath;
 
 		Json::Value jsonRoot;
-		std::string strErr = Json::json_from_file(strRef, jsonRoot);
+		std::string strErr = Json::load_from_file(strRef, jsonRoot);
 		//parse the license file and get license info here!
 
 
@@ -147,7 +147,7 @@ bool CLicenseObj::updateLicense()
 			break;
 		}
 
-		m_jvLicData[m_strModule][LICENSE_CODE_LIC_CODE] = generateLicenseCode();
+		m_jvLicData[m_strModule][STR_LICENSE_CODE_LIC_CODE] = generateLicenseCode();
 
 		//写入文件
 		std::ofstream output;

@@ -1,7 +1,7 @@
 #ifndef HV_NETINET_H_
 #define HV_NETINET_H_
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 /*
 #ifdef OS_UNIX

@@ -1,8 +1,8 @@
 #ifndef HV_EVENT_LOOP_THREAD_POOL_HPP_
 #define HV_EVENT_LOOP_THREAD_POOL_HPP_
 
-#include "EventLoopThread.h"
-#include "hbase.h"
+#include "common/include/libnet/cppnet/EventLoopThread.h"
+#include "common/include/libnet/base/hbase.h"
 
 namespace hv {
 

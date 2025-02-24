@@ -44,6 +44,12 @@ int CProtoRpcClient::connect(std::string strHost, uint16_t port)
 	return 0;
 }
 
+void CProtoRpcClient::waitConnecting() 
+{
+	std::unique_lock<std::mutex> lock(m_mutexConnct);
+	m_cvConnect.wait_for(lock, std::chrono::seconds(10));//等候5秒钟
+}
+
 MessagePtr CProtoRpcClient::call(MessagePtr req, int timeout_ms /*= 10000*/)
 {
 	if (m_connState != kConnected) 
@@ -66,11 +72,19 @@ MessagePtr CProtoRpcClient::call(MessagePtr req, int timeout_ms /*= 10000*/)
 		m_calls[protoMsg.ulSequeNum] = ctx;
 	}
 	
-
+	// 获取开始时间点
+	auto start = std::chrono::high_resolution_clock::now();
 	channel->write(bufSend.base, bufSend.len);
 
 	// wait until response come or timeout
 	ctx->wait(timeout_ms);
+	// 获取结束时间点
+	auto end = std::chrono::high_resolution_clock::now();
+	// 计算运行时间，单位为毫秒
+	std::chrono::duration<double, std::milli> duration = end - start;
+	// 打印运行时间
+	std::cout << "RPC request name ["<< req->GetTypeName() << "] execution time: " << duration.count() << " milliseconds" << std::endl;
+
 	auto res = ctx->responsePtr;
 
 	{//将上下移出到map
@@ -95,6 +109,7 @@ void CProtoRpcClient::onDealConnection(const hv::SocketChannelPtr& channel)
 		LOG_INFO("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
 		printf("disconnected to %s! connfd=%d\n", peeraddr.c_str(), channel->fd());
 	}
+	m_cvConnect.notify_all();
 }
 
 void CProtoRpcClient::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer* buf)

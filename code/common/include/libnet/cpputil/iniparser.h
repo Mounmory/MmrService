@@ -4,7 +4,7 @@
 #include <string>
 #include <list>
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #define DEFAULT_INI_COMMENT "#"
 #define DEFAULT_INI_DELIM   "="

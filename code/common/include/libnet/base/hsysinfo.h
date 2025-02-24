@@ -1,7 +1,7 @@
 #ifndef HV_SYS_INFO_H_
 #define HV_SYS_INFO_H_
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifdef OS_LINUX
 #include <sys/sysinfo.h>

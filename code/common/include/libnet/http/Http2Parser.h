@@ -2,9 +2,9 @@
 #define HV_HTTP2_PARSER_H_
 
 #ifdef WITH_NGHTTP2
-#include "HttpParser.h"
-#include "http2def.h"
-#include "grpcdef.h"
+#include "common/include/libnet/http/HttpParser.h"
+#include "common/include/libnet/http/http2def.h"
+#include "common/include/libnet/http/grpcdef.h"
 
 #include "nghttp2/nghttp2.h"
 

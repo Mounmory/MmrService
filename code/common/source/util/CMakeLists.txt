@@ -17,11 +17,17 @@ source_group("source/util" FILES ${FILE_SOURCES})
 
 add_definitions(-DMMR_COMMON_EXPORT)
 
+set(INSTALL_PATH service)
+if(BUILD_EXAMPLES)
+	set(INSTALL_PATH ${INSTALL_PATH} example)
+endif(BUILD_EXAMPLES)
+
 build_shared_library( mmrUtil
 	#project folder in VS
 	FOLDER common
 	#源文件
 	SRC_FILES ${COMMON_HEADS} ${COMMON_SOURCE} ${FILE_HEADS} ${FILE_SOURCES}
 	TARGET_LINUX_LIBS pthread #threadPool in linux OS link library
+	TARGET_INSTALL_PATH ${INSTALL_PATH}
 	)
 	

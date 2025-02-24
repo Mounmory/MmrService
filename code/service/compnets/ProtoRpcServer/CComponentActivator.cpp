@@ -1,4 +1,4 @@
-#include "CComponentActivator.h"
+ï»¿#include "CComponentActivator.h"
 #include "service/core/include/CCompFramework.h"
 #include "CProtoServer.h"
 
@@ -24,7 +24,7 @@ const char* CComponentActivator::getName()
 
 bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 {
-	//ÈÕÖ¾ÉèÖÃ
+	//æ—¥å¿—è®¾ç½®
 	g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
 	CoreFrameworkIns->addComponetLogWrapper(getName(), g_LoggerPtr);
 	if (jsonConfig.hasKey("LogLevel"))
@@ -32,7 +32,7 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 		g_LoggerPtr->logLevel = static_cast<mmrUtil::emLogLevel>(jsonConfig.at("LogLevel").ToInt());
 	}
 
-	//·şÎñÉèÖÃ
+	//æœåŠ¡è®¾ç½®
 	g_rpcServer = std::make_shared<CProtoServer>();
 	
 	std::string strIP = "0.0.0.0";
@@ -53,7 +53,7 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 
 	LOG_INFO("set proto rpc server,ip %s port %d, thread num %d!", strIP.c_str(), usPort, ulTreadNum);
 
-	//×¢²á·şÎñ
+	//æ³¨å†ŒæœåŠ¡
 	//std::shared_ptr<IProtoRpcServer> serPtr = std::make_shared<CProtoServer>();
 	//CoreFrameworkIns->registService<IProtoRpcServer>(std::move(serPtr));
 	CoreFrameworkIns->registService<IProtoRpcServer>(g_rpcServer);
@@ -65,7 +65,7 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 bool CComponentActivator::start()
 {
 
-	//½¨Á¢ÍøÂçÁ¬½Ó
+	//å»ºç«‹ç½‘ç»œè¿æ¥
 	int32_t sockeFd = g_rpcServer->createSocket();
 	if (sockeFd < 0)
 	{

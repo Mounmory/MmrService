@@ -3,9 +3,8 @@
 
 #include <thread>
 
-#include "hlog.h"
-
-#include "EventLoop.h"
+#include "common/include/libnet/base/hlog.h"
+#include "common/include/libnet/cppnet/EventLoop.h"
 
 namespace hv {
 

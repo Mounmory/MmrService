@@ -1,4 +1,4 @@
-#ifndef COMMON_NOCOPYABLE_H
+﻿#ifndef COMMON_NOCOPYABLE_H
 #define COMMON_NOCOPYABLE_H
 
 #include "common/include/Common_def.h"

@@ -1,4 +1,4 @@
-﻿#ifndef CLOGGER_H
+#ifndef CLOGGER_H
 #define CLOGGER_H
 #include "common/include/Common_def.h"
 #include "common/include/util/UtilExport.h"
@@ -10,6 +10,7 @@
 #include <string.h>
 #include <iostream>
 #include <queue>
+#include <thread>
 
 BEGINE_NAMESPACE(mmrUtil)
 
@@ -140,7 +141,7 @@ private:
 	std::string m_strLogName; //文件路径
 	std::string m_strFilePath; //输出文件全路径
 
-	std::fstream m_logStream;   //写文件流,后续考虑使用更高效的文件流
+	std::fstream m_logStream;   //写文件流,后续考虑对比C标准库中FILE文件接口
 
 	std::unique_ptr<CBigBuff> m_pBufWrite;//写
 	std::unique_ptr<CBigBuff> m_pBufDeal;//写
@@ -178,61 +179,61 @@ extern std::shared_ptr<mmrUtil::LogWrapper> g_LoggerPtr;
 
 #define LOG_FORCE(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Forece)\
-   g_LoggerPtr->loger->logWrite("[%d][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_FATAL(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Fatal)\
-   g_LoggerPtr->loger->logWrite("[%d][F][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][F][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_ERROR(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Error)\
-   g_LoggerPtr->loger->logWrite("[%d][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_ERROR_PRINT(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Error)\
-   g_LoggerPtr->loger->logWrite("[%d][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)\
-	,printf("[%d][A][%s][%d]" format "\n", Thread_ID, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)\
+	,printf("[%ld][A][%s][%d]" format "\n", Thread_ID, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #define LOG_WARN(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Warn)\
-   g_LoggerPtr->loger->logWrite("[%d][W][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][W][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_INFO(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Info)\
-   g_LoggerPtr->loger->logWrite("[%d][I][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][I][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_DEBUG(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Debug)\
-   g_LoggerPtr->loger->logWrite("[%d][D][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   g_LoggerPtr->loger->logWrite("[%ld][D][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #else
 #define logInstancePtr mmrUtil::CLogger::getLogger()
 
 #define LOG_FORCE(format, ...) \
-   logInstancePtr->LogForce("[%d][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   logInstancePtr->LogForce("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_FATAL(format, ...) \
-   logInstancePtr->LogFatal("[%d][F][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   logInstancePtr->LogFatal("[%ld][F][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_ERROR(format, ...) \
-   logInstancePtr->LogError("[%d][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   logInstancePtr->LogError("[%ld][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_ERROR_PRINT(format, ...) \
-	logInstancePtr->LogError("[%d][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__);\
-   printf("[%d][E][%s][%d]" format "\n",Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+	logInstancePtr->LogError("[%ld][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__);\
+   printf("[%ld][E][%s][%d]" format "\n",Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_WARN(format, ...) \
-   logInstancePtr->LogWarn("[%d][W][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   logInstancePtr->LogWarn("[%ld][W][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_WARN_PRINT(format, ...) \
-	logInstancePtr->LogWarn("[%d][W][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__);\
-   printf("[%d][W][%s][%d]" format "\n",Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+	logInstancePtr->LogWarn("[%ld][W][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__);\
+   printf("[%ld][W][%s][%d]" format "\n",Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_INFO(format, ...) \
-   logInstancePtr->LogInfo("[%d][I][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   logInstancePtr->LogInfo("[%ld][I][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_DEBUG(format, ...) \
-   logInstancePtr->LogDebug("[%d][D][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+   logInstancePtr->LogDebug("[%ld][D][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 #endif
 
 

@@ -61,7 +61,7 @@ docker commit ub18Con mmr_service:18
 ​		将程序安装到/mmr目录下，程序路径为/mmr/bin，运行如下docker命令
 
 ```shell
-docker run -v /mmr:/mmr -p 30020:30020 -it --workdir=/mmr/bin --name mmrService mmr_service:18 ./serviceApp 
+docker run -v /mmr:/mmr -p 30020:30020 -it --workdir=/mmr/bin/service --name mmrService mmr_service:18 ./serviceApp 
 ```
 
 ​		这个命令使用镜像新建一个名字为mmrService的容器并执行，只执行一次即可。

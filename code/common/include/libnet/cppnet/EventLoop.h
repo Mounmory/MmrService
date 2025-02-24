@@ -6,12 +6,12 @@
 #include <map>
 #include <mutex>
 
-#include "hloop.h"
-#include "hthread.h"
+#include "common/include/libnet/event/hloop.h"
+#include "common/include/libnet/base/hthread.h"
 
-#include "Status.h"
-#include "Event.h"
-#include "ThreadLocalStorage.h"
+#include "common/include/libnet/cppnet/Status.h"
+#include "common/include/libnet/cppnet/Event.h"
+#include "common/include/libnet/cpputil/ThreadLocalStorage.h"
 
 namespace hv {
 

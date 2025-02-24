@@ -1,12 +1,12 @@
-#include "FileCache.h"
+#include "common/include/libnet/http/server/FileCache.h"
 
-#include "herr.h"
-#include "hscope.h"
-#include "htime.h"
-#include "hlog.h"
+#include "common/include/libnet/base/herr.h"
+#include "common/include/libnet/cpputil/hscope.h"
+#include "common/include/libnet/base/htime.h"
+#include "common/include/libnet/base/hlog.h"
 
-#include "httpdef.h"    // import http_content_type_str_by_suffix
-#include "http_page.h"  // import make_index_of_page
+#include "common/include/libnet/http/httpdef.h"    // import http_content_type_str_by_suffix
+#include "common/include/libnet/http/server/http_page.h"  // import make_index_of_page
 
 #define ETAG_FMT    "\"%zx-%zx\""
 

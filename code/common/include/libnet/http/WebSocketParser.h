@@ -1,7 +1,7 @@
 #ifndef HV_WEBSOCKET_PARSER_H_
 #define HV_WEBSOCKET_PARSER_H_
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #include <string>
 #include <memory>

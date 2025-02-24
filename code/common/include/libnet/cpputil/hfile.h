@@ -3,8 +3,8 @@
 
 #include <string> // for std::string
 
-#include "hplatform.h" // for stat
-#include "hbuf.h" // for HBuf
+#include "common/include/libnet/base/hplatform.h" // for stat
+#include "common/include/libnet/base/hbuf.h" // for HBuf
 
 class HFile {
 public:

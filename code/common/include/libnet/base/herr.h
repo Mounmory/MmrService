@@ -3,7 +3,7 @@
 
 #include <errno.h>
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #ifndef SYS_NERR
 #define SYS_NERR    133

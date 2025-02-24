@@ -1,7 +1,7 @@
-#include "WebSocketParser.h"
+#include "common/include/libnet/http/WebSocketParser.h"
 
-#include "websocket_parser.h"
-#include "hdef.h"
+#include "common/include/libnet/http/websocket_parser.h"
+#include "common/include/libnet/base/hdef.h"
 
 #define MAX_PAYLOAD_LENGTH  (1 << 24)   // 16M
 

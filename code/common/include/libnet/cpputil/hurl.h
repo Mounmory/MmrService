@@ -3,7 +3,7 @@
 
 #include <string> // import std::string
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 class HV_EXPORT HUrl {
 public:

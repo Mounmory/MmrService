@@ -1,6 +1,5 @@
-#include "ThreadLocalStorage.h"
-
-#include "hthread.h"
+#include "common/include/libnet/cpputil/ThreadLocalStorage.h"
+#include "common/include/libnet/base/hthread.h"
 
 namespace hv {
 

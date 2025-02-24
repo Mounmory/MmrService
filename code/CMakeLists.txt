@@ -23,7 +23,11 @@ if(WIN32)
 			message(FATAL_ERROR "MSVC version must be at least 14.0 (Visual Studio 2015)!")
 		endif()
 		
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++14")
+		#add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+		#add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++14 /source-charset:utf-8")#源文件编码方式
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /source-charset:utf-8")
+		#add_compile_options(/wd4828)#取消4828编译警告
 		link_directories(${THIRD_PART_DIR}/lib/win64)
 		#option(ENABLE_WINDUMP "Windows MiniDumpWriteDump" "OFF")
 		add_definitions(-DOS_MMR_WIN)#添加window系统宏
@@ -45,7 +49,7 @@ elseif(UNIX)
 	
 	set(CMAKE_INSTALL_PREFIX /mmr)#安装目录
 	
-	set(CMAKE_BUILD_TYPE Release)#设置构建类型
+	#set(CMAKE_BUILD_TYPE Release)#设置构建类型
 
 	#set(CMAKE_BUILD_TYPE Debug)#设置构建类型
 	
@@ -69,8 +73,6 @@ include(MacroBuildToolPlugin)
 include(MacroBuildApp)
 include(MacroBuildComponent)
 
-SET(COMMON_INCLUDE_LIBNET_DIR ${CMAKE_SOURCE_DIR}/common/include/libnet)
-
 #protobuf生成源文件路径
 SET(PROTO_GENERATE_FILE_PATH ${CMAKE_SOURCE_DIR}/protoBuf/generate)
 
@@ -85,7 +87,6 @@ include_directories(${CMAKE_SOURCE_DIR})#根目录
 
 #ADD_SUBDIRECTORY(app)
 ADD_SUBDIRECTORY(common)
-ADD_SUBDIRECTORY(service)
 #ADD_SUBDIRECTORY(tools)
 
 if(WIN32 AND BUILD_QT_PROJECT)
@@ -108,14 +109,28 @@ if(WIN32 AND BUILD_QT_PROJECT)
 	endif(BUILD_CREO_LIB)
 endif(WIN32 AND BUILD_QT_PROJECT)
 
+#构建服务模块
+option(BUILD_SERVICE "build service" "ON")
+if(BUILD_SERVICE)
+	ADD_SUBDIRECTORY(service)
+endif(BUILD_SERVICE)
+
 #构建测试用例
 option(BUILD_TESTS "build tests" "ON")
 if(BUILD_TESTS)
 	ADD_SUBDIRECTORY(test)
 endif(BUILD_TESTS)
 
+#构建APP工具
+option(BUILD_TOOL_APP "build tool applications" "OFF")
+if(BUILD_TOOL_APP)
+	ADD_SUBDIRECTORY(toolApp)
+endif(BUILD_TOOL_APP)
+
 option(BUILD_EXAMPLES "build examples" "ON")
 if(BUILD_EXAMPLES)
-	option(INSTALL_EXAMPLE "install" "OFF")
+	option(INSTALL_EXAMPLE "install" "ON")
 	ADD_SUBDIRECTORY(example)
 endif(BUILD_EXAMPLES)
+
+option(BUILD_WHIT_BOOST "build with boost lib" "OFF")

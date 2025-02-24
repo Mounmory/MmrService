@@ -1,13 +1,13 @@
 #ifndef HV_HTTP_CONTENT_H_
 #define HV_HTTP_CONTENT_H_
 
-#include "hexport.h"
-#include "hstring.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/cpputil/hstring.h"
 
 // NOTE: WITHOUT_HTTP_CONTENT
 // ndk-r10e no std::to_string and can't compile modern json.hpp
 #ifndef WITHOUT_HTTP_CONTENT
-#include "nlohmann_json.hpp" // https://github.com/nlohmann/json
+#include "common/include/libnet/cpputil/nlohmann_json.hpp" // https://github.com/nlohmann/json
 #endif
 
 BEGIN_NAMESPACE_HV

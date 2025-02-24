@@ -1,4 +1,4 @@
-#ifndef HV_LOG_H_
+﻿#ifndef HV_LOG_H_
 #define HV_LOG_H_
 
 /*
@@ -20,7 +20,7 @@
 #define __FILENAME__  (strrchr(DIR_SEPARATOR_STR __FILE__, DIR_SEPARATOR) + 1)
 #endif
 
-#include "hexport.h"
+#include "common/include/libnet/hexport.h"
 
 #ifdef __cplusplus
 extern "C" {

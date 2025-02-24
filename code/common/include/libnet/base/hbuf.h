@@ -1,8 +1,8 @@
 #ifndef HV_BUF_H_
 #define HV_BUF_H_
 
-#include "hdef.h"   // for MAX
-#include "hbase.h"  // for HV_ALLOC, HV_FREE
+#include "common/include/libnet/base/hdef.h"   // for MAX
+#include "common/include/libnet/base/hbase.h"  // for HV_ALLOC, HV_FREE
 
 typedef struct hbuf_s {
     char*  base;

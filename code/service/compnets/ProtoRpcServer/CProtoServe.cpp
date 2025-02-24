@@ -1,4 +1,4 @@
-#include "CProtoServer.h"
+﻿#include "CProtoServer.h"
 #include "common/include/util/Clogger.h"
 #include "common/include/protoBase/ProtoCodec.hpp"
 
@@ -19,10 +19,10 @@ CProtoServer::CProtoServer()
 	//protorpc_unpack_setting.length_field_coding = ENCODE_BY_BIG_ENDIAN;
 	//setUnpack(&protorpc_unpack_setting);
 
-	//�����Ӻ���
+	//绑定连接函数
 	onConnection = std::bind(&CProtoServer::onDealConnection, this, std::placeholders::_1);
 
-	//��Ϣ��������
+	//消息处理函数
 	onMessage = std::bind(&CProtoServer::onDealMessage, this, std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -66,7 +66,7 @@ void CProtoServer::onDealConnection(const hv::SocketChannelPtr& channel)
 
 void CProtoServer::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer* buf)
 {
-	if (!channel->getClientState())//δ��¼�ͻ���������
+	if (!channel->getClientState())//未登录客户单独处理
 	{
 		return onDealLoginMessage(channel, buf);
 	}
@@ -77,7 +77,11 @@ void CProtoServer::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer
 	EM_ErrCode errCode = decodingFromBuf(&protoRequest, buf);
 	if (EM_ErrCode::ERR_NONE == errCode)
 	{
-		LOG_DEBUG("deal request, sequ num[%ld] message name[%s] message\n%s"
+		// 获取开始时间点
+		auto start = std::chrono::high_resolution_clock::now();
+
+		LOG_DEBUG("deal request, fd[%ld], sequ num[%ld] message name[%s] message\n%s"
+			, channel->fd()
 			, protoRequest.ulSequeNum
 			, protoRequest.strName.c_str()
 			, protoRequest.protoMsgPtr->DebugString().c_str());
@@ -91,12 +95,19 @@ void CProtoServer::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer
 			hv::Buffer outBuf;
 			codingToBuf(&protoResponse, &outBuf);
 
-			LOG_DEBUG("send response, sequ num[%ld] message name[%s] message\n%s"
+			channel->write(&outBuf);
+
+			// 获取结束时间点
+			auto end = std::chrono::high_resolution_clock::now();
+			// 计算运行时间，单位为毫秒
+			std::chrono::duration<float, std::milli> duration = end - start;
+
+			LOG_DEBUG("send response, fd[%ld], sequ num[%ld] message name[%s] deal time [%f] ms message\n%s"
+				, channel->fd()
 				, protoResponse.ulSequeNum
 				, protoResponse.strName.c_str()
+				, duration.count()
 				, protoResponse.protoMsgPtr->DebugString().c_str());
-
-			channel->write(&outBuf);
 		}
 		else 
 		{
@@ -106,6 +117,8 @@ void CProtoServer::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer
 	}
 	else
 	{
+		//将数据原封不动返回
+		channel->write(buf);
 		channel->close(true);
 		LOG_ERROR("buf from %s decoding error, error code [%d], close socket!", channel->peeraddr().c_str(), errCode);
 	}
@@ -119,7 +132,11 @@ void CProtoServer::onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::B
 	EM_ErrCode errCode = decodingFromBuf(&protoRequest, buf);
 	if (EM_ErrCode::ERR_NONE == errCode && protoRequest.protoMsgPtr->GetTypeName() == "mmrService.LoginRequest")
 	{
-		LOG_DEBUG("deal request, sequ num[%ld] message name[%s] message\n%s"
+		// 获取开始时间点
+		auto start = std::chrono::high_resolution_clock::now();
+
+		LOG_DEBUG("deal request, fd[%ld], sequ num[%ld] message name[%s] message\n%s"
+			, channel->fd()
 			, protoRequest.ulSequeNum
 			, protoRequest.strName.c_str()
 			, protoRequest.protoMsgPtr->DebugString().c_str());
@@ -127,7 +144,7 @@ void CProtoServer::onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::B
 		auto response = dealProtobufMessage(protoRequest.protoMsgPtr);
 		if (response)
 		{
-			channel->setClientState(true);//�ͻ��˱��Ϊ�Ϸ�
+			channel->setClientState(true);//客户端标记为合法
 
 			protoResponse.protoMsgPtr = std::move(response);
 			protoResponse.ulSequeNum = protoRequest.ulSequeNum;
@@ -135,12 +152,19 @@ void CProtoServer::onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::B
 			hv::Buffer outBuf;
 			codingToBuf(&protoResponse, &outBuf);
 
-			LOG_DEBUG("send response, sequ num[%ld] message name[%s] message\n%s"
+			channel->write(&outBuf);
+
+			// 获取结束时间点
+			auto end = std::chrono::high_resolution_clock::now();
+			// 计算运行时间，单位为毫秒
+			std::chrono::duration<float, std::milli> duration = end - start;
+
+			LOG_DEBUG("send response, fd[%ld], sequ num[%ld] message name[%s] deal time [%f] ms message\n%s"
+				, channel->fd()
 				, protoResponse.ulSequeNum
 				, protoResponse.strName.c_str()
+				, duration.count()
 				, protoResponse.protoMsgPtr->DebugString().c_str());
-
-			channel->write(&outBuf);
 		}
 		else
 		{
@@ -150,6 +174,7 @@ void CProtoServer::onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::B
 	}
 	else
 	{
+		channel->write(buf);
 		channel->close(true);
 		LOG_ERROR("illegal buf from %s , error code [%d], close socket!", channel->peeraddr().c_str(), errCode);
 	}

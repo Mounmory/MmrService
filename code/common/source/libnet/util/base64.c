@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "base64.h"
+#include "common/include/libnet/util/base64.h"
 
 /* BASE 64 encode table */
 static const char base64en[] = {

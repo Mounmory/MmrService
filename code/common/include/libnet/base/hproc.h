@@ -1,7 +1,7 @@
 #ifndef HV_PROC_H_
 #define HV_PROC_H_
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 typedef struct proc_ctx_s {
     pid_t           pid; // tid in Windows

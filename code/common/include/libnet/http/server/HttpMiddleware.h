@@ -1,8 +1,8 @@
 #ifndef HV_HTTP_MIDDLEWARE_H_
 #define HV_HTTP_MIDDLEWARE_H_
 
-#include "hexport.h"
-#include "HttpContext.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/http/server/HttpContext.h"
 
 BEGIN_NAMESPACE_HV
 

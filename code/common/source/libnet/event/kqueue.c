@@ -1,12 +1,12 @@
-#include "iowatcher.h"
+#include "common/include/libnet/event/iowatcher.h"
 
 #ifdef EVENT_KQUEUE
-#include "hplatform.h"
-#include "hdef.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/base/hdef.h"
 
 #include <sys/event.h>
 
-#include "hevent.h"
+#include "common/include/libnet/event/hevent.h"
 
 #define EVENTS_INIT_SIZE     64
 

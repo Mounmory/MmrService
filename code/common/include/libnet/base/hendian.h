@@ -1,7 +1,7 @@
 #ifndef HV_ENDIAN_H_
 #define HV_ENDIAN_H_
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 #if defined(OS_MAC)
 #include <libkern/OSByteOrder.h>
 #define htobe16(v) OSSwapHostToBigInt16(v)

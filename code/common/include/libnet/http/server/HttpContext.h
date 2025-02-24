@@ -1,9 +1,9 @@
 #ifndef HV_HTTP_CONTEXT_H_
 #define HV_HTTP_CONTEXT_H_
 
-#include "hexport.h"
-#include "HttpMessage.h"
-#include "HttpResponseWriter.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/http/HttpMessage.h"
+#include "common/include/libnet/http/server/HttpResponseWriter.h"
 
 namespace hv {
 

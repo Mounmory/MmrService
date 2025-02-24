@@ -7,9 +7,9 @@
 #include <iostream>
 #include <sstream>
 
-#include "hexport.h"
-#include "hplatform.h"
-#include "hmap.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/cpputil/hmap.h"
 
 #define SPACE_CHARS     " \t\r\n"
 #define PAIR_CHARS      "{}[]()<>\"\"\'\'``"

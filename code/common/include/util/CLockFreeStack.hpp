@@ -1,4 +1,4 @@
-﻿#ifndef CLOCKFREESTACK_HPP
+#ifndef CLOCKFREESTACK_HPP
 #define CLOCKFREESTACK_HPP
 
 #include <atomic>

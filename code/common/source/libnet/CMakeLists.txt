@@ -1,10 +1,5 @@
 project(hvNet)
 
-#包含网络库相关头文件
-include_hv_lib_module(
-	HV_MODULES base cppnet cpputil event http util hv	#要包含的文件夹
-	)
-
 if(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_NO_WARNINGS -D_WIN32_WINNT=0x0600)
     set(LIBS ${LIBS} secur32 crypt32 winmm iphlpapi ws2_32)
@@ -16,6 +11,8 @@ else(UNIX)
  set(LIBS ${LIBS} pthread)
  add_definitions(-DHAVE_PTHREAD_H -DHAVE_SYS_TIME_H)
 endif()
+
+SET(COMMON_INCLUDE_LIBNET_DIR ${CMAKE_SOURCE_DIR}/common/include/libnet)
 
 #文件分组
 file(GLOB NET_BASE_HEADS "${COMMON_INCLUDE_LIBNET_DIR}/base/*.h" "${COMMON_INCLUDE_LIBNET_DIR}/base/*.hpp")
@@ -52,6 +49,16 @@ source_group("include/http" FILES ${NET_HTTP_HEADS})
 file(GLOB NET_HTTP_SOURCE "${CMAKE_SOURCE_DIR}/common/source/libnet/http/*.c" "${CMAKE_SOURCE_DIR}/common/source/libnet/http/*.cpp")
 source_group("source/http" FILES ${NET_HTTP_SOURCE})
 
+file(GLOB NET_HTTP_CLIENT_HEADS "${COMMON_INCLUDE_LIBNET_DIR}/http/client/*.h" "${COMMON_INCLUDE_LIBNET_DIR}/http/client/*.hpp")
+source_group("include/http/client" FILES ${NET_HTTP_CLIENT_HEADS})
+file(GLOB NET_HTTP_CLIENT_SOURCE "${CMAKE_SOURCE_DIR}/common/source/libnet/http/client/*.c" "${CMAKE_SOURCE_DIR}/common/source/libnet/http/client/*.cpp")
+source_group("source/http/client" FILES ${NET_HTTP_CLIENT_SOURCE})
+
+file(GLOB NET_HTTP_SERVER_HEADS "${COMMON_INCLUDE_LIBNET_DIR}/http/server/*.h" "${COMMON_INCLUDE_LIBNET_DIR}/http/server/*.hpp")
+source_group("include/http/server" FILES ${NET_HTTP_SERVER_HEADS})
+file(GLOB NET_HTTP_SERVER_SOURCE "${CMAKE_SOURCE_DIR}/common/source/libnet/http/server/*.c" "${CMAKE_SOURCE_DIR}/common/source/libnet/http/server/*.cpp")
+source_group("source/http/server" FILES ${NET_HTTP_SERVER_SOURCE})
+
 file(GLOB NET_UTIL_HEADS "${COMMON_INCLUDE_LIBNET_DIR}/util/*.h" "${COMMON_INCLUDE_LIBNET_DIR}/util/*.hpp")
 source_group("include/util" FILES ${NET_UTIL_HEADS})
 file(GLOB NET_UTIL_SOURCE "${CMAKE_SOURCE_DIR}/common/source/libnet/util/*.c" "${CMAKE_SOURCE_DIR}/common/source/libnet/util/*.cpp")
@@ -63,6 +70,11 @@ file(GLOB NET_SSL_SOURCE "${CMAKE_SOURCE_DIR}/common/source/libnet/ssl/*.c" "${C
 source_group("source/ssl" FILES ${NET_SSL_SOURCE})
 #add_definitions(-DMMR_COMMON_EXPORT)
 
+set(INSTALL_PATH service)
+if(BUILD_EXAMPLES)
+	set(INSTALL_PATH ${INSTALL_PATH} example)
+endif(BUILD_EXAMPLES)
+
 build_shared_library( hvNet
 	#project folder in VS
 	FOLDER common
@@ -72,10 +84,13 @@ build_shared_library( hvNet
 		${NET_CPPUTIL_HEADS} ${NET_CPPUTIL_SOURCE}
 		${NET_EVENT_HEADS} ${NET_EVENT_SOURCE}
 		${NET_HTTP_HEADS} ${NET_HTTP_SOURCE}
+		${NET_HTTP_CLIENT_HEADS} ${NET_HTTP_CLIENT_SOURCE}
+		${NET_HTTP_SERVER_HEADS} ${NET_HTTP_SERVER_SOURCE}
 		${NET_UTIL_HEADS} ${NET_UTIL_SOURCE}
 		${NET_SSL_HEADS} ${NET_SSL_SOURCE}
 	TARGET_WIN_LIBS ${LIBS}
 	TARGET_LINUX_LIBS ${LIBS} #threadPool in linux OS link library
+	TARGET_INSTALL_PATH ${INSTALL_PATH}
 	)
 #[[	
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/

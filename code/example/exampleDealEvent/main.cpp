@@ -93,7 +93,7 @@ int main(int argc ,char** argv)
 	do 
 	{
 		//启动框架
-		if (!CoreFrameworkIns->start("fmServTest.json"))
+		if (!CoreFrameworkIns->start("fmServTest"))
 		{
 			std::cout << "framework started failed!" << std::endl;
 			break;

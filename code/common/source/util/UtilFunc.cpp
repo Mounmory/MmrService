@@ -1,26 +1,28 @@
-﻿#include "common/include/util/UtilFunc.h"
+#include "common/include/util/UtilFunc.h"
 
 #include <sstream>
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <cctype>
 
-
-#ifdef OS_MMR_WIN//windows
+#ifdef OS_MMR_WIN	//windows
 #include <Windows.h>
-#include <codecvt>
-#elif defined OS_MMR_LINUX//linux
+#include <codecvt>	//字符转换头文件
+#include <intrin.h>	//cpu id头文件
+#include <objbase.h> //生成GUID
+#elif defined OS_MMR_LINUX	//linux
 #include <sys/stat.h>
 #include <unistd.h>
 #include <iconv.h>
+#include <cpuid.h>//cpu id 头文件
 #endif
+
+
 
 #define MAX_STR_LEN 1024
 
-COMMON_FUN_API std::string mmrUtil::getComputerID()
-{
-	return "undefined function";
-}
 
 bool mmrUtil::utf8ToLocalString(const std::string& strIn, std::string& strOut)
 {
@@ -109,7 +111,61 @@ bool mmrUtil::localStringToUtf8(const std::string& strIn, std::string& strOut)
 #endif //OS_MMR_WIN
 }
 
-COMMON_FUN_API bool mmrUtil::getAppPathAndName(std::string& filePath, std::string& exeName)
+std::string mmrUtil::getComputerID()
+{
+	char buffer[32] = { 0 };
+
+#ifdef OS_MMR_WIN
+	int CPUInfo[4] = { -1 };
+	__cpuid(CPUInfo, 1); // 使用 CPUID 指令获取 CPU 信息
+	snprintf(buffer, sizeof(buffer), "%08X%08X", CPUInfo[3], CPUInfo[0]);
+#else
+	unsigned int eax = 0, ebx = 0, ecx = 0, edx = 0;
+	__get_cpuid(1, &eax, &ebx, &ecx, &edx); // 使用 __get_cpuid 函数获取 CPU 信息
+	snprintf(buffer, sizeof(buffer), "%08X%08X", edx, eax);
+#endif
+	return std::string(buffer);
+}
+
+std::string mmrUtil::getAppPath() 
+{
+	std::string strRet;
+#ifdef OS_MMR_WIN
+	char path[MAX_STR_LEN];
+	auto pathLen = GetModuleFileName(NULL, path, MAX_STR_LEN);
+	if (pathLen > MAX_STR_LEN)
+	{
+		STD_CERROR << "funciton mmrUtil::getAppPathAndName path len[" << pathLen << "] is longer than max string leng " << std::endl;
+	}
+	strRet = path;
+	auto pos = strRet.rfind('\\');
+	if (pos != std::string::npos)
+	{
+		strRet.erase(strRet.begin() + pos + 1, strRet.end());
+	}
+#else
+	do 
+	{
+		pid_t pid = getpid();
+		char tmpPath[MAX_STR_LEN];//路径
+		char tmpName[MAX_STR_LEN];//exe名称
+		ssize_t len = readlink(std::string("/proc/").append(std::to_string(pid)).append("/exe").c_str(), tmpPath, MAX_STR_LEN - 1);
+		if (len <= 0)
+			break;
+		tmpPath[len] = '\0';
+		char* path_end = strrchr(tmpPath, '/');
+		if (path_end == NULL)
+			break;
+		++path_end;
+		strcpy(tmpName, path_end);
+		*path_end = '\0';
+		strRet = tmpPath;
+	} while (false);
+#endif
+	return strRet;
+}
+
+bool mmrUtil::getAppPathAndName(std::string& filePath, std::string& exeName)
 {
 #ifdef OS_MMR_WIN
 	char path[MAX_STR_LEN];
@@ -156,35 +212,54 @@ COMMON_FUN_API bool mmrUtil::getAppPathAndName(std::string& filePath, std::strin
 #endif
 }
 
-COMMON_FUN_API std::string mmrUtil::generateGUID()
+std::string mmrUtil::generateGUID()
 {
-	std::string retStr;
+	std::string strRet;
 #ifdef OS_MMR_WIN
-	//GUID guid;
-	//if (CoCreateGuid(&guid) == RPC_S_OK) {
-	//	// 将GUID转换为字符串形式
-	//	char guidStr[39];
-	//	StringFromGUID2(guid, guidStr, sizeof(guidStr) / sizeof(guidStr[0]));
-
-	//	// 输出GUID
-	//	std::cout << "Generated GUID: " << guidStr << std::endl;
-	//}
-
+	std::stringstream guidStream;
+	// Windows 实现
+	GUID guid;
+	if (CoCreateGuid(&guid) == S_OK) {
+		guidStream << std::hex << std::setfill('0')
+			<< std::setw(8) << guid.Data1 << "-"
+			<< std::setw(4) << guid.Data2 << "-"
+			<< std::setw(4) << guid.Data3 << "-"
+			<< std::setw(2) << static_cast<int>(guid.Data4[0]) << std::setw(2) << static_cast<int>(guid.Data4[1]) << "-"
+			<< std::setw(2) << static_cast<int>(guid.Data4[2]) << std::setw(2) << static_cast<int>(guid.Data4[3])
+			<< std::setw(2) << static_cast<int>(guid.Data4[4]) << std::setw(2) << static_cast<int>(guid.Data4[5])
+			<< std::setw(2) << static_cast<int>(guid.Data4[6]) << std::setw(2) << static_cast<int>(guid.Data4[7]);
+	}
+	else
+	{
+		std::cout << "Failed to generate GUID on Windows." << std::endl;
+	}
+	strRet = guidStream.str();
 #else
-
-
-
+	// Linux 实现
+	std::ifstream uuidFile("/proc/sys/kernel/random/uuid");
+	if (uuidFile.is_open()) 
+	{
+		std::getline(uuidFile, strRet);
+		uuidFile.close();
+	}
+	else 
+	{
+		std::cout << "Failed to open /proc/sys/kernel/random/uuid." << std::endl;
+	}
 #endif
-
-	return retStr;
+	for (char& c : strRet)
+	{    // 遍历每个字符
+		c = std::toupper(c);    // 将小写字母转换为大写
+	}
+	return strRet;
 }
 
-COMMON_FUN_API std::string mmrUtil::getComplieTime()
+std::string mmrUtil::getComplieTime()
 {
 	return std::string(__DATE__) + " " + std::string(__TIME__);
 }
 
-COMMON_FUN_API std::string mmrUtil::getComplierInfo()
+std::string mmrUtil::getComplierInfo()
 {
 #if defined(OS_MMR_WIN)
 	// Windows platform
@@ -232,10 +307,9 @@ COMMON_FUN_API std::string mmrUtil::getComplierInfo()
 #endif
 }
 
-
 #define TIME_STR_LEN 19
 
-COMMON_FUN_API std::string mmrUtil::timeInt64ToString(int64_t llTime)
+std::string mmrUtil::timeInt64ToString(int64_t llTime)
 {
 	std::string stRet(TIME_STR_LEN, 0);
 	std::tm* time_info = std::localtime(&llTime);
@@ -246,8 +320,7 @@ COMMON_FUN_API std::string mmrUtil::timeInt64ToString(int64_t llTime)
 	return stRet;
 }
 
-
-COMMON_FUN_API const char* mmrUtil::getFileName(const char* szFullPath)
+const char* mmrUtil::getFileName(const char* szFullPath)
 {
 	char* p = (char*)szFullPath;
 	while (*p) ++p;

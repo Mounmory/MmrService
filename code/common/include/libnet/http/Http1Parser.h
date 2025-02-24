@@ -1,8 +1,8 @@
 #ifndef HV_HTTP1_PARSER_H_
 #define HV_HTTP1_PARSER_H_
 
-#include "HttpParser.h"
-#include "http_parser.h"
+#include "common/include/libnet/http/HttpParser.h"
+#include "common/include/libnet/http/http_parser.h"
 
 class Http1Parser : public HttpParser {
 public:

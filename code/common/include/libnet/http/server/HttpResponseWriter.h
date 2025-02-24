@@ -1,8 +1,8 @@
 #ifndef HV_HTTP_RESPONSE_WRITER_H_
 #define HV_HTTP_RESPONSE_WRITER_H_
 
-#include "Channel.h"
-#include "HttpMessage.h"
+#include "common/include/libnet/cppnet/Channel.h"
+#include "common/include/libnet/http/HttpMessage.h"
 
 namespace hv {
 

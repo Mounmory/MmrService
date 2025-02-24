@@ -23,7 +23,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "httpdef.h"
+#include "common/include/libnet/http/httpdef.h"
 
 /* Also update SONAME in the Makefile whenever you change these. */
 #define HTTP_PARSER_VERSION_MAJOR 2

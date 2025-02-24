@@ -1,10 +1,10 @@
 #ifndef HV_LOOP_H_
 #define HV_LOOP_H_
 
-#include "hexport.h"
-#include "hplatform.h"
-#include "hdef.h"
-#include "hssl.h"
+#include "common/include/libnet/hexport.h"
+#include "common/include/libnet/base/hplatform.h"
+#include "common/include/libnet/base/hdef.h"
+#include "common/include/libnet/ssl/hssl.h"
 
 typedef struct hloop_s      hloop_t;
 typedef struct hevent_s     hevent_t;
@@ -285,7 +285,7 @@ HV_EXPORT bool hio_is_connected(hio_t* io);
 HV_EXPORT bool hio_is_closed(hio_t* io);
 
 // iobuf
-// #include "hbuf.h"
+// #include "common/include/libnet/base/hbuf.h"
 typedef struct fifo_buf_s hio_readbuf_t;
 // NOTE: One loop per thread, one readbuf per loop.
 // But you can pass in your own readbuf instead of the default readbuf to avoid memcopy.

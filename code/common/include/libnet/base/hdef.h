@@ -1,7 +1,7 @@
 #ifndef HV_DEF_H_
 #define HV_DEF_H_
 
-#include "hplatform.h"
+#include "common/include/libnet/base/hplatform.h"
 
 #ifndef ABS
 #define ABS(n)  ((n) > 0 ? (n) : -(n))
