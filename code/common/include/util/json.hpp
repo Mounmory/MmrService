@@ -198,7 +198,7 @@ public:
 	Value(T f, typename enable_if<is_floating_point<T>::value>::type* = 0) : Internal((double)f), Type(emJsonType::Floating) {}
 
 	template <typename T>
-	Value(T s, typename enable_if<is_convertible<T, string>::value>::type* = 0) : Internal(string(s)), Type(emJsonType::String) {}
+	Value(T&& s, typename enable_if<is_convertible<T, string>::value>::type* = 0) : Internal(std::forward<T>(s)), Type(emJsonType::String) {}
 
 	Value(std::nullptr_t) : Internal(), Type(emJsonType::Null) {}
 

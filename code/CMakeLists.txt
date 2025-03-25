@@ -1,4 +1,4 @@
-﻿# CMake版本约束
+# CMake版本约束
 cmake_minimum_required(VERSION 3.0)
 #工程名称
 project(MmrService)
@@ -18,15 +18,25 @@ option(BUILD_QT_PROJECT "build project with Qt" "OFF")
 if(WIN32)
 	message("platform windows")
 	if(MSVC)
+		message("MSVC version ${MSVC_VERSION}")
+
 		#STRING(REPLACE "-O2" "-Od" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})#取消优化
 		if(MSVC_VERSION LESS 1900) # 判断编译器版本是否低于VS2015
 			message(FATAL_ERROR "MSVC version must be at least 14.0 (Visual Studio 2015)!")
 		endif()
-		
+
+		#设置C++编译选项
+		if(MSVC_VERSION GREATER_EQUAL 1920)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+		else()
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+		endif()
 		#add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 		#add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++14 /source-charset:utf-8")#源文件编码方式
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj  /Zc:__cplusplus /source-charset:utf-8")#源文件编码方式
+		#设置C编译选项
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /source-charset:utf-8")
+
 		#add_compile_options(/wd4828)#取消4828编译警告
 		link_directories(${THIRD_PART_DIR}/lib/win64)
 		#option(ENABLE_WINDUMP "Windows MiniDumpWriteDump" "OFF")
@@ -36,8 +46,15 @@ if(WIN32)
 	endif()
 elseif(UNIX)
 	message("platform linux")
-	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fpermissive -fPIC")
+	#设置C++编译选项
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -fPIC")
+	#设置c++版本
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7.0)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	endif()
+	#设置C编译选项
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 	if(BUILD_QT_PROJECT)
@@ -59,6 +76,8 @@ elseif(UNIX)
 else()	
 	message(FATAL_ERROR "Unsupported OS type!")
 endif()
+
+message("compiler version ${CMAKE_CXX_COMPILER_VERSION}")
 
 #包含目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)#可执行文件位置

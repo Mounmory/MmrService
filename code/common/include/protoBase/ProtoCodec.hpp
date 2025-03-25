@@ -183,7 +183,7 @@ namespace
 			protoMsg->strName = protoMsg->protoMsgPtr->GetTypeName();
 			protoMsg->usNameLen = protoMsg->strName.size() + 1;
 
-			int32_t lBufSize = protoMsg->protoMsgPtr->ByteSize();
+			int32_t lBufSize = protoMsg->protoMsgPtr->ByteSizeLong();
 			buf->resize(14 + protoMsg->usNameLen + lBufSize);
 			unsigned char* p = (unsigned char*)(buf->data());
 

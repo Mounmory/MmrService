@@ -15,11 +15,6 @@
 #include "common/include/Common_def.h"
 #include "common/include/CTypeInfo.hpp"
 
-#if defined(__GNUC__) && defined(__GNUC_MINOR__) && (__GNUC__ > 5)
-	#define GCC_VER_OVER_5 1
-#else
-	#define GCC_VER_OVER_5 0
-#endif
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)
 
@@ -40,22 +35,6 @@ public:
 		m_mapServices.insert(std::make_pair(mmrComm::CTypeInfo(typeid(_T)), std::forward<std::shared_ptr<_T>>(pSer)));
 	}
 
-
-#if GCC_VER_OVER_5
-	template<typename _T>
-	void getService(std::shared_ptr<_T>& ptrService)
-	{
-		auto iterSer = m_mapServices.find(mmrComm::CTypeInfo(typeid(_T)));
-		if (iterSer != m_mapServices.end())
-		{
-			ptrService = std::static_pointer_cast<_T>(iterSer->second);
-		}
-		else
-		{
-			std::cerr << "error! unregister service type " << typeid(_T).name() << std::endl;
-		}
-	}
-#else
 	template<typename _T>
 	std::shared_ptr<_T> getService()
 	{
@@ -67,8 +46,6 @@ public:
 		}
 		return std::static_pointer_cast<_T>(iterSer->second);
 	}
-#endif
-
 
 	void clear() { m_mapServices.clear(); }
 
@@ -119,21 +96,6 @@ public:
 		//std::cout << "register service index " << index <<" static index " << _T::GetClassIndexStatic() << " vector size " << m_vecServices.size() << std::endl;
 	}
 
-#if GCC_VER_OVER_5
-	template<typename _T>
-	void getService(std::shared_ptr<_T>& ptrService)
-	{
-		const int32_t& index = _T::GetClassIndexStatic();
-		if (index >= 0 && index < m_vecServices.size())
-		{
-			ptrService = std::static_pointer_cast<_T>(m_vecServices[index]);
-		}
-		else
-		{
-			std::cerr << "error! unregister service type " << typeid(_T).name() << " index " << index << std::endl;
-		}
-	}
-#else
 	template<typename _T>
 	std::shared_ptr<_T> getService()
 	{
@@ -145,7 +107,6 @@ public:
 		}
 		return std::static_pointer_cast<_T>(m_vecServices[index]);
 	}
-#endif
 
 	void clear() { m_vecServices.clear(); }
 
@@ -184,21 +145,6 @@ public:
 		m_unMapServices[_T::GetClassGUIDStatic()] = std::forward<std::shared_ptr<_T>>(pSer);
 	}
 
-#if GCC_VER_OVER_5
-	template<typename _T>
-	void getService(std::shared_ptr<_T>& ptrService)
-	{
-		auto iterSer = m_unMapServices.find(_T::GetClassGUIDStatic());
-		if (iterSer != m_unMapServices.end())
-		{
-			ptrService = std::static_pointer_cast<_T>(iterSer->second);
-		}
-		else
-		{
-			std::cerr << "error! unregister service type " << typeid(_T).name() << std::endl;
-		}
-	}
-#else
 	template<typename _T>
 	std::shared_ptr<_T> getService()
 	{
@@ -210,7 +156,6 @@ public:
 		}
 		return std::static_pointer_cast<_T>(iterSer->second);
 	}
-#endif
 	
 	void clear() { m_unMapServices.clear(); }
 

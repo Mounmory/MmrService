@@ -13,7 +13,7 @@
 
 BEGINE_NAMESPACE(mmrUtil)
 
-enum class emEndian //计算机大小端
+enum class emEndian //璁＄畻鏈哄ぇ灏忕
 {
 	LITTLE = 1,
 	BIG = 0,

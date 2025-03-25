@@ -43,35 +43,17 @@ public:
 	void dealCmd();
 
 	//服务相关
-#if GCC_VER_OVER_5
-	//在gcc7.5.0及9.4.0中，模板函数A内调用模板函数B，显式指定模板类型会编译失败，智能靠参数推导确定模板参数
 	template<typename _T>
 	void registService(std::shared_ptr<_T>&& pSer)
 	{
-		m_upServPolicy->registService(std::forward<std::shared_ptr<_T>>(pSer));
+		m_upServPolicy->registService(std::forward<std::shared_ptr<_T>>(pSer));//自动推导模板参数
 	}
 
 	template<typename _T>
-	std::shared_ptr<_T> getService()
+	auto getService() 
 	{
-		std::shared_ptr<_T> retPtr = nullptr;
-		m_upServPolicy->getService(retPtr);
-		return retPtr;
+		return m_upServPolicy->template getService<_T>();//显示标记为模板成员函数
 	}
-#else
-	//服务相关
-	template<typename _T>
-	void registService(std::shared_ptr<_T>&& pSer)
-	{
-		m_upServPolicy->registService<_T>(std::forward<std::shared_ptr<_T>>(pSer));
-	}
-
-	template<typename _T>
-	std::shared_ptr<_T> getService() 
-	{
-		return m_upServPolicy->getService<_T>();
-	}
-#endif
 
 	//处理事件相关接口
 	void addFunc(const std::string& strTopcs, const std::shared_ptr<CallbackFunc>& ptrFunc)
