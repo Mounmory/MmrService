@@ -65,25 +65,21 @@ if (!m_bAsynLog)\
 	m_pBufWrite->clear();\
 }
 
-mmrUtil::CLogger::CLogger()
+mmrUtil::CLogger::CLogger(uint32_t ulFileNum, uint64_t ullFileSize, bool bAsyn)
 	: m_LogLevel(emLogLevel::Log_Debug)
-	, m_fileNum(10)
-	, m_fileSize(MAX_FILE_SIZE)
+	, m_fileNum(ulFileNum)
+	, m_fileSize(ullFileSize * 1024 *1024)
 	, m_lMaxStrLen(2048)//
-	, m_bAsynLog(true)
+	, m_bAsynLog(bAsyn)
 {
-
+	std::cout << "Logger instance construct: file number[" << m_fileNum << "] file size [" << ullFileSize << " Mb]" << std::endl;
+	start();
 }
 
 mmrUtil::CLogger::~CLogger()
 {
 	stop();
-}
-
-mmrUtil::CLogger* mmrUtil::CLogger::getLogger()
-{
-	static CLogger* loggerInstance = new CLogger;
-	return loggerInstance;
+	std::cout << "Logger instance destruct." << std::endl;
 }
 
 bool mmrUtil::CLogger::setFileMaxNum(uint32_t fileNum)
@@ -121,107 +117,6 @@ bool mmrUtil::CLogger::setAsynLog(bool bAsyn)
 
 	}
 	return false;
-}
-
-bool mmrUtil::CLogger::init(const std::string& strPath, const std::string& strName)
-{
-	m_strLogDir = strPath;
-	m_strLogName = strName;
-	m_strFilePath = m_strLogDir + m_strLogName + ".log";
-#ifdef OS_MMR_WIN
-	if (_access(m_strLogDir.c_str(), 0) == -1)//如果文件夹不存在，则创建
-	{
-		if (CreateDirectory(m_strLogDir.c_str(), 0) == false)
-		{
-			m_LogLevel = emLogLevel::Log_Off;//创建文件夹失败，不输出日志
-			STD_CERROR << "Create directory " << m_strLogDir.c_str() << "failed!" << std::endl;
-			return false;
-		}
-	}
-#elif defined OS_MMR_LINUX
-	if (access(m_strLogDir.c_str(), 0) != F_OK) //检查文件夹是否存在，不存在则创建
-	{
-		mkdir(m_strLogDir.c_str(), S_IRWXO); //所有人都有权限读写
-
-		if (access(m_strLogDir.c_str(), 0) != F_OK)
-		{
-			m_LogLevel = emLogLevel::Log_Off;//创建文件夹失败，不输出日志
-			std::cerr << __LINE__ << "Create directory " << m_strLogDir.c_str() << "failed!" << std::endl;
-			return false;
-		}
-	}
-#endif
-	//读配置文件设置参数
-
-	return true;
-}
-
-bool mmrUtil::CLogger::start(bool bAsynLog/* = true*/)
-{
-	m_bAsynLog = bAsynLog;//异步日志
-
-	//m_pBufDeal = std::make_unique<CBigBuff>(m_ulBigBufSize);
-
-	m_pBufWrite = std::make_unique<CBigBuff>(m_ulBigBufSize);
-
-	for (uint16_t i = 0; i < m_usBufEmptySize; ++i) 
-	{
-		m_queBufsEmpty.push(std::make_unique<CBigBuff>(m_ulBigBufSize));
-	}
-
-
-	if (m_strLogDir.empty() || m_strLogName.empty())
-	{
-		std::string logDir, logName;
-		getAppPathAndName(logDir, logName);
-		logDir += "log/";
-		if (!init(logDir, logName)) 
-		{
-			return false;
-		}
-	}
-
-	if (!m_logStream.is_open())
-	{
-		//m_logStream.open(m_strFilePath.c_str(), std::ios::app);
-		m_logStream.open(m_strFilePath.c_str(), std::ios::app | std::ios::binary);
-		if (m_logStream.fail())
-		{
-			STD_CERROR << "open file " << m_strFilePath.c_str() << "failed!" << std::endl;
-			return false;
-		}
-		m_logStream.seekp(0, std::ios::end);
-	}
-
-	//启动处理线程
-	if (m_bAsynLog) 
-	{
-		m_bRunning.store(true, std::memory_order_relaxed);
-		m_threadDeal = std::make_unique<std::thread>(&CLogger::dealThread, this);
-	}
-
-	logWrite("[%d][A][%s][%d]----------------- start -----------------", Thread_ID, __FUNCTION__, __LINE__);
-	return true;
-}
-
-void mmrUtil::CLogger::stop()
-{
-	//停掉线程
-	if (true == m_bRunning)
-	{
-		logWrite("[%d][A][%s][%d]----------------- stop -----------------", Thread_ID, __FUNCTION__, __LINE__);
-		m_bRunning.store(false, std::memory_order_relaxed);//退出线程
-		m_cv.notify_all();
-		if (m_threadDeal && m_threadDeal->joinable())
-		{
-			m_threadDeal->join();//等待线程结束
-		}
-	}
-
-	if (m_logStream.is_open())
-	{
-		m_logStream.close();
-	}
 }
 
 void mmrUtil::CLogger::LogForce(const char *format, ...)
@@ -329,10 +224,115 @@ void mmrUtil::CLogger::logWrite(const char *format, ...)
 
 }
 
+bool mmrUtil::CLogger::init(const std::string& strPath, const std::string& strName)
+{
+	m_strLogDir = strPath;
+	m_strLogName = strName;
+	m_strFilePath = m_strLogDir + m_strLogName + ".log";
+#ifdef OS_MMR_WIN
+	if (_access(m_strLogDir.c_str(), 0) == -1)//如果文件夹不存在，则创建
+	{
+		if (CreateDirectory(m_strLogDir.c_str(), 0) == false)
+		{
+			m_LogLevel = emLogLevel::Log_Off;//创建文件夹失败，不输出日志
+			STD_CERROR << "Create directory " << m_strLogDir.c_str() << "failed!" << std::endl;
+			return false;
+		}
+	}
+#elif defined OS_MMR_LINUX
+	if (access(m_strLogDir.c_str(), 0) != F_OK) //检查文件夹是否存在，不存在则创建
+	{
+		mkdir(m_strLogDir.c_str(), S_IRWXO); //所有人都有权限读写
+
+		if (access(m_strLogDir.c_str(), 0) != F_OK)
+		{
+			m_LogLevel = emLogLevel::Log_Off;//创建文件夹失败，不输出日志
+			std::cerr << __LINE__ << "Create directory " << m_strLogDir.c_str() << "failed!" << std::endl;
+			return false;
+		}
+	}
+#endif
+	//读配置文件设置参数
+
+	return true;
+}
+
+bool mmrUtil::CLogger::start()
+{
+	//m_pBufDeal = std::make_unique<CBigBuff>(m_ulBigBufSize);
+
+	m_pBufWrite = std::make_unique<CBigBuff>(m_ulBigBufSize);
+
+	for (uint16_t i = 0; i < m_usBufEmptySize; ++i)
+	{
+		m_queBufsEmpty.push(std::make_unique<CBigBuff>(m_ulBigBufSize));
+	}
+
+
+	if (m_strLogDir.empty() || m_strLogName.empty())
+	{
+		std::string logDir, logName;
+		getAppPathAndName(logDir, logName);
+		logDir += "log/";
+		if (!init(logDir, logName))
+		{
+			return false;
+		}
+	}
+
+	if (!m_logStream.is_open())
+	{
+		//m_logStream.open(m_strFilePath.c_str(), std::ios::app);
+		m_logStream.open(m_strFilePath.c_str(), std::ios::app | std::ios::binary);
+		if (m_logStream.fail())
+		{
+			STD_CERROR << "open file " << m_strFilePath.c_str() << "failed!" << std::endl;
+			return false;
+		}
+		m_logStream.seekp(0, std::ios::end);
+	}
+
+	//启动处理线程
+	if (m_bAsynLog)
+	{
+		m_bRunning.store(true, std::memory_order_relaxed);
+		m_threadDeal = std::make_unique<std::thread>(&CLogger::dealThread, this);
+	}
+
+	logWrite("[%d][A][%s][%d]----------------- start -----------------", Thread_ID, __FUNCTION__, __LINE__);
+	return true;
+}
+
+void mmrUtil::CLogger::stop()
+{
+	//停掉线程
+	if (true == m_bRunning)
+	{
+		logWrite("[%d][A][%s][%d]----------------- stop -----------------", Thread_ID, __FUNCTION__, __LINE__);
+		m_bRunning.store(false, std::memory_order_relaxed);//退出线程
+		m_cv.notify_all();
+		if (m_threadDeal && m_threadDeal->joinable())
+		{
+			m_threadDeal->join();//等待线程结束
+		}
+	}
+
+	if (m_logStream.is_open())
+	{
+		m_logStream.close();
+	}
+}
+
+
 void mmrUtil::CLogger::dealThread()
 {
 	while (m_bRunning.load(std::memory_order_relaxed) || m_pBufWrite->getSize() || m_queBufsWrite.size())
 	{
+		{
+			std::unique_lock<std::mutex> lock(m_mutWrite);
+			m_cv.wait_for(lock, std::chrono::milliseconds(5000));//异步日志5秒写一次
+		}
+
 		if (m_pBufWrite->getSize() > 0 || m_queBufsWrite.size() > 0)
 		{
 			{
@@ -357,11 +357,6 @@ void mmrUtil::CLogger::dealThread()
 					m_queBufsEmpty.push(std::move(m_pBufDeal));
 				}
 			}
-		}
-
-		{
-			std::unique_lock<std::mutex> lock(m_mutWrite);
-			m_cv.wait_for(lock, std::chrono::milliseconds(5000));//异步日志5秒写一次
 		}
 	}
 }

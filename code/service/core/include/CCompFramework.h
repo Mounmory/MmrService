@@ -1,27 +1,68 @@
 ﻿#ifndef CCOMPFRAMEWORK_H
 #define CCOMPFRAMEWORK_H
-#include "common/include/util/Clogger.h"
-#include "service/interface/ComponentExport.h"
-#include "service/interface/IComponent.h"
-#include "service/core/include/ServiceCtrlPolicies.hpp"
-#include "service/core/include/EventCtrlPolicies.h"
+#include <common/include/util/Clogger.h>
+#include <service/interface/ComponentExport.h>
+#include <service/interface/IComponent.h>
+#include <service/core/include/ServiceCtrlPolicies.hpp>
+#include <service/core/include/EventCtrlPolicies.h>
+#include <common/include/general/PolicySelector.hpp>
 
 #include <set>
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)
 
+struct FramworkPolicy 
+{
+	using MajorClass = FramworkPolicy;
 
-template<typename ServiceCtrl/*服务管理策略*/
-	, typename EventCtrl>/*事件管理策略*/
+	//服务控制策略
+	struct ServTypeCate
+	{
+		using PTypeID = MapServKeyByTypeID;
+		using PIndex = VecServByIndex;
+		using PGuid = UnMapServKeyByGUID;
+	};
+#ifdef OS_MMR_WIN
+	using Serv = ServTypeCate::PGuid;
+#else
+	using Serv = ServTypeCate::PIndex;
+#endif
+	//事件控制策略
+	struct EventTypeCate
+	{
+		using  PWithLock = CEventDealWithLock;
+	};
+	using Event = EventTypeCate::PWithLock;
+
+	struct IsSerValueCate;
+	static constexpr bool IsSer = true;
+};
+
+#include <common/include/general/PolicyMicroBegin.h>
+TypePolicyObj(PServTypeid, FramworkPolicy, Serv, PTypeID);
+TypePolicyObj(PServIndex, FramworkPolicy, Serv, PIndex);
+TypePolicyObj(PServGuid, FramworkPolicy, Serv, PGuid);
+ValuePolicyObj(PNotSer, FramworkPolicy, IsSer, false);
+#include <common/include/general/PolicyMicroEnd.h>
+
+template<typename... TPolicies>
 class COMPO_CORE_CLASS_API CCompFramework
 {
+	using TPoliCont = mmrComm::PolicyContainer<TPolicies...>;
+	using TPolicyRes = mmrComm::PolicySelect<FramworkPolicy, TPoliCont>;
+
+
+	using ServiceCtrl = typename TPolicyRes::Serv;
+	using EventCtrl = typename TPolicyRes::Event;
+	static constexpr bool is_Server = TPolicyRes::IsSer;
+
 	CCompFramework();
 	~CCompFramework();
 public:
-	static CCompFramework<ServiceCtrl, EventCtrl>* getInstance()
+	static CCompFramework<TPolicies...>* getInstance()
 	{
-		static CCompFramework<ServiceCtrl, EventCtrl>* instalce = new CCompFramework<ServiceCtrl, EventCtrl>;
+		static CCompFramework<TPolicies... >* instalce = new CCompFramework<TPolicies...>;
 		return instalce;
 	}
 
@@ -73,7 +114,7 @@ public:
 		CCompRegister()
 		{
 			std::unique_ptr<IComponent> compPtr = std::make_unique<CompType>();
-			CCompFramework<ServiceCtrl, EventCtrl>::getInstance()->addComponent(std::move(compPtr));
+			CCompFramework<TPolicies...>::getInstance()->addComponent(std::move(compPtr));
 		}
 		~CCompRegister() = default;
 	};
@@ -95,21 +136,11 @@ private:
 END_NAMESPACE(mmrCore)
 END_NAMESPACE(mmrService)
 
-//定义服务管理策略
-#ifdef OS_MMR_WIN
-//using FramServicePolicy = mmrService::mmrCore::MapServKeyByTypeID;//使用map管理服务指针，typeID作为键
-using FramServicePolicy = mmrService::mmrCore::UnMapServKeyByGUID;//使用unodered_map管理服务指针，GUID作为键
-#else
-//using FramServicePolicy = mmrService::mmrCore::MapServKeyByTypeID;//使用map管理服务指针，typeID作为键
-//using FramServicePolicy = mmrService::mmrCore::UnMapServKeyByGUID;//使用unodered_map管理服务指针，GUID作为键
-using FramServicePolicy = mmrService::mmrCore::VecServByIndex;//使用静态索引管理作为服务指针地址，vs编译存在类导出问题，不同动态库中对基类中静态成员值不一致，这个策略无法使用
-#endif // OS_MMR_LINUX
+//导出模板类实例
+template class COMPO_CORE_CLASS_API mmrService::mmrCore::CCompFramework<>;
+template class COMPO_CORE_CLASS_API mmrService::mmrCore::CCompFramework<mmrService::mmrCore::PNotSer>;
 
-using FramHandlerPolicy = mmrService::mmrCore::CEventDealWithLock;//使用带锁的观察者
-
-template class COMPO_CORE_CLASS_API mmrService::mmrCore::CCompFramework<FramServicePolicy, FramHandlerPolicy>;//到处模板类实例
-
-using ServiceType = mmrService::mmrCore::CCompFramework<FramServicePolicy, FramHandlerPolicy>;
+using ServiceType = mmrService::mmrCore::CCompFramework<>;
 
 #define CoreFrameworkIns ServiceType::getInstance()//服务框架单实例指针
 #define REGIST_COMPONENT(_Component) ServiceType::CCompRegister<_Component> g_Comp//定义组件全局实例

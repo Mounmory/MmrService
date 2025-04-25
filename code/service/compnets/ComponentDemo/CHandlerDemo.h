@@ -57,6 +57,6 @@ private:
 	char m_char[1024];
 };
 
-END_NAMESPACE(mmrService)
 END_NAMESPACE(mmrComp)
+END_NAMESPACE(mmrService)
 #endif

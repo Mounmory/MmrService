@@ -3,7 +3,10 @@ project(mmrUtil)
 #generate_export_header(mmrUtil)
 
 #文件分组
-file(GLOB COMMON_HEADS "${CMAKE_SOURCE_DIR}/common/include/*.h" "${CMAKE_SOURCE_DIR}/common/include/*.hpp")
+file(GLOB COMMON_HEADS "${CMAKE_SOURCE_DIR}/common/include/general/*.h" 
+	"${CMAKE_SOURCE_DIR}/common/include/general/*.hpp" 
+	"${CMAKE_SOURCE_DIR}/common/include/*.h" 
+	"${CMAKE_SOURCE_DIR}/common/include/*.hpp")
 source_group("include/common" FILES ${COMMON_HEADS})
 
 file(GLOB COMMON_SOURCE "${CMAKE_SOURCE_DIR}/common/source/*.cpp")

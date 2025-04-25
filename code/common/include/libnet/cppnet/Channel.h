@@ -356,7 +356,7 @@ public:
 
 private:
 	/*
-		对于C/S通信，一个chanel确定唯一客户端，使用标记确定是否合法用户
+		瀵逛簬C/S閫氫俊锛屼竴涓猚hanel纭畾鍞竴瀹㈡埛绔紝浣跨敤鏍囪纭畾鏄惁鍚堟硶鐢ㄦ埛
 	*/
 	bool m_bLegClient = false;//Is it a legitimate client, only use in server for judge client
 

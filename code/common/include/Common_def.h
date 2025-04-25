@@ -1,5 +1,5 @@
-﻿#ifndef COMMON_H
-#define COMMON_H
+﻿#ifndef MMR_COMMON_DEF_H
+#define MMR_COMMON_DEF_H
 
 //#if defined(_WIN64) || defined(WIN32)
 //#define OS_MMR_WIN

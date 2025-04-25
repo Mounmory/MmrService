@@ -4,7 +4,7 @@
 /*
 服务端处理protobuf格式request和response的回调函数
 */
-#include "common/include/Noncopyable.h"
+#include "common/include/general/Noncopyable.hpp"
 #include "common/include/protoBase/ProtobufDef.h"
 
 #include <functional>

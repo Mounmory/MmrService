@@ -24,7 +24,7 @@ CComponentActivator::CComponentActivator()
 
 const char* CComponentActivator::getName()
 {
-	static const char* szName = "AuthorityManager";
+	static const char* szName = COMPONENT_NAME;
 	return szName;
 }
 

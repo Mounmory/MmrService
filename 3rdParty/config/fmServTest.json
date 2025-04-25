@@ -1,4 +1,14 @@
-{
+{	"Logger" :	//日志设置
+	{
+		"LogFileNum" : 10,//保留的日志文件数量
+		"LogFileSize" : 16, //日志文件大小，单位Mb
+		"LogAsyn" : true //是否异步日志
+	},
+	"Allocator" :	//内存分配器设置
+	{
+		"CacheMaxSize" : 64,//缓存最大值，单位Mb
+		"CacheExpiredTime" : 60	//缓存过期清理时间，单位Min，
+	},
 	"Components" :
 	{
 		"ComponentDemo" :

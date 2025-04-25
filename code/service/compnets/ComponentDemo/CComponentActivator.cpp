@@ -15,7 +15,7 @@ CComponentActivator::CComponentActivator()
 
 const char* CComponentActivator::getName()
 {
-	static const char* szName = "ComponentDemo";
+	static const char* szName = COMPONENT_NAME;
 	return szName;
 }
 

@@ -4,6 +4,7 @@
 
 #include "common/include/util/json.hpp"
 #include "common/include/util/UtilFunc.h"
+#include <common/include/util/ChunkAllocator.h>
 
 #include <sstream>
 #include <fstream>
@@ -23,13 +24,18 @@ const char g_detail_options[] = R"(
   -q |--quit                 quit
 )";
 
+//定义配置文件关键字
+#define STR_CFG_KEY_LOGGER		"Logger"
+#define STR_CFG_KEY_ALLOCATOR	"Allocator"
+#define STR_CFG_KEY_THREAD_POOL	"ThreadPool"
+
 void print_help()
 {
 	printf("Options:%s", g_detail_options);
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-struct CCompFramework<ServiceCtrl, EventCtrl>::CFrameData
+template<typename... TPolicies>
+struct CCompFramework<TPolicies...>::CFrameData
 {
 	CFrameData() 
 		: ptrLoggerCtrl(std::make_unique<CLoggerCtrl>())
@@ -57,10 +63,8 @@ struct CCompFramework<ServiceCtrl, EventCtrl>::CFrameData
 	std::shared_ptr<CallbackFunc> ptrFunc;
 };
 
-
-
-template<typename ServiceCtrl, typename EventCtrl>
-CCompFramework<ServiceCtrl, EventCtrl>::CCompFramework()
+template<typename... TPolicies>
+CCompFramework<TPolicies...>::CCompFramework()
 	: m_upServPolicy(std::make_unique<ServiceCtrl>())
 	, m_ptrEventCtrl(std::make_unique<EventCtrl>())
 	, m_ptrData(std::make_unique<CFrameData>())
@@ -68,14 +72,14 @@ CCompFramework<ServiceCtrl, EventCtrl>::CCompFramework()
 	
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-CCompFramework<ServiceCtrl, EventCtrl>::~CCompFramework()
+template<typename... TPolicies>
+CCompFramework<TPolicies...>::~CCompFramework()
 {
 
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-void CCompFramework<ServiceCtrl, EventCtrl>::handleEvent(const mmrUtil::CVarDatas& varData) 
+template<typename... TPolicies>
+void CCompFramework<TPolicies...>::handleEvent(const mmrUtil::CVarDatas& varData) 
 {
 	if (varData.getName() == "stop")
 	{
@@ -92,13 +96,13 @@ void CCompFramework<ServiceCtrl, EventCtrl>::handleEvent(const mmrUtil::CVarData
 	}
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-void CCompFramework<ServiceCtrl, EventCtrl>::run(const std::string& strCfg)
+template<typename... TPolicies>
+void CCompFramework<TPolicies...>::run(const std::string& strCfg)
 {
 	if (this->start(strCfg))
 	{
 		m_ptrData->bRunflag.store(true);
-		std::thread(&CCompFramework<ServiceCtrl, EventCtrl>::dealCmd, this).detach();
+		std::thread(&CCompFramework<TPolicies...>::dealCmd, this).detach();
 		//std::future<void> ft = std::async(std::launch::async, &CAppControler::dealCmd, this);
 		std::unique_lock<std::mutex> locker(m_ptrData->mutex);
 		m_ptrData->cv.wait(locker, [&]() {return !m_ptrData->bRunflag.load(); });
@@ -111,19 +115,11 @@ void CCompFramework<ServiceCtrl, EventCtrl>::run(const std::string& strCfg)
 	}
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
+template<typename... TPolicies>
+bool CCompFramework<TPolicies...>::start(const std::string& strCfg)
 {
 	try
 	{
-		//启动日志
-		logInstancePtr->start();
-
-		LOG_INFO("framework start! processID[%d]", Process_ID);
-
-		//启动订阅管理
-		m_ptrEventCtrl->start();
-
 		//读配置文件，加载所有组件
 		std::string strAppPath, strAppName;
 		Json::Value jsonRoot;
@@ -133,10 +129,65 @@ bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
 		std::string strErr = Json::load_from_file(strConfigPath, jsonRoot);
 		if (jsonRoot.IsNull() || !strErr.empty())
 		{
-			LOG_ERROR_PRINT("parse json file [%s] failed! error message is: %s.", strConfigPath.c_str(), strErr.c_str());
+			printf("parse json file [%s] failed! error message is: %s.", strConfigPath.c_str(), strErr.c_str());
 			return false;
 		}
 
+		//读取日志配置
+		if (!jsonRoot.hasKey(STR_CFG_KEY_LOGGER)
+			|| !jsonRoot[STR_CFG_KEY_LOGGER].hasKey("LogFileNum")
+			|| !jsonRoot[STR_CFG_KEY_LOGGER].hasKey("LogFileSize")
+			|| !jsonRoot[STR_CFG_KEY_LOGGER].hasKey("LogAsyn"))
+		{
+			printf("config file [%s] about key [%s] Inccrecct, use default parameters.", strConfigPath.c_str(), STR_CFG_KEY_LOGGER);
+			mmrComm::Singleton<mmrUtil::CLogger>::initInstance();
+		}
+		else 
+		{
+			const auto& cfgLogger = jsonRoot[STR_CFG_KEY_LOGGER];
+
+#if __cplusplus >= 201402L//需要c++14标准
+			auto dictLogPara = mmrUtil::LoggerParas::Create().
+				template Set<mmrUtil::TagLogFileNum>(cfgLogger.at("LogFileNum").ToInt()).
+				template Set<mmrUtil::TagLogFileSize>(cfgLogger.at("LogFileSize").ToInt()).
+				template Set<mmrUtil::TagAsyn>(cfgLogger.at("LogAsyn").ToBool());
+
+			mmrComm::Singleton<mmrUtil::CLogger>::initInstance(dictLogPara);
+#else
+			mmrComm::Singleton<mmrUtil::CLogger>::initInstance(cfgLogger.at("LogFileNum").ToInt(),
+				cfgLogger.at("LogFileSize").ToInt(),
+				cfgLogger.at("LogAsyn").ToBool());
+#endif
+		}
+
+		//读取内存管理配置
+		if (!jsonRoot.hasKey(STR_CFG_KEY_ALLOCATOR)
+			|| !jsonRoot[STR_CFG_KEY_ALLOCATOR].hasKey("CacheExpiredTime")
+			|| !jsonRoot[STR_CFG_KEY_ALLOCATOR].hasKey("CacheMaxSize"))
+		{
+			printf("config file [%s] about key [%s] Inccrecct, use default parameters.", strConfigPath.c_str(), STR_CFG_KEY_ALLOCATOR);
+			mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance();
+		}
+		else
+		{
+			const auto& cfgAlloc = jsonRoot[STR_CFG_KEY_ALLOCATOR];
+#if __cplusplus >= 201402L//需要c++14标准
+			auto dictAllocPara = mmrUtil::ChunkAllocParas::Create().
+				template Set<mmrUtil::TagExpiredTime>(cfgAlloc.at("CacheExpiredTime").ToInt()).
+				template Set<mmrUtil::TagMaxCache>(cfgAlloc.at("CacheMaxSize").ToInt());
+
+			mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance(dictAllocPara);
+			//mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance(mmrUtil::ChunkAllocParas::Create().template Set<mmrUtil::TagExpiredTime>(cfgAlloc.at("CacheExpiredTime").ToInt()).template Set<mmrUtil::TagMaxCache>(cfgAlloc.at("CacheMaxSize").ToInt()));
+#else
+			mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance(cfgAlloc.at("CacheExpiredTime").ToInt(), cfgAlloc.at("CacheMaxSize").ToInt());
+#endif
+		}
+
+
+		LOG_INFO("framework start! processID[%d]", Process_ID);
+		//启动订阅管理
+		m_ptrEventCtrl->start();
+		//加载组件
 		auto components = jsonRoot["Components"];
 		if (components.IsNull())
 		{
@@ -194,8 +245,10 @@ bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
 				LOG_ERROR_PRINT("init component name [%s] failed!", strComoName.c_str());
 				continue;
 			}
+			LOG_INFO("Component %s init success!", iterComp.first.c_str());
 		}
 
+		//执行启动接口
 		for (const auto& iterComp : m_mapComponents)
 		{
 			if (!iterComp.second->start())
@@ -205,7 +258,7 @@ bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
 		}
 
 		//权限校验
-		if (nullptr == m_ptrData->ptrLicenseCtrl)
+		if (is_Server && nullptr == m_ptrData->ptrLicenseCtrl)
 		{
 			std::string strLicFilePath = strAppPath + "config/";
 			m_ptrData->ptrLicenseCtrl = std::make_unique<CLicenseCtrl>(std::move(strLicFilePath), strAppName);
@@ -213,7 +266,7 @@ bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
 		}
 
 		//注册回调
-		m_ptrData->ptrFunc = std::make_shared<CallbackFunc>(std::bind(&CCompFramework<ServiceCtrl, EventCtrl>::handleEvent, this, std::placeholders::_1));
+		m_ptrData->ptrFunc = std::make_shared<CallbackFunc>(std::bind(&CCompFramework<TPolicies...>::handleEvent, this, std::placeholders::_1));
 		this->addFunc("stop", m_ptrData->ptrFunc);
 
 		LOG_INFO("framework start success ....");
@@ -234,8 +287,8 @@ bool CCompFramework<ServiceCtrl, EventCtrl>::start(const std::string& strCfg)
 	return true;
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-void CCompFramework<ServiceCtrl, EventCtrl>::stop()
+template<typename... TPolicies>
+void CCompFramework<TPolicies...>::stop()
 {
 	//停止事件回调
 	m_ptrEventCtrl->stop();
@@ -265,12 +318,12 @@ void CCompFramework<ServiceCtrl, EventCtrl>::stop()
 	m_libHandl.clear();
 
 	LOG_INFO("framework stoped! processID[%d]", Process_ID);
-
-	logInstancePtr->stop();
+	mmrComm::Singleton<mmrUtil::ChunkAllocator>::destroyInstance();//清理内存分配器
+	mmrComm::Singleton<mmrUtil::CLogger>::destroyInstance();//清理内存分配器
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-bool CCompFramework<ServiceCtrl, EventCtrl>::addComponent(std::unique_ptr<IComponent> pComp)
+template<typename... TPolicies>
+bool CCompFramework<TPolicies...>::addComponent(std::unique_ptr<IComponent> pComp)
 {
 	std::string strCompName = pComp->getName();
 	auto iterComp = m_mapComponents.find(strCompName);
@@ -286,16 +339,21 @@ bool CCompFramework<ServiceCtrl, EventCtrl>::addComponent(std::unique_ptr<ICompo
 	return true;
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-void CCompFramework<ServiceCtrl, EventCtrl>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
+template<typename... TPolicies>
+void CCompFramework<TPolicies...>::addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap)
 {
 	uint16_t sIndex = m_ptrData->ptrLoggerCtrl->getMapCtrollerPtr().size() + 1;
 	m_ptrData->ptrLoggerCtrl->getMapCtrollerPtr()[sIndex] = std::make_pair(std::move(strCompName), logWrap);
 }
 
-template<typename ServiceCtrl, typename EventCtrl>
-void CCompFramework<ServiceCtrl, EventCtrl>::dealCmd()
+template<typename... TPolicies>
+void CCompFramework<TPolicies...>::dealCmd()
 {
+	if (!is_Server)
+	{
+		std::cout << "framework type is client!" << std::endl;
+		return;
+	}
 	print_help();
 	std::atomic_bool& rfRunFlag(m_ptrData->bRunflag);
 
@@ -321,7 +379,15 @@ void CCompFramework<ServiceCtrl, EventCtrl>::dealCmd()
 		}
 		else if (strCmd == "-lc")
 		{
-			m_ptrData->ptrLicenseCtrl->loop(rfRunFlag);
+			if (m_ptrData->ptrLicenseCtrl)
+			{
+				m_ptrData->ptrLicenseCtrl->loop(rfRunFlag);
+			}
+			else 
+			{
+				printf("license controller invalid!\n");
+				print_help();
+			}
 		}
 		else if (strCmd == "-q")
 		{

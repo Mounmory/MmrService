@@ -9,13 +9,13 @@
 
 using namespace mmrService::mmrCore;
 
-struct CEventDealWithLock::CImpData
+struct CEventDealWithLock::DataImp
 {
-	CImpData()
+	DataImp()
 		: m_bDataAdded(false)
 	{
 	}
-	~CImpData() 
+	~DataImp()
 	{
 		clear();
 	}
@@ -48,7 +48,7 @@ struct CEventDealWithLock::CImpData
 };
 
 CEventDealWithLock::CEventDealWithLock()
-	: m_data(std::make_unique<CImpData>())
+	: m_data(std::make_unique<DataImp>())
 	, m_bTheadRun(false)
 {
 

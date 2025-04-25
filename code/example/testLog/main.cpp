@@ -24,12 +24,11 @@ void logThread()
 
 int main()
 {
-	g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
-	
 	//测试同步写日志
 	{
 		std::cout << "syn log test..." << std::endl;
-		g_LoggerPtr->loger->start(false);
+		mmrComm::Singleton<mmrUtil::CLogger>::initInstance(10, 16, false);
+		g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
 
 		for (int i = 0; i < 100; ++i)
 		{
@@ -37,13 +36,14 @@ int main()
 			//std::cout << "i value is" << i << std::endl;
 			//std::this_thread::sleep_for(std::chrono::microseconds(10));
 		}
-		g_LoggerPtr->loger->stop();
+		mmrComm::Singleton<mmrUtil::CLogger>::destroyInstance();//清理内存分配器
 	}
 
 	//异步写日志
 	{
 		std::cout << "asyn log test..." << std::endl;
-		g_LoggerPtr->loger->start();
+		mmrComm::Singleton<mmrUtil::CLogger>::initInstance(10, 16, true);
+		g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
 
 		for (int i = 0; i < 100; ++i)
 		{
@@ -51,12 +51,15 @@ int main()
 			//std::cout << "i value is" << i << std::endl;
 			//std::this_thread::sleep_for(std::chrono::microseconds(10));
 		}
-		g_LoggerPtr->loger->stop();
+		mmrComm::Singleton<mmrUtil::CLogger>::destroyInstance();//清理内存分配器
 	}
 
 	//异步多线程写日志
 	{
 		std::cout << "multi thread log test..." << std::endl;
+		mmrComm::Singleton<mmrUtil::CLogger>::initInstance(10, 16, true);
+		g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
+
 		g_atoStart.store(false);
 		std::vector<std::thread> vecThread;
 		for (int i = 0; i < 4; ++i)
@@ -68,6 +71,7 @@ int main()
 		{
 			iterThread.join();
 		}
+		mmrComm::Singleton<mmrUtil::CLogger>::destroyInstance();//清理内存分配器
 	}
 
 

@@ -1,7 +1,10 @@
 #ifndef CLOGGER_H
 #define CLOGGER_H
-#include "common/include/Common_def.h"
-#include "common/include/util/UtilExport.h"
+#include <common/include/util/UtilExport.h>
+#include <common/include/general/Noncopyable.hpp>
+#include <common/include/general/Singleton.hpp>
+#include <common/include/general/VarTypeDict.hpp>
+
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
@@ -25,12 +28,23 @@ enum class emLogLevel
 	Log_Debug
 };
 
+struct TagLogFileNum; struct TagLogFileSize; struct TagAsyn;
 
+using LoggerParas = mmrComm::VarTypeDict<struct TagLogFileNum, struct TagLogFileSize, struct TagAsyn>;
 
-class COMMON_CLASS_API CLogger
+class COMMON_CLASS_API CLogger : public mmrComm::NonCopyable
 {
-private:
-	CLogger();
+	friend class mmrComm::Singleton<CLogger>;
+	//文件数量，文件大小（M），异步日志
+	CLogger(uint32_t ulFileNum = 10, uint64_t ullFileSize = 16, bool bAsyn = true);
+
+	template <typename TIn>
+	CLogger(TIn&& in) : CLogger(in.template Get<TagLogFileNum>()
+		, in.template Get<TagLogFileSize>()
+		, in.template Get<TagAsyn>())
+	{
+	}
+public:
 	~CLogger();
 
 	class CBigBuff
@@ -97,9 +111,6 @@ private:
 		uint32_t m_usTryIncrease;
 	};
 
-public:
-	static CLogger* getLogger();
-
 	bool setFileMaxNum(uint32_t fileNum);
 	bool setFileMaxSize(uint64_t fileSize);
 	bool setLogLevel(emLogLevel logLevel);
@@ -108,10 +119,6 @@ public:
 	const uint32_t getFileMaxNum() const { return m_fileNum; }
 	const uint64_t getFileMaxSize()const { return m_fileSize; }
 	const emLogLevel getLogLevel() const { return m_LogLevel; }
-
-	bool init(const std::string& strPath, const std::string& strName);
-	bool start(bool bAsynLog = true);
-	void stop();
 
 	void LogForce(const char *format, ...);
 	void LogFatal(const char *format, ...);
@@ -125,6 +132,12 @@ public:
 	//使用双缓冲队列写日志接口
 	void logWrite(const char *format, ...);
 private:
+	bool init(const std::string& strPath, const std::string& strName);
+
+	bool start();
+
+	void stop();
+
 	void dealThread();
 
 	void updateBufWrite();
@@ -161,22 +174,22 @@ private:
 	char m_szLastTime[32];//上一次时间字符串
 };
 
+//导出logger模板实例
+template class COMMON_CLASS_API mmrComm::Singleton<mmrUtil::CLogger>;
 
 struct LogWrapper 
 {
 	emLogLevel logLevel = emLogLevel::Log_Debug;
-	CLogger* loger = CLogger::getLogger();
+	CLogger* loger = mmrComm::Singleton<mmrUtil::CLogger>::getInstance();
 };
 
 
 
 END_NAMESPACE(mmrUtil)
 
-
+#define logInstancePtr mmrComm::Singleton<mmrUtil::CLogger>::getInstance()
 #if MMR_LOGGER_WRAP//使用日志封装，每个模块单独控制日志等级
-#define logInstancePtr mmrUtil::CLogger::getLogger()
 extern std::shared_ptr<mmrUtil::LogWrapper> g_LoggerPtr;
-
 #define LOG_FORCE(format, ...) \
 if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Forece)\
    g_LoggerPtr->loger->logWrite("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
@@ -207,8 +220,6 @@ if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Debug)\
    g_LoggerPtr->loger->logWrite("[%ld][D][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #else
-#define logInstancePtr mmrUtil::CLogger::getLogger()
-
 #define LOG_FORCE(format, ...) \
    logInstancePtr->LogForce("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 

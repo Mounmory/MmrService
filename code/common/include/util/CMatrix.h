@@ -13,13 +13,11 @@ class COMMON_CLASS_API CMatrix {
 
 	//static_assert(
 	//	std::is_arithmetic_v<_Ty> ||
-	//	std::is_same_v<_Ty, std::string> ,
+	//	std::is_same<_Ty, std::string>::value ,
 	//	"matrix type error!");
 
-	static_assert(
-		std::is_arithmetic<_Ty>::value ||
-		std::is_same<_Ty, std::string>::value ,
-		"matrix type error!");
+	static_assert(std::is_arithmetic<_Ty>::value ||	std::is_same<_Ty, std::string>::value ,	"matrix type error!");
+	static_assert(std::is_same<std::remove_cv_t<std::remove_reference_t<_Ty>>, _Ty>::value,"type should no with const or referebce!");
 public:
 	CMatrix();
 

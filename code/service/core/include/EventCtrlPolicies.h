@@ -42,8 +42,8 @@ private:
 	void dealEventData();
 
 private:
-	struct CImpData;
-	std::unique_ptr<CImpData> m_data;
+	struct DataImp;
+	std::unique_ptr<DataImp> m_data;
 
 	std::atomic_bool m_bTheadRun;
 	std::future<void> m_future;

@@ -5,6 +5,7 @@
 #include <vector>                 // for typedef, member
 #include <cstdlib>                // for size_t and NULL definition
 #include <cstring>                // for memcpy
+#include <type_traits>
 
 #if _MSC_VER
 #pragma warning( push )
@@ -103,7 +104,20 @@ public:
 
 	OPERATOR_WRITE_READ_BASIC_DATA(uint64_t)
 
-
+	//处理枚举类型
+	template<typename _Ty, typename = std::enable_if_t<std::is_enum<_Ty>::value>>
+	CDataStream& operator << (_Ty emValue) 
+	{
+		(*this) << static_cast<std::underlying_type_t<_Ty>>(emValue);
+		return *this;
+	}
+	template<typename _Ty, typename = std::enable_if_t<std::is_enum<_Ty>::value>>
+	CDataStream& operator >> (_Ty& emValue) 
+	{
+		using Type = std::underlying_type_t<_Ty>;
+		(*this) >> (*reinterpret_cast<Type*>(&emValue));
+		return *this;
+	}
 	CDataStream& operator << (const std::string& str)
 	{
 		uint32_t strLen = str.size();

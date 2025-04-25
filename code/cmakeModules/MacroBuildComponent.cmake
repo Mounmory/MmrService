@@ -13,6 +13,7 @@ MACRO(build_service_component targetName)
     )
 	message("build_service_component ${targetName}")
 
+	add_definitions(-DCOMPONENT_NAME="${targetName}")#添加linux系统宏
 	#文件分组
 	#file(GLOB COPM_COMMON_HEADS "${CMAKE_SOURCE_DIR}/common/include/*.h")
 	#source_group("common" FILES ${COPM_COMMON_HEADS})

@@ -2,7 +2,8 @@ project(serviceFramework)
 
 #文件分组
 file(GLOB CORE_COMMON_HEADS 
-	"${CMAKE_SOURCE_DIR}/common/include/*.h")
+	"${CMAKE_SOURCE_DIR}/common/include/*.h"
+	"${CMAKE_SOURCE_DIR}/common/include/*.hpp")
 source_group("common" FILES ${CORE_COMMON_HEADS})
 
 file(GLOB CORE_INTERFACE 

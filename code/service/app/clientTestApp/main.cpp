@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	
 	if (argc == 3)
 	{
-		logInstancePtr->start();
+		mmrComm::Singleton<mmrUtil::CLogger>::initInstance(10, 16, true);
 
 		CProtoRpcClient protoClient;
 		std::string strIP = argv[1];
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 			std::cout << "连接失败" << std::endl;
 		}
 		protoClient.stop();
-		logInstancePtr->stop();
+		mmrComm::Singleton<mmrUtil::CLogger>::destroyInstance();//清理内存分配器
 	}
 	else 
 	{

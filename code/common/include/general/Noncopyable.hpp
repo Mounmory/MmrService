@@ -1,5 +1,5 @@
-﻿#ifndef COMMON_NOCOPYABLE_H
-#define COMMON_NOCOPYABLE_H
+﻿#ifndef MMR_COMMON_NOCOPYABLE_H
+#define MMR_COMMON_NOCOPYABLE_H
 
 #include "common/include/Common_def.h"
 
@@ -9,8 +9,9 @@ class NonCopyable
 {
 public:
 	NonCopyable(const NonCopyable&) = delete;
+	NonCopyable(NonCopyable&&) = delete;
 	NonCopyable operator=(const NonCopyable&) = delete;
-
+	NonCopyable operator=(NonCopyable&&) = delete;
 protected:
 	NonCopyable() = default;
 	~NonCopyable() = default;

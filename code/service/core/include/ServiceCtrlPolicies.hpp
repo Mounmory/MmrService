@@ -13,7 +13,7 @@
 #include <unordered_map>
 
 #include "common/include/Common_def.h"
-#include "common/include/CTypeInfo.hpp"
+#include "common/include/general/TypeInfo.hpp"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)
@@ -32,13 +32,13 @@ public:
 	template<typename _T>
 	void registService(std::shared_ptr<_T>&& pSer)
 	{
-		m_mapServices.insert(std::make_pair(mmrComm::CTypeInfo(typeid(_T)), std::forward<std::shared_ptr<_T>>(pSer)));
+		m_mapServices.insert(std::make_pair(mmrComm::TypeInfo(typeid(_T)), std::forward<std::shared_ptr<_T>>(pSer)));
 	}
 
 	template<typename _T>
 	std::shared_ptr<_T> getService()
 	{
-		auto iterSer = m_mapServices.find(mmrComm::CTypeInfo(typeid(_T)));
+		auto iterSer = m_mapServices.find(mmrComm::TypeInfo(typeid(_T)));
 		if (iterSer == m_mapServices.end()) 
 		{
 			std::cerr << "error! unregister service type " << typeid(_T).name() << std::endl;
@@ -51,7 +51,7 @@ public:
 
 	size_t size() { return m_mapServices.size(); }
 private:
-	std::map<mmrComm::CTypeInfo, std::shared_ptr<void>> m_mapServices;
+	std::map<mmrComm::TypeInfo, std::shared_ptr<void>> m_mapServices;
 
 };
 
