@@ -26,7 +26,7 @@ if(WIN32)
 		endif()
 
 		#设置C++编译选项
-		if(MSVC_VERSION GREATER_EQUAL 1920)
+		if(MSVC_VERSION GREATER_EQUAL 1916)#vs 2017 15.7开始完全支持c++17
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
 		else()
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")

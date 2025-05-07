@@ -106,28 +106,6 @@ private:
 template <template <typename...> class _Ty, typename... Args>
 typename Singleton<_Ty<Args...>>::Type* Singleton<_Ty<Args...>>::m_pInstance = nullptr;
 
-
-
-template<typename Ty>
-class ExampleTemplate : public mmrComm::Singleton<ExampleTemplate<Ty>>
-{
-	friend class mmrComm::Singleton<ExampleTemplate<Ty>>;
-	ExampleTemplate(int32_t lData)
-		:m_lData(lData)
-	{
-	};
-public:
-	~ExampleTemplate() {};
-	void print()
-	{
-		//std::cout << "print data value " << m_lData << std::endl;
-	}
-private:
-	int32_t m_lData;
-};
-
-
-
 END_NAMESPACE(mmrComm)
 
 

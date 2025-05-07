@@ -159,14 +159,14 @@ bool CCompFramework<TPolicies...>::start(const std::string& strCfg)
 				cfgLogger.at("LogAsyn").ToBool());
 #endif
 		}
-
+		
 		//读取内存管理配置
 		if (!jsonRoot.hasKey(STR_CFG_KEY_ALLOCATOR)
 			|| !jsonRoot[STR_CFG_KEY_ALLOCATOR].hasKey("CacheExpiredTime")
 			|| !jsonRoot[STR_CFG_KEY_ALLOCATOR].hasKey("CacheMaxSize"))
 		{
 			printf("config file [%s] about key [%s] Inccrecct, use default parameters.", strConfigPath.c_str(), STR_CFG_KEY_ALLOCATOR);
-			mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance();
+			mmrComm::Singleton<mmrUtil::ChunkAllocator<>>::initInstance();
 		}
 		else
 		{
@@ -176,15 +176,15 @@ bool CCompFramework<TPolicies...>::start(const std::string& strCfg)
 				template Set<mmrUtil::TagExpiredTime>(cfgAlloc.at("CacheExpiredTime").ToInt()).
 				template Set<mmrUtil::TagMaxCache>(cfgAlloc.at("CacheMaxSize").ToInt());
 
-			mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance(dictAllocPara);
-			//mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance(mmrUtil::ChunkAllocParas::Create().template Set<mmrUtil::TagExpiredTime>(cfgAlloc.at("CacheExpiredTime").ToInt()).template Set<mmrUtil::TagMaxCache>(cfgAlloc.at("CacheMaxSize").ToInt()));
+			mmrComm::Singleton<mmrUtil::ChunkAllocator<>>::initInstance(dictAllocPara);
+			//mmrComm::Singleton<mmrUtil::ChunkAllocator<>>::initInstance(mmrUtil::ChunkAllocParas::Create().template Set<mmrUtil::TagExpiredTime>(cfgAlloc.at("CacheExpiredTime").ToInt()).template Set<mmrUtil::TagMaxCache>(cfgAlloc.at("CacheMaxSize").ToInt()));
 #else
-			mmrComm::Singleton<mmrUtil::ChunkAllocator>::initInstance(cfgAlloc.at("CacheExpiredTime").ToInt(), cfgAlloc.at("CacheMaxSize").ToInt());
+			mmrComm::Singleton<mmrUtil::ChunkAllocator<>>::initInstance(cfgAlloc.at("CacheExpiredTime").ToInt(), cfgAlloc.at("CacheMaxSize").ToInt());
 #endif
 		}
 
-
 		LOG_INFO("framework start! processID[%d]", Process_ID);
+
 		//启动订阅管理
 		m_ptrEventCtrl->start();
 		//加载组件
@@ -318,7 +318,7 @@ void CCompFramework<TPolicies...>::stop()
 	m_libHandl.clear();
 
 	LOG_INFO("framework stoped! processID[%d]", Process_ID);
-	mmrComm::Singleton<mmrUtil::ChunkAllocator>::destroyInstance();//清理内存分配器
+	mmrComm::Singleton<mmrUtil::ChunkAllocator<>>::destroyInstance();//清理内存分配器
 	mmrComm::Singleton<mmrUtil::CLogger>::destroyInstance();//清理内存分配器
 }
 

@@ -69,7 +69,7 @@ struct MaxAlign : std::integral_constant<int, IntegerMax<std::alignment_of<Args>
 template<typename... Types>
 class Variant
 {
-	static_assert(!mmrComm::has_duplicate_types<Types...>(), "template paras has duplicate types.");
+	//static_assert(!mmrComm::HasDuplicateTypes<Types...>(), "template paras has duplicate types.");
 
 	enum
 	{

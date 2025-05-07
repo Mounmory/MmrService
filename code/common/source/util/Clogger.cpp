@@ -1,9 +1,10 @@
 #include "common/include/util/Clogger.h"
 #include "common/include/util/UtilFunc.h"
+
 #include <stdarg.h>
-
 #include <iomanip> //std::setfill头文件
-
+#include <queue>
+#include <iostream>
 
 #ifdef OS_MMR_WIN
 #include <corecrt_io.h>	//_access头文件
@@ -14,9 +15,116 @@
 #include <unistd.h>
 #endif
 
-#define MAX_FILE_SIZE 64*1024*1024
+using namespace mmrUtil;
+
+class CBigBuff
+{
+public:
+	CBigBuff() = delete;
+	CBigBuff(CBigBuff&) = delete;
+	CBigBuff(CBigBuff&&) = delete;
+
+	CBigBuff(uint32_t ulLen)
+		: m_buf(new char[ulLen])
+		, m_ulLen(ulLen - 1)//长度-1，避免添最后一位置空越界
+		, m_ulPos(0)
+		, m_usTryIncrease(0)
+	{
+	};
+
+	~CBigBuff() { delete[] m_buf; }
+
+	void tryWrite(char* buf, uint16_t len)
+	{
+		memcpy(m_buf + m_ulPos, buf, len);
+		m_usTryIncrease += len;
+	}
+
+	void doneTry() {
+		m_ulPos += m_usTryIncrease;
+		m_buf[m_ulPos++] = '\n';
+		m_usTryIncrease = 0;
+	}
+
+	void zeroEnd()
+	{
+		m_buf[m_ulPos] = 0x00;
+	}
+
+	void clearTry()
+	{
+		m_usTryIncrease = 0;
+		m_buf[m_ulPos] = 0x00;
+	}
+
+	uint32_t getTryAvailid() { return (m_ulLen - m_ulPos - m_usTryIncrease); }
+
+	char* getTryCurrent() { return (m_buf + m_ulPos + m_usTryIncrease); }
+
+	void addTryIncrease(uint16_t weakLen) { m_usTryIncrease += weakLen; }
+
+	void clear() {
+		m_ulPos = 0;
+		m_usTryIncrease = 0;
+	}
+
+	char* getBuf() { return m_buf; }
+
+	uint32_t getMaxLen() { return m_ulLen; }
+
+	uint32_t getSize() { return m_ulPos; }
+
+private:
+	char* m_buf;
+	uint32_t m_ulLen;//buf长度
+	uint32_t m_ulPos;//当前buf位置
+	uint32_t m_usTryIncrease;
+};
+
+struct CLogger::DataImp 
+{
+	DataImp() 
+		: m_lMaxStrLen(2048)
+		, m_usBufEmptySize(3)
+		, m_ulBigBufSize(1024 * 1024)
+	{
+		m_pBufWrite = std::make_unique<CBigBuff>(m_ulBigBufSize);//不要在构造函数里面分配
+		for (uint16_t i = 0; i < m_usBufEmptySize; ++i)
+		{
+			m_queBufsEmpty.push(std::make_unique<CBigBuff>(m_ulBigBufSize));
+		}
+	}
+	~DataImp() 
+	{
+		std::cout << "data imp destruct." << std::endl;
+		m_pBufWrite.reset();
+		m_pBufDeal.reset();
+		while(m_queBufsWrite.size())
+			m_queBufsWrite.pop();
+
+		while(m_queBufsDeal.size())
+			m_queBufsDeal.pop();
+
+		while(m_queBufsEmpty.size())
+			m_queBufsEmpty.pop();
+	}
+
+	uint32_t m_lMaxStrLen;//每一条日志的最大长度
+	std::string m_strLogDir; //当前路径
+	std::string m_strLogName; //文件路径
+	std::string m_strFilePath; //输出文件全路径
+
+	std::unique_ptr<CBigBuff> m_pBufWrite;//写
+	std::unique_ptr<CBigBuff> m_pBufDeal;//写
+	std::queue<std::unique_ptr<CBigBuff>> m_queBufsWrite;
+	std::queue<std::unique_ptr<CBigBuff>> m_queBufsDeal;
+	std::queue<std::unique_ptr<CBigBuff>> m_queBufsEmpty;
+	uint16_t m_usBufEmptySize;
+	uint32_t m_ulBigBufSize;
+};
+
+
 #define MIN_AVAILI_SIZE 1024
-//#define MAX_FILE_SIZE 100
 
 #define LOG_BY_LEVEL(logLevel)\
 if (m_LogLevel < logLevel)\
@@ -43,34 +151,37 @@ if (time_info->tm_sec != m_lastTime.tm_sec\
 		m_lastTime.tm_year + 1900, m_lastTime.tm_mon + 1, m_lastTime.tm_mday,\
 		m_lastTime.tm_hour, m_lastTime.tm_min, m_lastTime.tm_sec);\
 }\
-if (m_bAsynLog && m_pBufWrite->getTryAvailid() <= MIN_AVAILI_SIZE)/*保留1024个字节，小于这个字节就保存了*/\
+if (m_bAsynLog && m_data->m_pBufWrite->getTryAvailid() <= MIN_AVAILI_SIZE)/*保留1024个字节，小于这个字节就保存了*/\
 {\
 	updateBufWrite();\
 	m_cv.notify_all();\
 }\
-snprintf(m_pBufWrite->getTryCurrent(), 25, "%s.%03d ", m_szLastTime, now_ms);\
-m_pBufWrite->addTryIncrease(24);\
+snprintf(m_data->m_pBufWrite->getTryCurrent(), 25, "%s.%03d ", m_szLastTime, now_ms);\
+m_data->m_pBufWrite->addTryIncrease(24);\
 va_list arglist;\
 va_start(arglist, format);\
-int strLen = vsnprintf(m_pBufWrite->getTryCurrent(), m_pBufWrite->getTryAvailid(), format, arglist);\
-if (strLen > m_lMaxStrLen)\
-	strLen = m_lMaxStrLen;\
-m_pBufWrite->addTryIncrease(strLen);\
-m_pBufWrite->doneTry();\
+int strLen = vsnprintf(m_data->m_pBufWrite->getTryCurrent(), m_data->m_pBufWrite->getTryAvailid(), format, arglist);\
+if(strLen < 0)\
+	strLen = m_data->m_pBufWrite->getTryAvailid();\
+if (strLen > m_data->m_lMaxStrLen)\
+	strLen =  m_data->m_lMaxStrLen;\
+m_data->m_pBufWrite->addTryIncrease(strLen);\
+m_data->m_pBufWrite->doneTry();\
 va_end(arglist);\
 if (!m_bAsynLog)\
 {\
-	m_logStream << m_pBufWrite->getBuf();\
+	m_logStream << m_data->m_pBufWrite->getBuf();\
 	m_logStream.flush();\
-	m_pBufWrite->clear();\
+	m_data->m_pBufWrite->clear();\
+	fileSizeCheck();\
 }
 
 mmrUtil::CLogger::CLogger(uint32_t ulFileNum, uint64_t ullFileSize, bool bAsyn)
 	: m_LogLevel(emLogLevel::Log_Debug)
 	, m_fileNum(ulFileNum)
 	, m_fileSize(ullFileSize * 1024 *1024)
-	, m_lMaxStrLen(2048)//
 	, m_bAsynLog(bAsyn)
+	, m_data(std::make_unique<DataImp>())
 {
 	std::cout << "Logger instance construct: file number[" << m_fileNum << "] file size [" << ullFileSize << " Mb]" << std::endl;
 	start();
@@ -82,76 +193,59 @@ mmrUtil::CLogger::~CLogger()
 	std::cout << "Logger instance destruct." << std::endl;
 }
 
-bool mmrUtil::CLogger::setFileMaxNum(uint32_t fileNum)
-{
-	if (m_logStream.is_open()) 
-		return false;
+//bool mmrUtil::CLogger::setFileMaxNum(uint32_t fileNum)
+//{
+//	if (m_logStream.is_open()) 
+//		return false;
+//
+//	m_fileNum = fileNum;
+//	return true;
+//}
+//
+//bool mmrUtil::CLogger::setFileMaxSize(uint64_t fileSize)
+//{
+//	if (m_logStream.is_open())
+//		return false;
+//
+//	m_fileSize = fileSize;
+//	return true;
+//}
+//
+//bool mmrUtil::CLogger::setLogLevel(emLogLevel logLevel)
+//{
+//	if (m_logStream.is_open())
+//		return false;
+//
+//	m_LogLevel = logLevel;
+//	return true;
+//}
 
-	m_fileNum = fileNum;
-	return true;
-}
-
-bool mmrUtil::CLogger::setFileMaxSize(uint64_t fileSize)
-{
-	if (m_logStream.is_open())
-		return false;
-
-	m_fileSize = fileSize;
-	return true;
-}
-
-bool mmrUtil::CLogger::setLogLevel(emLogLevel logLevel)
-{
-	if (m_logStream.is_open())
-		return false;
-
-	m_LogLevel = logLevel;
-	return true;
-}
-
-bool mmrUtil::CLogger::setAsynLog(bool bAsyn)
-{
-	if (bAsyn != m_bAsynLog) 
-	{
-		//如果异步转同步
-
-	}
-	return false;
-}
-
-void mmrUtil::CLogger::LogForce(const char *format, ...)
+void mmrUtil::CLogger::logForce(const char *format, ...)
 {
 	LOG_BY_LEVEL(emLogLevel::Log_Forece);
-
-	//if (m_LogLevel < emLogLevel::Log_Forece)
-	//	return; 
-	//va_list args;
-	//va_start(args, format);
-	//logWrite(format, args);
-	//va_end(args);
 }
 
-void mmrUtil::CLogger::LogFatal(const char *format, ...)
+void mmrUtil::CLogger::logFatal(const char *format, ...)
 {
 	LOG_BY_LEVEL(emLogLevel::Log_Fatal);
 }
 
-void mmrUtil::CLogger::LogError(const char *format, ...)
+void mmrUtil::CLogger::logError(const char *format, ...)
 {
 	LOG_BY_LEVEL(emLogLevel::Log_Error);
 }
 
-void mmrUtil::CLogger::LogWarn(const char *format, ...)
+void mmrUtil::CLogger::logWarn(const char *format, ...)
 {
 	LOG_BY_LEVEL(emLogLevel::Log_Warn);
 }
 
-void mmrUtil::CLogger::LogInfo(const char *format, ...)
+void mmrUtil::CLogger::logInfo(const char *format, ...)
 {
 	LOG_BY_LEVEL(emLogLevel::Log_Info);
 }
 
-void mmrUtil::CLogger::LogDebug(const char *format, ...)
+void mmrUtil::CLogger::logDebug(const char *format, ...)
 {
 	LOG_BY_LEVEL(emLogLevel::Log_Debug);
 }
@@ -184,92 +278,74 @@ void mmrUtil::CLogger::logWrite(const char *format, ...)
 	}
 
 
-	if (m_bAsynLog && m_pBufWrite->getTryAvailid() <= MIN_AVAILI_SIZE)//保留1024个字节，小于这个字节就保存了
+	if (m_bAsynLog && m_data->m_pBufWrite->getTryAvailid() <= MIN_AVAILI_SIZE)//保留1024个字节，小于这个字节就保存了
 	{
 		updateBufWrite();
 		m_cv.notify_all();
 	}
 
 	//写入时间
-	snprintf(m_pBufWrite->getTryCurrent(), 25, "%s.%03d ", m_szLastTime, now_ms);
-	m_pBufWrite->addTryIncrease(24);
+	snprintf(m_data->m_pBufWrite->getTryCurrent(), 25, "%s.%03d ", m_szLastTime, now_ms);
+	m_data->m_pBufWrite->addTryIncrease(24);
 
 	va_list arglist;
 	va_start(arglist, format);
-	int strLen = vsnprintf(m_pBufWrite->getTryCurrent(), m_pBufWrite->getTryAvailid(), format, arglist);
-	//if (strLen > weakAvilid)//linux系统下二次调用vsnprintf会产生段错误，因此即使长度不重新写了
-	//{
-	//	m_pBufWrite->clearTry();
-	//	updateBufWrite();
-	//	m_cv.notify_all();
-	//	snprintf(m_pBufWrite->getTryCurrent(), 25, "%s.%03d ", m_szLastTime, now_ms);
-	//	m_pBufWrite->addTryIncrease(24);
-	//	//若新数据的availid长度小于strLen，将导致后面addTryIncrease长度错误，但新建缓冲长度往往较大，几乎不可能出现，因此暂且不做长度判断
-	//	vsnprintf(m_pBufWrite->getTryCurrent(), m_pBufWrite->getTryAvailid(), format, arglist);
-	//}
-	if (strLen > m_lMaxStrLen)
-	{
-		strLen = m_lMaxStrLen;
-	}
-	m_pBufWrite->addTryIncrease(strLen);
-	m_pBufWrite->doneTry();
+	int strLen = vsnprintf(m_data->m_pBufWrite->getTryCurrent(), m_data->m_pBufWrite->getTryAvailid(), format, arglist);
+
+	if (strLen < 0)//字符换太长了，格式化失败
+		strLen = m_data->m_pBufWrite->getTryAvailid();
+
+	if (strLen > m_data->m_lMaxStrLen)
+		strLen = m_data->m_lMaxStrLen;
+	
+	m_data->m_pBufWrite->addTryIncrease(strLen);
+	m_data->m_pBufWrite->doneTry();
 	va_end(arglist);
 
-	if (!m_bAsynLog)
+	if (!m_bAsynLog)//同步日志
 	{
-		m_logStream.write(m_pBufWrite->getBuf(), m_pBufWrite->getSize());
+		m_logStream.write(m_data->m_pBufWrite->getBuf(), m_data->m_pBufWrite->getSize());
 		m_logStream.flush();
-		m_pBufWrite->clear();
+		m_data->m_pBufWrite->clear();
+		fileSizeCheck();
 	}
 
 }
 
 bool mmrUtil::CLogger::init(const std::string& strPath, const std::string& strName)
 {
-	m_strLogDir = strPath;
-	m_strLogName = strName;
-	m_strFilePath = m_strLogDir + m_strLogName + ".log";
+	m_data->m_strLogDir = strPath;
+	m_data->m_strLogName = strName;
+	m_data->m_strFilePath = m_data->m_strLogDir + m_data->m_strLogName + ".log";
 #ifdef OS_MMR_WIN
-	if (_access(m_strLogDir.c_str(), 0) == -1)//如果文件夹不存在，则创建
+	if (_access(m_data->m_strLogDir.c_str(), 0) == -1)//如果文件夹不存在，则创建
 	{
-		if (CreateDirectory(m_strLogDir.c_str(), 0) == false)
+		if (CreateDirectory(m_data->m_strLogDir.c_str(), 0) == false)
 		{
 			m_LogLevel = emLogLevel::Log_Off;//创建文件夹失败，不输出日志
-			STD_CERROR << "Create directory " << m_strLogDir.c_str() << "failed!" << std::endl;
+			STD_CERROR << "Create directory " << m_data->m_strLogDir.c_str() << "failed!" << std::endl;
 			return false;
 		}
 	}
 #elif defined OS_MMR_LINUX
-	if (access(m_strLogDir.c_str(), 0) != F_OK) //检查文件夹是否存在，不存在则创建
+	if (access(m_data->m_strLogDir.c_str(), 0) != F_OK) //检查文件夹是否存在，不存在则创建
 	{
-		mkdir(m_strLogDir.c_str(), S_IRWXO); //所有人都有权限读写
+		mkdir(m_data->m_strLogDir.c_str(), S_IRWXO); //所有人都有权限读写
 
-		if (access(m_strLogDir.c_str(), 0) != F_OK)
+		if (access(m_data->m_strLogDir.c_str(), 0) != F_OK)
 		{
 			m_LogLevel = emLogLevel::Log_Off;//创建文件夹失败，不输出日志
-			std::cerr << __LINE__ << "Create directory " << m_strLogDir.c_str() << "failed!" << std::endl;
+			std::cerr << __LINE__ << "Create directory " << m_data->m_strLogDir.c_str() << "failed!" << std::endl;
 			return false;
 		}
 	}
 #endif
-	//读配置文件设置参数
-
 	return true;
 }
 
 bool mmrUtil::CLogger::start()
 {
-	//m_pBufDeal = std::make_unique<CBigBuff>(m_ulBigBufSize);
-
-	m_pBufWrite = std::make_unique<CBigBuff>(m_ulBigBufSize);
-
-	for (uint16_t i = 0; i < m_usBufEmptySize; ++i)
-	{
-		m_queBufsEmpty.push(std::make_unique<CBigBuff>(m_ulBigBufSize));
-	}
-
-
-	if (m_strLogDir.empty() || m_strLogName.empty())
+	if (m_data->m_strLogDir.empty() || m_data->m_strLogName.empty())
 	{
 		std::string logDir, logName;
 		getAppPathAndName(logDir, logName);
@@ -282,11 +358,11 @@ bool mmrUtil::CLogger::start()
 
 	if (!m_logStream.is_open())
 	{
-		//m_logStream.open(m_strFilePath.c_str(), std::ios::app);
-		m_logStream.open(m_strFilePath.c_str(), std::ios::app | std::ios::binary);
+		//m_logStream.open(m_data->m_strFilePath.c_str(), std::ios::app);
+		m_logStream.open(m_data->m_strFilePath.c_str(), std::ios::app | std::ios::binary);
 		if (m_logStream.fail())
 		{
-			STD_CERROR << "open file " << m_strFilePath.c_str() << "failed!" << std::endl;
+			STD_CERROR << "open file " << m_data->m_strFilePath.c_str() << "failed!" << std::endl;
 			return false;
 		}
 		m_logStream.seekp(0, std::ios::end);
@@ -323,38 +399,35 @@ void mmrUtil::CLogger::stop()
 	}
 }
 
-
 void mmrUtil::CLogger::dealThread()
 {
-	while (m_bRunning.load(std::memory_order_relaxed) || m_pBufWrite->getSize() || m_queBufsWrite.size())
+	while (m_bRunning.load(std::memory_order_relaxed) || m_data->m_pBufWrite->getSize() || m_data->m_queBufsWrite.size())
 	{
 		{
 			std::unique_lock<std::mutex> lock(m_mutWrite);
 			m_cv.wait_for(lock, std::chrono::milliseconds(5000));//异步日志5秒写一次
 		}
-
-		if (m_pBufWrite->getSize() > 0 || m_queBufsWrite.size() > 0)
+		if (m_data->m_pBufWrite->getSize() > 0 || m_data->m_queBufsWrite.size() > 0)
 		{
 			{
 				std::unique_lock<std::mutex> lock(m_mutWrite);
 				updateBufWrite();
-				m_queBufsDeal = std::move(m_queBufsWrite);
+				m_data->m_queBufsDeal = std::move(m_data->m_queBufsWrite);
 			}
-
-			while (m_queBufsDeal.size())
+			while (m_data->m_queBufsDeal.size())
 			{
-				m_pBufDeal = std::move(m_queBufsDeal.front());
-				m_queBufsDeal.pop();
+				m_data->m_pBufDeal = std::move(m_data->m_queBufsDeal.front());
+				m_data->m_queBufsDeal.pop();
 				//std::cout << "log write!" << std::endl;
-				m_logStream.write(m_pBufDeal->getBuf(), m_pBufDeal->getSize());
+				m_logStream.write(m_data->m_pBufDeal->getBuf(), m_data->m_pBufDeal->getSize());
 				m_logStream.flush();//异步日志写入到文件
-				m_pBufDeal->clear();
+				m_data->m_pBufDeal->clear();
 
 				fileSizeCheck();
 
 				{
 					std::unique_lock<std::mutex> lock(m_mutWrite);
-					m_queBufsEmpty.push(std::move(m_pBufDeal));
+					m_data->m_queBufsEmpty.push(std::move(m_data->m_pBufDeal));
 				}
 			}
 		}
@@ -363,18 +436,18 @@ void mmrUtil::CLogger::dealThread()
 
 void mmrUtil::CLogger::updateBufWrite()
 {
-	m_pBufWrite->zeroEnd();
-	m_queBufsWrite.push(std::move(m_pBufWrite));
-	if (m_queBufsEmpty.size())
+	m_data->m_pBufWrite->zeroEnd();
+	m_data->m_queBufsWrite.push(std::move(m_data->m_pBufWrite));
+	if (m_data->m_queBufsEmpty.size())
 	{
-		m_pBufWrite = std::move(m_queBufsEmpty.front());
-		m_queBufsEmpty.pop();
+		m_data->m_pBufWrite = std::move(m_data->m_queBufsEmpty.front());
+		m_data->m_queBufsEmpty.pop();
 	}
 	else
 	{
 		//是否新增缓冲区标记
 		std::cout << " warning! log buf empty queue is empty!" << std::endl;
-		m_pBufWrite = std::make_unique<CBigBuff>(m_ulBigBufSize);
+		m_data->m_pBufWrite = std::make_unique<CBigBuff>(m_data->m_ulBigBufSize);
 	}
 }
 
@@ -388,7 +461,7 @@ void mmrUtil::CLogger::fileSizeCheck()
 		std::string strOldName; //旧名称
 		std::string strNewName; //新名称
 		int32_t nLogNumIndex = m_fileNum;
-		strNewName = m_strFilePath + "." + std::to_string(nLogNumIndex); //最大序号的日志
+		strNewName = m_data->m_strFilePath + "." + std::to_string(nLogNumIndex); //最大序号的日志
 #ifdef OS_MMR_WIN
 		if (_access(strNewName.c_str(), 0) != -1)
 		{
@@ -396,12 +469,12 @@ void mmrUtil::CLogger::fileSizeCheck()
 		}
 		while (--nLogNumIndex > 0) //减小序号，以此更改日志名称
 		{
-			strOldName = m_strFilePath + "." + std::to_string(nLogNumIndex);
+			strOldName = m_data->m_strFilePath + "." + std::to_string(nLogNumIndex);
 			if (_access(strOldName.c_str(), 0) != -1) //检查文件夹是否存在，不存在则创建
 			{
 				rename(strOldName.c_str(), strNewName.c_str()); //删除
 			}
-			strNewName = m_strFilePath + "." + std::to_string(nLogNumIndex);
+			strNewName = m_data->m_strFilePath + "." + std::to_string(nLogNumIndex);
 		}
 
 #elif defined OS_MMR_LINUX
@@ -411,16 +484,16 @@ void mmrUtil::CLogger::fileSizeCheck()
 		}
 		while (--nLogNumIndex > 0) //减小序号，以此更改日志名称
 		{
-			strOldName = m_strFilePath + "." + std::to_string(nLogNumIndex);
+			strOldName = m_data->m_strFilePath + "." + std::to_string(nLogNumIndex);
 			if (access(strOldName.c_str(), 0) == F_OK) //检查文件夹是否存在，不存在则创建
 			{
 				rename(strOldName.c_str(), strNewName.c_str()); //删除
 			}
-			strNewName = m_strFilePath + "." + std::to_string(nLogNumIndex);
+			strNewName = m_data->m_strFilePath + "." + std::to_string(nLogNumIndex);
 		}
 #endif
-		rename(m_strFilePath.c_str(), strNewName.c_str()); //重命名
-		m_logStream.open(m_strFilePath, std::fstream::app);
+		rename(m_data->m_strFilePath.c_str(), strNewName.c_str()); //重命名
+		m_logStream.open(m_data->m_strFilePath, std::fstream::app);
 	}
 }
 

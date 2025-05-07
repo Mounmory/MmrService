@@ -19,9 +19,14 @@ struct TagExpiredTime; struct TagMaxCache;
 
 using ChunkAllocParas = mmrComm::VarTypeDict<struct TagExpiredTime, struct TagMaxCache>;
 
+template<size_t Align = 10>//分配对齐，可分配最小的内存为2^Align
 class COMMON_CLASS_API ChunkAllocator : public mmrComm::NonCopyable
 {
-	friend class mmrComm::Singleton<ChunkAllocator>;
+	static_assert(Align <= 16,"min allocate memory size should larger than 2 ^16 byte.");
+
+	static constexpr uint32_t minBlockSize = (uint32_t(1) << Align) -1;
+
+	friend class mmrComm::Singleton<mmrUtil::ChunkAllocator<Align>>;
 
 	//缓存清理过期时间（Min），最大缓存数（Mb）
 	ChunkAllocator(uint32_t ulExpiredTime = 60, uint32_t ulMaxCache = 64);
@@ -46,14 +51,18 @@ public:
 		static_assert(std::is_arithmetic<T>::value, "type should be arithmetic!");
 
 		std::pair<uint32_t, std::shared_ptr<T>> pairRet = { 0,nullptr };
-		pairRet.first = (ulElemSize * sizeof(T) + 1023) & (uint32_t(-1) ^ 1023);//最少分配1024Byte内存，且为1024整数倍
+		pairRet.first = (ulElemSize * sizeof(T) + minBlockSize) & (uint32_t(-1) ^ minBlockSize);//最少分配1024Byte内存，且为1024整数倍
 		pairRet.second = std::static_pointer_cast<T>(alloMemory(pairRet.first));
 		//std::cout << "allocate use count " << pairRet.second.use_count() << std::endl;
 		return pairRet;
 	}
 
+	//释放过期内存
+	void FreeExpiredMemory();
 private:
 	std::shared_ptr<void> alloMemory(uint32_t ulElemSize);
+
+	void * alloRowMemory(uint32_t ulElemSize);
 
 	void deallocate(uint32_t ulBufSize, void* pBuf);
 
@@ -66,9 +75,13 @@ private:
 	struct DataImp;
 	std::unique_ptr<DataImp> m_ptrData;
 };
+template class COMMON_CLASS_API mmrUtil::ChunkAllocator<10>;
+template class COMMON_CLASS_API mmrUtil::ChunkAllocator<9>;
+template class COMMON_CLASS_API mmrUtil::ChunkAllocator<8>;
 
-template class COMMON_CLASS_API ::mmrComm::Singleton<mmrUtil::ChunkAllocator>;
-
+template class COMMON_CLASS_API mmrComm::Singleton<mmrUtil::ChunkAllocator<10>>;//最小分配内存1024
+template class COMMON_CLASS_API mmrComm::Singleton<mmrUtil::ChunkAllocator<9>>;
+template class COMMON_CLASS_API mmrComm::Singleton<mmrUtil::ChunkAllocator<8>>;
 END_NAMESPACE(mmrUtil)
 
 

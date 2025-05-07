@@ -9,7 +9,7 @@
 
 BEGINE_NAMESPACE(mmrUtil)
 
-template<typename _Ty, typename _Alloc = ChunkAllocator>
+template<typename _Ty>
 class COMMON_CLASS_API Matrix
 {
 public:
@@ -17,21 +17,21 @@ public:
 
 	Matrix(const uint32_t nRow, const uint32_t nCol);
 
-	Matrix(const Matrix<_Ty, _Alloc> &rhs);
+	Matrix(const Matrix &rhs);
 
-	Matrix(Matrix<_Ty, _Alloc>&& rhs) noexcept;
+	Matrix(Matrix&& rhs) noexcept;
 
 	~Matrix() = default;
 
 	const _Ty operator() (uint32_t ulRowIndex, uint32_t ulColIndex) const;
 
-	//_Ty& operator() (uint32_t ulRowIndex, uint32_t ulColIndex);
+	_Ty& operator() (uint32_t ulRowIndex, uint32_t ulColIndex);
 
 	bool setValue(uint32_t ulRowIndex, uint32_t ulColIndex, _Ty value);
 
-	Matrix<_Ty, _Alloc>& operator=(const Matrix<_Ty, _Alloc> &rhs);
+	Matrix& operator=(const Matrix &rhs);
 
-	Matrix<_Ty, _Alloc>& operator=(Matrix<_Ty, _Alloc>&& rhs) noexcept;
+	Matrix& operator=(Matrix&& rhs) noexcept;
 
 	//矩阵行数
 	const uint32_t getRowCount() const { return m_ulRowCount; }
@@ -39,7 +39,7 @@ public:
 	//矩阵列数
 	const uint32_t getColCount() const { return m_ulColCount; }
 
-	//重置矩阵大小
+	//重置矩阵大小,只是重新分配内存，不对内存数据做初始化
 	void resize(const uint32_t nRow, const uint32_t nCol);
 
 	//设置所有元素为0
@@ -48,14 +48,12 @@ public:
 private:
 	void allocateMemory();
 
-	void allocateNewMemory();
 private:
 	uint32_t m_ulRowCount;//行数
 	uint32_t m_ulColCount;//列数
 	_Ty* m_ptrBegin;//指针起始位置
 
-	//std::shared_ptr<std::mutex> m_ptrMutex;//互斥量，暂时不使用，外部保证并发
-	std::shared_ptr<_Ty> m_ptrData;//没存数据
+	std::shared_ptr<uint8_t> m_ptrData;//没存数据
 	uint32_t m_ulCapacity;//内存容量
 };
 

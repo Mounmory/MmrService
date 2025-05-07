@@ -1,21 +1,21 @@
 {
-	"Logger" :	//ÈÕÖ¾ÉèÖÃ
+	"Logger" :	//æ—¥å¿—è®¾ç½®
 	{
-		"LogFileNum" : 10,//±£ÁôµÄÈÕÖ¾ÎÄ¼þÊýÁ¿
-		"LogFileSize" : 16, //ÈÕÖ¾ÎÄ¼þ´óÐ¡£¬µ¥Î»Mb
-		"LogAsyn" : true //ÊÇ·ñÒì²½ÈÕÖ¾
+		"LogFileNum" : 10,//ä¿ç•™çš„æ—¥å¿—æ–‡ä»¶æ•°é‡
+		"LogFileSize" : 16, //æ—¥å¿—æ–‡ä»¶å¤§å°ï¼Œå•ä½Mb
+		"LogAsyn" : true //æ˜¯å¦å¼‚æ­¥æ—¥å¿—
 	},
-	"Allocator" :	//ÄÚ´æ·ÖÅäÆ÷ÉèÖÃ
+	"Allocator" :	//å†…å­˜åˆ†é…å™¨è®¾ç½®
 	{
-		"CacheMaxSize" : 64,//»º´æ×î´óÖµ£¬µ¥Î»Mb
-		"CacheExpiredTime" : 60	//»º´æ¹ýÆÚÇåÀíÊ±¼ä£¬µ¥Î»Min£¬
+		"CacheMaxSize" : 64,//ç¼“å­˜æœ€å¤§å€¼ï¼Œå•ä½Mb
+		"CacheExpiredTime" : 60	//ç¼“å­˜è¿‡æœŸæ¸…ç†æ—¶é—´ï¼Œå•ä½Minï¼Œ
 	},
-	"Components" :	//×é¼þÉèÖÃ
+	"Components" :	//ç»„ä»¶è®¾ç½®
 	{
-		"ComponentDemo" :	//×é¼þÃû³Æ
+		"ComponentDemo" :	//ç»„ä»¶åç§°
 		{
-			"Enable" : true,	//ÊÇ·ñÆôÓÃ
-			"LogLevel":5	//×é¼þÈÕÖ¾µÈ¼¶
+			"Enable" : true,	//æ˜¯å¦å¯ç”¨
+			"LogLevel":5	//ç»„ä»¶æ—¥å¿—ç­‰çº§
 		},
 		"ProtoRpcServer" :
 		{

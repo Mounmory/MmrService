@@ -118,17 +118,21 @@ public:
 
 	Value(Value&& other)
 		: Internal(other.Internal)
-		, Type(other.Type)
+		, Type(std::exchange(other.Type, emJsonType::Null))
 	{
-		other.Type = emJsonType::Null; other.Internal.Map = nullptr;
+		other.Internal.Map = nullptr;
 	}
 
-	Value& operator=(Value&& other) {
-		ClearInternal();
-		Internal = other.Internal;
-		Type = other.Type;
-		other.Internal.Map = nullptr;
-		other.Type = emJsonType::Null;
+	Value& operator = (Value&& other) 
+	{
+		if (this != &other)
+		{
+			ClearInternal();
+			Internal = other.Internal;
+			Type = other.Type;
+			other.Internal.Map = nullptr;
+			other.Type = emJsonType::Null;
+		}
 		return *this;
 	}
 
@@ -154,27 +158,31 @@ public:
 		Type = other.Type;
 	}
 
-	Value& operator=(const Value &other) {
-		ClearInternal();
-		switch (other.Type) {
-		case emJsonType::Object:
-			Internal.Map =
-				new map<string, Value>(other.Internal.Map->begin(),
-					other.Internal.Map->end());
-			break;
-		case emJsonType::Array:
-			Internal.List =
-				new deque<Value>(other.Internal.List->begin(),
-					other.Internal.List->end());
-			break;
-		case emJsonType::String:
-			Internal.String =
-				new string(*other.Internal.String);
-			break;
-		default:
-			Internal = other.Internal;
+	Value& operator = (const Value &other) 
+	{
+		if (this != &other) 
+		{
+			ClearInternal();
+			switch (other.Type) {
+			case emJsonType::Object:
+				Internal.Map =
+					new map<string, Value>(other.Internal.Map->begin(),
+						other.Internal.Map->end());
+				break;
+			case emJsonType::Array:
+				Internal.List =
+					new deque<Value>(other.Internal.List->begin(),
+						other.Internal.List->end());
+				break;
+			case emJsonType::String:
+				Internal.String =
+					new string(*other.Internal.String);
+				break;
+			default:
+				Internal = other.Internal;
+			}
+			Type = other.Type;
 		}
-		Type = other.Type;
 		return *this;
 	}
 
@@ -188,23 +196,27 @@ public:
 		Type = emJsonType::Null;
 		Internal.Int = 0;
 	}
-	template <typename T>
-	Value(T b, typename enable_if<is_same<T, bool>::value>::type* = 0) : Internal(b), Type(emJsonType::Boolean) {}
 
 	template <typename T>
-	Value(T i, typename enable_if<is_integral<T>::value && !is_same<T, bool>::value>::type* = 0) : Internal((long)i), Type(emJsonType::Integral) {}
+	Value(T b, typename enable_if<is_same<T, bool>::value>::type* = 0) 
+		: Internal(b)
+		, Type(emJsonType::Boolean) {}
 
 	template <typename T>
-	Value(T f, typename enable_if<is_floating_point<T>::value>::type* = 0) : Internal((double)f), Type(emJsonType::Floating) {}
+	Value(T i, typename enable_if<is_integral<T>::value && !is_same<T, bool>::value>::type* = 0) 
+		: Internal((long)i),
+		Type(emJsonType::Integral) {}
 
 	template <typename T>
-	Value(T&& s, typename enable_if<is_convertible<T, string>::value>::type* = 0) : Internal(std::forward<T>(s)), Type(emJsonType::String) {}
+	Value(T f, typename enable_if<is_floating_point<T>::value>::type* = 0) 
+		: Internal((double)f)
+		, Type(emJsonType::Floating) {}
+
+	template <typename T>
+	Value(T&& s, typename enable_if<is_convertible<T, string>::value>::type* = 0) 
+		: Internal(std::string(std::forward<T>(s)))//显式的转换为string
+		, Type(emJsonType::String) {}
 	
-	//template <typename T, typename enable_if<is_convertible<T, string>::value>::type>
-	//Value(T&& s) : Internal(std::forward<std::string>(s)), Type(emJsonType::String) {}
-
-	
-
 	Value(std::nullptr_t) : Internal(), Type(emJsonType::Null) {}
 
 	static Value Make(emJsonType type) {
@@ -507,14 +519,14 @@ Value Array(T... args) {
 namespace {
 	Value parse_next(const string &, size_t &);
 
-	//去掉空格和注�?
+	//去掉空格和注释
 	void consume_ws(const string &str, size_t &offset) 
 	{
 		static const std::string strEndLind = "\n";
 		static const std::string strEndComment = "*/";
 		while (isspace(str[offset])) ++offset;
 
-		if (str[offset] == '#')//使用�?”注�?
+		if (str[offset] == '#')//使用“#”注释
 		{
 			size_t endPos = 0;
 			endPos = str.find(strEndLind, offset);
@@ -527,7 +539,7 @@ namespace {
 		else if (str[offset] == '/')
 		{
 			size_t endPos = 0;
-			if (str[offset + 1] == '/')//使用�?/”注�?
+			if (str[offset + 1] == '/')//使用“//”注释
 			{
 				endPos = str.find(strEndLind, offset);
 				if (endPos != std::string::npos)
@@ -536,7 +548,7 @@ namespace {
 					consume_ws(str, offset);
 				}
 			}
-			else if (str[offset + 1] == '*')//使用�?* */”多行注�?
+			else if (str[offset + 1] == '*')//使用“/*  */”多行注注释
 			{
 				endPos = str.find(strEndComment, offset);
 				if (endPos != std::string::npos)

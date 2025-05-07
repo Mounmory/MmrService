@@ -10,7 +10,8 @@
 
 using TimeType = std::chrono::system_clock::time_point;
 
-struct mmrUtil::ChunkAllocator::DataImp
+template<size_t Align>
+struct mmrUtil::ChunkAllocator<Align>::DataImp
 {
 	std::map<uint32_t, std::deque<std::pair<TimeType, void*>> > memBuffer;
 	std::mutex mt;
@@ -30,7 +31,8 @@ struct mmrUtil::ChunkAllocator::DataImp
 	}
 };
 
-mmrUtil::ChunkAllocator::ChunkAllocator(uint32_t ulExpiredTime, uint32_t ulMaxCache)
+template<size_t Align>
+mmrUtil::ChunkAllocator<Align>::ChunkAllocator(uint32_t ulExpiredTime, uint32_t ulMaxCache)
 	: m_ulCacheSize(0)
 	, m_ulExpireTime(ulExpiredTime)
 	, m_usMaxCacheSize(ulMaxCache * 1024 * 1024)//4M
@@ -39,15 +41,62 @@ mmrUtil::ChunkAllocator::ChunkAllocator(uint32_t ulExpiredTime, uint32_t ulMaxCa
 	std::cout << "ChunkAllocator instance construct: expired time[" << m_ulExpireTime << " Min] Max Cache size [" << ulMaxCache << " Mb]" << std::endl;
 }
 
-
-mmrUtil::ChunkAllocator::~ChunkAllocator()
+template<size_t Align>
+mmrUtil::ChunkAllocator<Align>::~ChunkAllocator()
 {
 	m_ptrData->clear();
 	m_ulCacheSize = 0;
 	std::cout << "Allocator instance destruct." << std::endl;
 }
 
-std::shared_ptr<void> mmrUtil::ChunkAllocator::alloMemory(uint32_t ulElemSize)
+template<size_t Align>
+void mmrUtil::ChunkAllocator<Align>::FreeExpiredMemory() 
+{
+	//清理过期的缓存
+	auto timeNow = std::chrono::system_clock::now();
+	std::lock_guard<std::mutex> guard(m_ptrData->mt);
+	for (auto iterMemQueue = m_ptrData->memBuffer.begin(); iterMemQueue != m_ptrData->memBuffer.end();)
+	{
+		auto& queMem = iterMemQueue->second;
+		for (auto iterBlock = queMem.begin(); iterBlock != queMem.end(); )
+		{
+			if (std::chrono::duration_cast<std::chrono::minutes>(timeNow - iterBlock->first).count() > m_ulExpireTime)
+			{
+				char* buf = (char*)(iterBlock->second);
+				delete[]buf;
+
+				m_ulCacheSize -= iterMemQueue->first;
+				iterBlock = iterMemQueue->second.erase(iterBlock);
+			}
+			else
+			{
+				++iterBlock;
+			}
+		}
+		if (queMem.size() == 0)
+		{
+			iterMemQueue = m_ptrData->memBuffer.erase(iterMemQueue);
+		}
+		else
+		{
+			++iterMemQueue;
+		}
+	}
+}
+
+template<size_t Align>
+std::shared_ptr<void> mmrUtil::ChunkAllocator<Align>::alloMemory(uint32_t ulElemSize)
+{
+	void* ptrVoid = alloRowMemory(ulElemSize);//将锁操作封装独立接口，避免new内存时延长锁时长
+	if (nullptr == ptrVoid) 
+	{
+		ptrVoid = new char[ulElemSize];
+	}
+	return std::shared_ptr<void>(ptrVoid, [=](void* pBuf) {deallocate(ulElemSize, pBuf); });
+}
+
+template<size_t Align>
+void * mmrUtil::ChunkAllocator<Align>::alloRowMemory(uint32_t ulElemSize)
 {
 	void* ptrVoid = nullptr;
 	std::lock_guard<std::mutex> guard(m_ptrData->mt);
@@ -58,16 +107,11 @@ std::shared_ptr<void> mmrUtil::ChunkAllocator::alloMemory(uint32_t ulElemSize)
 		iterBuf->second.pop_back();
 		m_ulCacheSize -= ulElemSize;
 	}
-	else
-	{
-		m_ptrData->mt.unlock();//解锁
-		ptrVoid = new char[ulElemSize];
-	}
-	return std::shared_ptr<void>(ptrVoid, [=](void* pBuf) {deallocate(ulElemSize, pBuf); });
+	return ptrVoid;
 }
 
-
-void mmrUtil::ChunkAllocator::deallocate(uint32_t ulBufSize, void* pBuf)
+template<size_t Align>
+void mmrUtil::ChunkAllocator<Align>::deallocate(uint32_t ulBufSize, void* pBuf)
 {
 	m_ulCacheSize += ulBufSize;
 	std::lock_guard<std::mutex> guard(m_ptrData->mt);

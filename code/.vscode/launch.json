@@ -9,6 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/build/bin/serviceApp",//调试程序
+            //"program": "/home/build/bin/testLog",//调试程序
             "args": ["para1", "para2"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

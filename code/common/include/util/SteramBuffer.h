@@ -9,14 +9,14 @@
 
 BEGINE_NAMESPACE(mmrUtil)
 
-template<typename _Alloc = ChunkAllocator>
-class COMMON_CLASS_API StreamBuffer
-{
-public:
-
-
-
-};
+//template<typename _Alloc = ChunkAllocator>
+//class COMMON_CLASS_API StreamBuffer
+//{
+//public:
+//
+//
+//
+//};
 
 END_NAMESPACE(mmrUtil)
 #endif
