@@ -1,12 +1,21 @@
-﻿#ifndef CLICENSECTRL_H
+/**
+ * @file CLiceseCtrl.h
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+ 
+#ifndef CLICENSECTRL_H
 #define CLICENSECTRL_H
+#include <common/include/util/CLicenseObj.h>
+
 #include <memory>
 #include <mutex>
 #include <future>
 #include <atomic>
 #include <condition_variable>
-
-#include "common/include/util/CLicenseObj.h"
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)

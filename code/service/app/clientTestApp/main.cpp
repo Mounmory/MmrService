@@ -2,6 +2,7 @@
 #include "common/include/util/Clogger.h"
 #include "common/include/util/UtilFunc.h"
 #include "common/include/util/CLicenseObj.h"
+#include <common/include/protoBase/ProtoCodec.hpp>
 //#include "service/interface/iservice/ComponentDemo/IHelloService.h"
 //#include "service/interface/iservice/AppController/ICmdService.h"
 
@@ -21,7 +22,6 @@ using MessageLoginResponsePtr = std::shared_ptr<mmrService::LoginResponse>;
 
 int main(int argc, char **argv)
 {
-	
 	if (argc == 3)
 	{
 		mmrComm::Singleton<mmrUtil::CLogger>::initInstance(10, 16, true);
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
 
 			requetPtr = std::make_shared<mmrService::LoginRequest>();
-			requetPtr->set_username("admin");
+			requetPtr->set_username(u8"张三777");
 			requetPtr->set_password("123");
 
 			auto rcvPtr = protoClient.call(requetPtr);
@@ -54,10 +54,9 @@ int main(int argc, char **argv)
 			if (responsePtr)
 			{
 				std::cout << "response is" << std::endl;
-				std::cout << responsePtr->DebugString() << std::endl;
-				std::string strMsg;
-				mmrUtil::utf8ToLocalString(responsePtr->message(), strMsg);
-				std::cout << "message " << strMsg << std::endl;
+				std::cout << responsePtr->Utf8DebugString() << std::endl;
+
+				std::cout << "message " << messageToJson(responsePtr.get()) << std::endl;
 			}
 			else
 			{

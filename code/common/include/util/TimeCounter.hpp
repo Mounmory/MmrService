@@ -1,6 +1,16 @@
+/**
+ * @file TimeCounter.hpp
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_UTIL_TIME_COUNTER_HPP
 #define MMR_UTIL_TIME_COUNTER_HPP
 #include <common/include/Common_def.h>
+
 #include<chrono>
 
 BEGINE_NAMESPACE(mmrUtil)

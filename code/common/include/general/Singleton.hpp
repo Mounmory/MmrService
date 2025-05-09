@@ -1,9 +1,19 @@
+/**
+ * @file Singleton.hpp
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_COMMON_SINGLETON_HPP
 #define MMR_COMMON_SINGLETON_HPP
+#include <common/include/Common_def.h>
 
 #include <memory>
 #include <mutex>
-#include <common/include/Common_def.h>
+
 
 BEGINE_NAMESPACE(mmrComm)
 

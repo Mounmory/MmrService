@@ -1,3 +1,12 @@
+/**
+ * @file CLockFreeStack.hpp
+ * @brief 无锁栈数据结构
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef CLOCKFREESTACK_HPP
 #define CLOCKFREESTACK_HPP
 

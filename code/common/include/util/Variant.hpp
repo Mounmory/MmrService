@@ -1,6 +1,14 @@
+/**
+ * @file Variant.hpp
+ * @brief 不同于标准库接口的一个Variant类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_UTIL_VARIANT_HPP
 #define MMR_UTIL_VARIANT_HPP
-
 #include <common/include/Common_def.h>
 #include <common/include/general/TypeOperator.hpp>
 

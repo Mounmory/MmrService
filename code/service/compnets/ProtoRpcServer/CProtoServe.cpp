@@ -84,7 +84,10 @@ void CProtoServer::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer
 			, channel->fd()
 			, protoRequest.ulSequeNum
 			, protoRequest.strName.c_str()
-			, protoRequest.protoMsgPtr->DebugString().c_str());
+			//, protoRequest.protoMsgPtr->Utf8DebugString().c_str()
+			, messageToJson(protoRequest.protoMsgPtr.get()).c_str()
+			
+		);
 
 		auto response = dealProtobufMessage(protoRequest.protoMsgPtr);
 		if (response)
@@ -107,7 +110,9 @@ void CProtoServer::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buffer
 				, protoResponse.ulSequeNum
 				, protoResponse.strName.c_str()
 				, duration.count()
-				, protoResponse.protoMsgPtr->DebugString().c_str());
+				//, protoResponse.protoMsgPtr->Utf8DebugString().c_str()
+				, messageToJson(protoResponse.protoMsgPtr.get()).c_str()
+			);
 		}
 		else 
 		{
@@ -139,7 +144,9 @@ void CProtoServer::onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::B
 			, channel->fd()
 			, protoRequest.ulSequeNum
 			, protoRequest.strName.c_str()
-			, protoRequest.protoMsgPtr->DebugString().c_str());
+			//, protoRequest.protoMsgPtr->Utf8DebugString().c_str()
+			, messageToJson(protoRequest.protoMsgPtr.get()).c_str()
+		);
 
 		auto response = dealProtobufMessage(protoRequest.protoMsgPtr);
 		if (response)
@@ -164,7 +171,9 @@ void CProtoServer::onDealLoginMessage(const hv::SocketChannelPtr& channel, hv::B
 				, protoResponse.ulSequeNum
 				, protoResponse.strName.c_str()
 				, duration.count()
-				, protoResponse.protoMsgPtr->DebugString().c_str());
+				//, protoResponse.protoMsgPtr->Utf8DebugString().c_str()
+				, messageToJson(protoResponse.protoMsgPtr.get()).c_str()
+			);
 		}
 		else
 		{

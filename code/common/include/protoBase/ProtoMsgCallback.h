@@ -1,11 +1,16 @@
-﻿#ifndef PROTO_MSG_CALLBACK_H
-#define PROTO_MSG_CALLBACK_H
+/**
+ * @file ProtoMsgCallback.h
+ * @brief 服务端处理protobuf格式request和response的回调函数
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
 
-/*
-服务端处理protobuf格式request和response的回调函数
-*/
-#include "common/include/general/Noncopyable.hpp"
-#include "common/include/protoBase/ProtobufDef.h"
+#ifndef PROTO_MSG_CALLBACK_H
+#define PROTO_MSG_CALLBACK_H
+#include <common/include/general/Noncopyable.hpp>
+#include <common/include/protoBase/ProtobufDef.h>
 
 #include <functional>
 #include <memory>

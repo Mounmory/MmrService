@@ -1,3 +1,19 @@
+/**
+ * @file CDataStream.hpp
+ * @brief 将数据序列化和反序列化的类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 源码参考：https://github.com/open-dis/open-dis-cpp/blob/master/src/dis6/utils/DataStream.h
+ * 修改内容：
+ * - 将类改为模板类，buffer类型作为模板参数
+ * - 增加了直接对一些容器类的支持
+ * - 增加了直接enum class类型支持
+ * - 增加了对buffer移动输出
+ * 
+ * 待优化：还有一些效率方面可优化
+ */
+
 #ifndef CDATASTREAM_H
 #define CDATASTREAM_H
 

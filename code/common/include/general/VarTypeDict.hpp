@@ -1,6 +1,14 @@
+/**
+ * @file VarTypeDict.hpp
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_COMMON_VAR_TYPE_DICT_HPP
 #define MMR_COMMON_VAR_TYPE_DICT_HPP
-
 #include <common/include/Common_def.h>
 #include <common/include/general/TypeOperator.hpp>
 #include <memory>

@@ -1,5 +1,15 @@
+/**
+ * @file StdVariant.hpp
+ * @brief 实现一个C++17中的variant类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_UTIL_STD_VARIANT_H
 #define MMR_UTIL_STD_VARIANT_H
+
 #if 0//__cplusplus >= 201703L
 #include <variant>
 #else //自定义variant

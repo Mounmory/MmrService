@@ -1,3 +1,12 @@
+/**
+ * @file Clogger.h
+ * @brief 日志类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef CLOGGER_H
 #define CLOGGER_H
 #include <common/include/util/UtilExport.h>

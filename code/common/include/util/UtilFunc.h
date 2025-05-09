@@ -1,6 +1,16 @@
+/**
+ * @file UtilFunc.h
+ * @brief util模块公共函数
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef UTILFUNC_H
 #define UTILFUNC_H
-#include "common/include/util/UtilExport.h"
+
+#include <common/include/util/UtilExport.h>
 #include <string>
 #include <string.h>
 

@@ -1,5 +1,14 @@
-﻿#ifndef CCOMPFRAMEWORK_H
-#define CCOMPFRAMEWORK_H
+/**
+ * @file CCompFramework.h
+ * @brief 服务框架
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+ 
+#ifndef MMR_CORE_COMP_FRAMWORK_H
+#define MMR_CORE_COMP_FRAMWORK_H
 #include <common/include/util/Clogger.h>
 #include <service/interface/ComponentExport.h>
 #include <service/interface/IComponent.h>

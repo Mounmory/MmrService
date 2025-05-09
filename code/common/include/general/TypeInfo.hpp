@@ -1,7 +1,15 @@
-﻿#ifndef MMR_COMMON_CTYPEINFO_HPP
-#define MMR_COMMON_CTYPEINFO_HPP
+/**
+ * @file TypeInfo.hpp
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
 
-#include "common/include/Common_def.h"
+#ifndef MMR_COMMON_CTYPEINFO_HPP
+#define MMR_COMMON_CTYPEINFO_HPP
+#include <common/include/Common_def.h>
 #include <typeinfo>
 
 BEGINE_NAMESPACE(mmrComm)

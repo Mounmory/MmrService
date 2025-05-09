@@ -1,8 +1,22 @@
+/**
+ * @file json.hpp
+ * @brief Json处理类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ *
+ * 源码参考：https://github.com/nbsdx/SimpleJSON
+ * 修改内容：
+ * - 源码格式化输出有问题，已修改
+ * - 增加快速输出接口
+ * - Json解析失败时，给出错误位置信息
+ * - 增加读取Json数据注释处理，可在Json文档中使用“//”等形式进行注释
+ * - 其它一些优化项及bug处理
+ */
 
 #ifndef JSON_HPP
 #define JSON_HPP
-
-#include "common/include/Common_def.h"
+#include <common/include/Common_def.h>
 
 #include <cstdint>
 #include <cmath>

@@ -1,10 +1,18 @@
-#pragma once
+/**
+ * @file CThreadpool.h
+ * @brief 线程池
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef CTHREADPOOL_H_
 #define CTHREADPOOL_H_
 
-#include "common/include/Common_def.h"
-#include "common/include/util/UtilExport.h"
-#include "common/include/util/Clogger.h"
+#include <common/include/Common_def.h>
+#include <common/include/util/UtilExport.h>
+#include <common/include/util/Clogger.h>
 
 #include <iostream>
 #include <vector>

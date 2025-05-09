@@ -1,5 +1,15 @@
+/**
+ * @file SamllAllocator.h
+ * @brief 小对象内存分配器
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_UTIL_SMALL_ALLOCATOR_H
 #define MMR_UTIL_SMALL_ALLOCATOR_H
+
 #include <common/include/util/UtilExport.h>
 #include <common/include/general/Singleton.hpp>
 #include <common/include/general/Noncopyable.hpp>
@@ -16,17 +26,12 @@
 #include <mutex>
 #include <type_traits>
 
-#ifndef DEFAULT_CHUNK_SIZE
-#define DEFAULT_CHUNK_SIZE 4096
-#endif
+
+#define ALLOC_CHUNK_SIZE 8192
+
+#define MAX_OBJECT_SIZE 1024
 
 BEGINE_NAMESPACE(mmrUtil)
-
-template <typename T>
-constexpr size_t aligned_size() {
-	// 计算对齐后的总大小（向上取整到对齐值的倍数）
-	return ((sizeof(T) + alignof(T) - 1) / alignof(T)) * alignof(T);
-}
 
 class ChunkLockFree //无锁的内存分配器
 {
@@ -35,6 +40,7 @@ public:
 
 	ChunkLockFree()
 		: m_pData(nullptr)
+		, m_blockSize(0)
 		, m_availaBlockCurr(0)
 		, m_availaBlockSize(0)
 		, m_endBlock(0)
@@ -42,6 +48,7 @@ public:
 
 	ChunkLockFree(ChunkLockFree&& rhs)
 		: m_pData(std::exchange(rhs.m_pData,nullptr))
+		, m_blockSize(std::exchange(rhs.m_blockSize, 0))
 		, m_availaBlockCurr(rhs.m_availaBlockCurr.exchange(0))
 		, m_availaBlockSize(rhs.m_availaBlockSize.exchange(0))
 		, m_endBlock(std::exchange(rhs.m_endBlock, 0))
@@ -50,6 +57,7 @@ public:
 	ChunkLockFree& operator = (ChunkLockFree&& rhs)
 	{
 		m_pData = std::exchange(rhs.m_pData, nullptr);
+		m_blockSize = std::exchange(rhs.m_blockSize, 0);
 		m_availaBlockCurr.store(rhs.m_availaBlockCurr.exchange(0));
 		m_availaBlockSize.store(rhs.m_availaBlockSize.exchange(0));
 		m_endBlock = std::exchange(rhs.m_endBlock, 0);
@@ -69,18 +77,19 @@ public:
 		assert(blocks > 0);
 		assert((blockSize * blocks) / blockSize == blocks);// 溢出检查
 
-		m_pData = new uint8_t[blockSize * blocks];
+		m_blockSize = blockSize;
+		m_pData = new uint8_t[m_blockSize * blocks];
 		m_availaBlockCurr = 0;
 		m_availaBlockSize.store(blocks, std::memory_order_relaxed);
 		m_endBlock = blocks;//最后一个节点指向位置值
 		uint8_t* p = m_pData;
-		for (uint8_t i = 0; i != blocks; p += blockSize)
+		for (uint8_t i = 0; i != blocks; p += m_blockSize)
 		{
 			*p = ++i;//初始化下一个节点位置值
 		}
 	}
 
-	void* Allocate(std::size_t blockSize) 
+	void* Allocate() 
 	{
 		uint8_t current_avail = m_availaBlockCurr.load(std::memory_order_acquire);
 		uint8_t next_avail;
@@ -94,7 +103,7 @@ public:
 			}
 
 			// 计算新值
-			ptrRet = m_pData + (current_avail * blockSize);
+			ptrRet = m_pData + (current_avail * m_blockSize);
 			next_avail = *ptrRet;
 			// 尝试原子更新
 		} while (!m_availaBlockCurr.compare_exchange_weak(current_avail, next_avail,
@@ -109,12 +118,12 @@ public:
 		return ptrRet;
 	}
 
-	void Deallocate(void* p, std::size_t blockSize) 
+	void Deallocate(void* p) 
 	{
 		assert(p >= m_pData);
 		uint8_t* toRelease = static_cast<uint8_t*>(p);
-		assert((toRelease - m_pData) % blockSize == 0);
-		uint8_t block_index = static_cast<uint8_t>((toRelease - m_pData) / blockSize);//内存块索引
+		assert((toRelease - m_pData) % m_blockSize == 0);
+		uint8_t block_index = static_cast<uint8_t>((toRelease - m_pData) / m_blockSize);//内存块索引
 		*toRelease = m_availaBlockCurr.load(std::memory_order_acquire);
 
 		 while (!m_availaBlockCurr.compare_exchange_weak(
@@ -145,12 +154,13 @@ public:
 	const uint8_t AvailadeBlockSize() const { return m_availaBlockSize.load(std::memory_order_relaxed); }
 private:
 	uint8_t* m_pData;//大块内存首地址
+	size_t m_blockSize;
 	std::atomic<uint8_t> m_availaBlockCurr;//当前可用内存索引
 	std::atomic<uint8_t> m_availaBlockSize;//剩余可用内存块数量
 	uint8_t m_endBlock;//结束点指向索引
 };
 
-//template<typename TChunk>//模板参数，大块内存类型
+
 class FixedAllocator 
 {
 	//using ChunkType = TChunk;
@@ -161,7 +171,7 @@ public:
 		, m_ptrAllocChunk(nullptr)
 	{
 		assert(m_blockSize > 0);
-		std::size_t numBlocks = DEFAULT_CHUNK_SIZE / blockSize;
+		std::size_t numBlocks = ALLOC_CHUNK_SIZE / blockSize;
 
 		if (numBlocks > UCHAR_MAX) 
 			numBlocks = UCHAR_MAX;
@@ -196,7 +206,7 @@ public:
 			[=](void* ptr)
 		{
 			reinterpret_cast<Type*>(ptr)->~Type();//调用析构
-			pairData.second->Deallocate(ptr, m_blockSize);
+			pairData.second->Deallocate(ptr);
 		}));
 	}
 
@@ -268,7 +278,7 @@ private:
 				}
 			}
 			pairRet.second = m_ptrAllocChunk;
-			pairRet.first = pairRet.second->Allocate(m_blockSize);
+			pairRet.first = pairRet.second->Allocate();
 
 		} while (nullptr == pairRet.first);
 
@@ -289,7 +299,7 @@ class SmallAllocator : public mmrComm::NonCopyable
 {
 	friend class mmrComm::Singleton<mmrUtil::SmallAllocator>;
 
-	 static constexpr size_t _MaxObjectSize = 1024;//所能分配的最大内存大小
+	 static constexpr size_t _MaxObjectSize = MAX_OBJECT_SIZE;//所能分配的最大内存大小
 	 static constexpr size_t _StepSize = sizeof(void*);//内存池分配步长，考虑为对象分配的内存地址对齐
 	 static constexpr size_t _MaxIndex = _MaxObjectSize / _StepSize;
 	//缓存清理过期时间（Min），最大缓存数（Mb）
@@ -312,10 +322,7 @@ public:
 	std::shared_ptr<Type> Make_Shared(Args&&... args)
 	{
 		static constexpr size_t allocIndex = ((sizeof(Type) + _StepSize - 1) / _StepSize) -1;
-		static_assert(allocIndex <= _MaxIndex, "Data type should less than max object size.");
-
-		std::cout << "size of " << sizeof(Type) << std::endl;
-		std::cout << "alloc index of " << allocIndex << std::endl;
+		static_assert(allocIndex <= _MaxIndex, "Data type should less than max object index.");
 		return m_vecPool[allocIndex].AllocateAndContructData<Type>(std::forward<Args>(args)...);
 	}
 

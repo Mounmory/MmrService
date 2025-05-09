@@ -1,10 +1,21 @@
-﻿#ifndef CLOGGERCTRL_H
+/**
+ * @file CLoggerCtrl.h
+ * @brief 各模块日志处理类，用于日志模块控制级别
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
+#ifndef CLOGGERCTRL_H
 #define CLOGGERCTRL_H
+#include <service/interface/ComponentExport.h>
+#include <common/include/util/Clogger.h>
+
 #include <memory>
 #include <atomic>
 #include <map>
-#include "service/interface/ComponentExport.h"
-#include "common/include/util/Clogger.h"
+
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)

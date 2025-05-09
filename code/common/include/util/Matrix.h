@@ -1,8 +1,19 @@
+/**
+ * @file Matrix.h
+ * @brief 使用连续内存的矩阵
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_UTIL_MATIX_H
 #define MMR_UTIL_MATIX_H
+
 /*
-	矩阵类使用连续和共享内存保存数据，在拷贝构造和拷贝赋值运算时，直接使用共享。
-	修改数据时若数据正在共享，则重新分配内存，类内部是无锁的，使用时外部保证不能并发读写
+	另外一种使用共享内存的方案：
+		矩阵类使用连续和共享内存保存数据，在拷贝构造和拷贝赋值运算时，直接使用共享。
+		修改数据时若数据正在共享，则重新分配内存，类内部是无锁的，使用时外部保证不能并发读写
 */
 #include <common/include/util/ChunkAllocator.h>
 #include <assert.h>

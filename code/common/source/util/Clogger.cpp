@@ -94,20 +94,7 @@ struct CLogger::DataImp
 			m_queBufsEmpty.push(std::make_unique<CBigBuff>(m_ulBigBufSize));
 		}
 	}
-	~DataImp() 
-	{
-		std::cout << "data imp destruct." << std::endl;
-		m_pBufWrite.reset();
-		m_pBufDeal.reset();
-		while(m_queBufsWrite.size())
-			m_queBufsWrite.pop();
-
-		while(m_queBufsDeal.size())
-			m_queBufsDeal.pop();
-
-		while(m_queBufsEmpty.size())
-			m_queBufsEmpty.pop();
-	}
+	~DataImp() = default;
 
 	uint32_t m_lMaxStrLen;//每一条日志的最大长度
 	std::string m_strLogDir; //当前路径

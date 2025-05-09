@@ -1,3 +1,12 @@
+/**
+ * @file ChunkAllocator.h
+ * @brief 大块内存分配器类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_UTIL_ALLOCATOR_H
 #define MMR_UTIL_ALLOCATOR_H
 #include <common/include/util/UtilExport.h>
@@ -6,12 +15,6 @@
 #include <common/include/general/VarTypeDict.hpp>
 
 #include <memory>
-//#include <iostream>
-
-/*
-	大块内存分配器类
-*/
-
 
 BEGINE_NAMESPACE(mmrUtil)
 

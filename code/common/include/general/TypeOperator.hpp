@@ -1,3 +1,12 @@
+/**
+ * @file TypeOperator.hpp
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef MMR_COMMON_TYPE_OPERATOR_HPP
 #define MMR_COMMON_TYPE_OPERATOR_HPP
 #include <common/include/Common_def.h>

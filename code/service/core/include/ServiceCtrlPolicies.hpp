@@ -1,10 +1,17 @@
-﻿#ifndef SERVICECTRLPOLICES_HPP
+/**
+ * @file ServiceCtrlPolicies.hpp
+ * @brief 几个服务管理策略类，作为CCompFramework模板，用于处理服务接口的注册及获取
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 2024 12 12
+ *
+ * 
+ */
+
+#ifndef SERVICECTRLPOLICES_HPP
 #define SERVICECTRLPOLICES_HPP
-/*
-	几个服务管理策略类，作为CCompFramework模板，用于处理服务接口的注册及获取
-	add by xiangfei.meng
-	2024 12 12
-*/
+#include <common/include/Common_def.h>
+#include <common/include/general/TypeInfo.hpp>
+
 #include <iostream>
 #include <memory>
 #include <map>
@@ -12,8 +19,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "common/include/Common_def.h"
-#include "common/include/general/TypeInfo.hpp"
+
 
 BEGINE_NAMESPACE(mmrService)
 BEGINE_NAMESPACE(mmrCore)

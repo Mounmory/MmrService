@@ -121,7 +121,7 @@ void CProtoRpcClient::onDealMessage(const hv::SocketChannelPtr& channel, hv::Buf
 		LOG_DEBUG("deal recieve, sequ num[%ld] message name[%s] message %s"
 			, protoRcv.ulSequeNum
 			, protoRcv.strName.c_str()
-			, protoRcv.protoMsgPtr->DebugString().c_str());
+			, protoRcv.protoMsgPtr->Utf8DebugString().c_str());
 
 		std::lock_guard<std::mutex> lock(m_callsMutex);
 		auto iterContex = m_calls.find(protoRcv.ulSequeNum);

@@ -1,4 +1,13 @@
-﻿#ifndef IINTERFACECOMMON_H
+﻿/**
+ * @file InterfaceCommon.h
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
+#ifndef IINTERFACECOMMON_H
 #define IINTERFACECOMMON_H
 
 //定义接口生成GUID函数

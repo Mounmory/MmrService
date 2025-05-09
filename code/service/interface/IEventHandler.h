@@ -1,6 +1,15 @@
-﻿#ifndef IEVENTHANDLER
+/**
+ * @file IEventHandler.h
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
+#ifndef IEVENTHANDLER
 #define IEVENTHANDLER
-#include "common/include/util/CVarDatas.hpp"
+#include <common/include/util/CVarDatas.hpp>
 //#include <memory>
 
 /*

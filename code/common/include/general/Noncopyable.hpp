@@ -1,7 +1,15 @@
-﻿#ifndef MMR_COMMON_NOCOPYABLE_H
-#define MMR_COMMON_NOCOPYABLE_H
+/**
+ * @file Noncopyable.hpp
+ * @brief 不可复制类基类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
 
-#include "common/include/Common_def.h"
+#ifndef MMR_COMMON_NOCOPYABLE_H
+#define MMR_COMMON_NOCOPYABLE_H
+#include <common/include/Common_def.h>
 
 BEGINE_NAMESPACE(mmrComm)
 

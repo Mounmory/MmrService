@@ -1,6 +1,16 @@
+/**
+ * @file CVarDatas.hpp
+ * @brief 使用内联方式定义可保存多种数据结构的类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef COMMON_CVARIANT_HPP
 #define COMMON_CVARIANT_HPP
-#include "common/include/Common_def.h"
+#include <common/include/Common_def.h>
+
 #include <iostream>
 #include <string>
 #include <map>

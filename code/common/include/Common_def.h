@@ -1,4 +1,13 @@
-﻿#ifndef MMR_COMMON_DEF_H
+/**
+ * @file Common_def.h
+ * @brief
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date
+ *
+ *
+ */
+
+#ifndef MMR_COMMON_DEF_H
 #define MMR_COMMON_DEF_H
 
 //#if defined(_WIN64) || defined(WIN32)

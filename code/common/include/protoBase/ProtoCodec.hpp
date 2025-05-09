@@ -1,13 +1,20 @@
-﻿#ifndef PROTOCODEC_H
+/**
+ * @file ProtoCodec.hpp
+ * @brief protobuf网络传输编解码相关
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+ 
+#ifndef PROTOCODEC_H
 #define PROTOCODEC_H
-/*
-	protobuf网络传输编解码相关
-*/
-#include "google/protobuf/message.h"
-#include "common/include/protoBase/ProtobufDef.h"
-#include "common/include/util/UtilFunc.h"
-#include "common/include/util/BufConvert.h"
-#include "common/include/libnet/cppnet/Buffer.h"
+#include <google/protobuf/message.h>
+#include <google/protobuf/util/json_util.h>
+#include <common/include/protoBase/ProtobufDef.h>
+#include <common/include/util/UtilFunc.h>
+#include <common/include/util/BufConvert.h>
+#include <common/include/libnet/cppnet/Buffer.h>
 
 #define PROTO_MSG_MIN_LEN 16 //proto数据最小长度
 
@@ -228,6 +235,16 @@ namespace
 		return ret;
 	}
 
+	//将Message数据打印转成Json格式
+	std::string messageToJson(const google::protobuf::Message* message) 
+	{
+		std::string json_output;
+		static google::protobuf::util::JsonPrintOptions options;
+		//options.add_whitespace = true;
+		//options.always_print_primitive_fields = true;
+		google::protobuf::util::MessageToJsonString(*message, &json_output, options);
+		return json_output;
+	}
 }
 
 #endif

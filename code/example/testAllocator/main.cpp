@@ -23,13 +23,13 @@ int main()
 		mmrUtil::ChunkLockFree ckTest;
 		ckTest.Init(ckSize, ckNum);
 
-		auto ptr1 = ckTest.Allocate(ckSize);
-		auto ptr2 = ckTest.Allocate(ckSize);
-		auto ptr3 = ckTest.Allocate(ckSize);
-		auto ptr4 = ckTest.Allocate(ckSize);
-		ckTest.Deallocate(ptr1, ckSize);
-		ckTest.Deallocate(ptr2, ckSize);
-		ckTest.Deallocate(ptr3, ckSize);
+		auto ptr1 = ckTest.Allocate();
+		auto ptr2 = ckTest.Allocate();
+		auto ptr3 = ckTest.Allocate();
+		auto ptr4 = ckTest.Allocate();
+		ckTest.Deallocate(ptr1);
+		ckTest.Deallocate(ptr2);
+		ckTest.Deallocate(ptr3);
 
 	}
 

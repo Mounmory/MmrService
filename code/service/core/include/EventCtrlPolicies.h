@@ -1,8 +1,16 @@
-﻿#ifndef EVENTCALLBACKS_H
+/**
+ * @file EventCtrlPolicies.h
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+ 
+#ifndef EVENTCALLBACKS_H
 #define EVENTCALLBACKS_H
-
-#include "common/include/Common_def.h"
-#include "common/include/util/CVarDatas.hpp"
+#include <common/include/Common_def.h>
+#include <common/include/util/CVarDatas.hpp>
 
 #include <atomic>
 #include <future>

@@ -1,7 +1,16 @@
+/**
+ * @file CMatrix.h
+ * @brief 矩阵类
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef CMATRIX_H
 #define CMATRIX_H
-#include "common/include/Common_def.h"
-#include "common/include/util/UtilExport.h"
+#include <common/include/Common_def.h>
+#include <common/include/util/UtilExport.h>
 #include <string>
 #include <type_traits>
 

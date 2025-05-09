@@ -1,7 +1,15 @@
-﻿#ifndef COMPONENTEXPORT_H
-#define COMPONENTEXPORT_H
+/**
+ * @file ComponentExport.h
+ * @brief 组件模块导出符号定义
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
 
-#include "common/include/Common_def.h"
+#ifndef COMPONENTEXPORT_H
+#define COMPONENTEXPORT_H
+#include <common/include/Common_def.h>
 
 #if defined(OS_MMR_WIN)
 //#pragma execution_character_set("utf-8")

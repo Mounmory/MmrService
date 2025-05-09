@@ -1,7 +1,17 @@
+/**
+ * @file SqliteCom.h
+ * @brief 
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
+
 #ifndef SQLITECOM_H
 #define SQLITECOM_H
 
-#include "sqlite3/sqlite3.h"
+
+#include <sqlite3/sqlite3.h>
 
 class StmLocker 
 {

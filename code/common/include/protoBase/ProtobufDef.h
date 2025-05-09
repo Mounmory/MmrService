@@ -1,7 +1,15 @@
-﻿#ifndef PROTOBUF_DEF_H
-#define PROTOBUF_DEF_H
+/**
+ * @file ProtobufDef.h
+ * @brief 一些公共信息定义
+ * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
+ * @date 
+ *
+ * 
+ */
 
-#include "google/protobuf/message.h"
+#ifndef PROTOBUF_DEF_H
+#define PROTOBUF_DEF_H
+#include <google/protobuf/message.h>
 
 //错误枚举值
 enum EM_ErrCode : int32_t
