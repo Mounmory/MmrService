@@ -5,10 +5,23 @@
 		"LogFileSize" : 16, //日志文件大小，单位Mb
 		"LogAsyn" : true //是否异步日志
 	},
-	"Allocator" :	//内存分配器设置
+	"ChunkAllocator" :	//大块内存分配器设置
 	{
 		"CacheMaxSize" : 64,//缓存最大值，单位Mb
 		"CacheExpiredTime" : 60	//缓存过期清理时间，单位Min，
+	},
+	"SmallAllocator" :	//小块内存分配器设置
+	{
+		"CacheMaxSize" : 512,//缓存最大值，单位Mb
+		"CacheExpiredTime" : 60	//缓存过期清理时间，单位Min，
+	},
+	"ThreadPool"://线程池设置
+	{
+		"Mode" : 0, //线程池模式，0：固定线程数量，1：线程数量动态变化
+		"FixThreadSize": 4, //固定线程数
+		"TaskQueueMaxSize" : 10000, //任务队列最大数量
+		"MaxThreadSize" : 100, //最大线程数量，线程数动态变化模式下有效
+		"ThreadIdleTime" : 120 //线程空闲释放时间，单位秒，线程数动态变化模式下空闲线程超过这个时间线程自动释放
 	},
 	"Components" :	//组件设置
 	{

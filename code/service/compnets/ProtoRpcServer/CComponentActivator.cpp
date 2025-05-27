@@ -1,7 +1,7 @@
-﻿#include "CComponentActivator.h"
-#include "service/core/include/CCompFramework.h"
+﻿#include <service/core/include/CCompFramework.h>
+#include <common/include/util/MemoryPool.hpp>
 #include "CProtoServer.h"
-
+#include "CComponentActivator.h"
 
 REGIST_COMPONENT(CComponentActivator);
 
@@ -25,7 +25,7 @@ const char* CComponentActivator::getName()
 bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 {
 	//日志设置
-	g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
+	g_LoggerPtr = mmrUtil::Make_Shared<mmrUtil::LogWrapper>();
 	CoreFrameworkIns->addComponetLogWrapper(getName(), g_LoggerPtr);
 	if (jsonConfig.hasKey("LogLevel"))
 	{
@@ -33,7 +33,7 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 	}
 
 	//服务设置
-	g_rpcServer = std::make_shared<CProtoServer>();
+	g_rpcServer = mmrUtil::Make_Shared<CProtoServer>();
 	
 	std::string strIP = "0.0.0.0";
 	uint16_t usPort = 30020;
@@ -54,7 +54,7 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 	LOG_INFO("set proto rpc server,ip %s port %d, thread num %d!", strIP.c_str(), usPort, ulTreadNum);
 
 	//注册服务
-	//std::shared_ptr<IProtoRpcServer> serPtr = std::make_shared<CProtoServer>();
+	//std::shared_ptr<IProtoRpcServer> serPtr =  mmrUtil::Make_Shared<CProtoServer>();
 	//CoreFrameworkIns->registService<IProtoRpcServer>(std::move(serPtr));
 	CoreFrameworkIns->registService<IProtoRpcServer>(g_rpcServer);
 

@@ -1,6 +1,6 @@
 /**
  * @file TimeCounter.hpp
- * @brief 
+ * @brief ç”¨äºè®¡ç®—ç¨‹åºè¿è¡Œæ¶ˆè€—æ—¶é—´
  * @author Mounmory (237628106@qq.com) https://github.com/Mounmory
  * @date 
  *
@@ -25,42 +25,42 @@ public:
 		m_begin = std::chrono::high_resolution_clock::now(); 
 	}
 
-	//Ä¬ÈÏÊä³öºÁÃë
-	int64_t elapsed() const
+	//è¾“å‡ºæ¯«ç§’
+	int64_t elapsed_milli() const
 	{
 		return std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::high_resolution_clock::now() - m_begin).count();
 	}
 
-	//Î¢Ãë
+	//å¾®ç§’
 	int64_t elapsed_micro() const
 	{
 		return std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::high_resolution_clock::now() - m_begin).count();
 	}
 
-	//ÄÉÃë
+	//çº³ç§’
 	int64_t elapsed_nano() const
 	{
 		return std::chrono::duration_cast<std::chrono::nanoseconds>(
 			std::chrono::high_resolution_clock::now() - m_begin).count();
 	}
 
-	//Ãë
+	//ç§’
 	int64_t elapsed_seconds() const
 	{
 		return std::chrono::duration_cast<std::chrono::seconds>(
 			std::chrono::high_resolution_clock::now() - m_begin).count();
 	}
 
-	//·Ö
+	//åˆ†
 	int64_t elapsed_minutes() const
 	{
 		return std::chrono::duration_cast<std::chrono::minutes>(
 			std::chrono::high_resolution_clock::now() - m_begin).count();
 	}
 
-	//Ê±
+	//æ—¶
 	int64_t elapsed_hours() const
 	{
 		return std::chrono::duration_cast<std::chrono::hours>(

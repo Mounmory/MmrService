@@ -24,13 +24,16 @@ int main()
 		
 		//移动赋值
 		mt2 = std::move(mt1);
-		std::cout << "pool mem size " << ptrAlloc->getCacheSize() << std::endl;
+		auto memInfo = ptrAlloc->getAvailableMemoryInfo();
+		std::cout << "pool mem info free/total " << memInfo.first << "/" << memInfo.second << std::endl;
 
 		mt1.resize(200, 2);
-		std::cout << "pool mem size " << ptrAlloc->getCacheSize() << std::endl;
+		memInfo = ptrAlloc->getAvailableMemoryInfo();
+		std::cout << "pool mem info free/total " << memInfo.first << "/" << memInfo.second << std::endl;
 	}
 
-	std::cout << "pool mem size " << ptrAlloc->getCacheSize() << std::endl;
+	auto memInfoout = ptrAlloc->getAvailableMemoryInfo();
+	std::cout << "pool mem info free/total " << memInfoout.first << "/" << memInfoout.second << std::endl;
 	std::cout << "输入任意字符继续..." << std::endl;
 	std::cin.get();
 

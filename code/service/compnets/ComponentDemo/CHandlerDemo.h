@@ -2,6 +2,7 @@
 #define CHANDLERDEMO_H
 //#include "IEventHandler.h"
 #include "service/core/include/CCompFramework.h"
+#include <common/include/util/MemoryPool.hpp>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -20,11 +21,11 @@ public:
 
 
 		//注册第一个函数
-		auto func1 = std::make_shared<CallbackFunc>(std::bind(&CHandlerDemo::dealInfo1Func, this, std::placeholders::_1));
+		auto func1 = mmrUtil::Make_Shared<CallbackFunc>(std::bind(&CHandlerDemo::dealInfo1Func, this, std::placeholders::_1));
 		CoreFrameworkIns->addFunc("info1", func1);
 		m_listCallbackFun.emplace_back(std::move(func1));
 		//注册第二个函数
-		auto func2 = std::make_shared<CallbackFunc>(std::bind(&CHandlerDemo::dealInfo2Func, this, std::placeholders::_1));
+		auto func2 = mmrUtil::Make_Shared<CallbackFunc>(std::bind(&CHandlerDemo::dealInfo2Func, this, std::placeholders::_1));
 		CoreFrameworkIns->addFunc("info1", func2);
 		m_listCallbackFun.emplace_back(std::move(func1));
 	}

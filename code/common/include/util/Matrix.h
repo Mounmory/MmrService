@@ -23,6 +23,8 @@ BEGINE_NAMESPACE(mmrUtil)
 template<typename _Ty>
 class COMMON_CLASS_API Matrix
 {
+	static_assert(std::is_arithmetic<_Ty>::value, "matrix type error!");
+	static_assert(std::is_same<std::remove_cv_t<std::remove_reference_t<_Ty>>, _Ty>::value, "type should no with const or referebce!");
 public:
 	Matrix();
 

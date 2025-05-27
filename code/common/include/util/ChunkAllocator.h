@@ -15,12 +15,13 @@
 #include <common/include/general/VarTypeDict.hpp>
 
 #include <memory>
+#include <atomic>
 
 BEGINE_NAMESPACE(mmrUtil)
 
-struct TagExpiredTime; struct TagMaxCache;
+struct TagCAExpiredTime; struct TagCAMaxCache;
 
-using ChunkAllocParas = mmrComm::VarTypeDict<struct TagExpiredTime, struct TagMaxCache>;
+using ChunkAllocParas = mmrComm::VarTypeDict<struct TagCAExpiredTime, struct TagCAMaxCache>;
 
 template<size_t Align = 10>//分配对齐，可分配最小的内存为2^Align
 class COMMON_CLASS_API ChunkAllocator : public mmrComm::NonCopyable
@@ -35,18 +36,16 @@ class COMMON_CLASS_API ChunkAllocator : public mmrComm::NonCopyable
 	ChunkAllocator(uint32_t ulExpiredTime = 60, uint32_t ulMaxCache = 64);
 
 	template <typename TIn>
-	ChunkAllocator(TIn&& in) : ChunkAllocator(in.template Get<TagExpiredTime>(), in.template Get<TagMaxCache>())
+	ChunkAllocator(TIn&& in) : ChunkAllocator(in.template Get<TagCAExpiredTime>(), in.template Get<TagCAMaxCache>())
 	{
 	}
 public:
 	~ChunkAllocator();
 
 	//获取最大缓存
-	uint32_t getMaxCacheSize() const { return m_usMaxCacheSize; }
+	uint32_t getMaxCacheSize() const { return m_usMaxFreeCacheSize; }
 
-	//获取已缓存大小
-	uint32_t getCacheSize() const { return m_ulCacheSize; }
-
+	//分配指向void指针内存
 	template<typename T>
 	std::pair<uint32_t, std::shared_ptr<T>> allocate(uint32_t ulElemSize)
 	{
@@ -61,19 +60,35 @@ public:
 	}
 
 	//释放过期内存
-	void FreeExpiredMemory();
+	void freeExpiredMemory();
+
+	//处理定时器
+	void onTimer(int64_t framTime);
+
+	//处理命令行控制命令
+	void loop(std::atomic_bool& bRunFlag);
+
+	//获取内存使用情况<free/total>
+	std::pair<size_t, size_t> getAvailableMemoryInfo() const 
+	{ 
+		return { m_sizeFree.load(std::memory_order_relaxed),m_sizeTotal.load(std::memory_order_relaxed) };
+	}
 private:
+	//分配指向void智能指针内存
 	std::shared_ptr<void> alloMemory(uint32_t ulElemSize);
 
-	void * alloRowMemory(uint32_t ulElemSize);
+	//分配原始指针内存
+	void* alloRowMemory(uint32_t ulElemSize);
 
+	//归还内存
 	void deallocate(uint32_t ulBufSize, void* pBuf);
 
 private:
-	uint32_t m_ulCacheSize;//内存大小
-	uint32_t m_ulExpireTime;//过期时间，单位min,默认60min
-	uint32_t m_usMaxCacheSize;//最大内存大小,默认4M
+	const uint32_t m_ulExpireTime;//过期时间，单位min,默认60min
+	const uint32_t m_usMaxFreeCacheSize;//最大内存大小,默认4M
 
+	std::atomic<uint32_t> m_sizeFree;//空闲内存，单位byte
+	std::atomic<uint32_t> m_sizeTotal;//总的内存，单位byte
 private:
 	struct DataImp;
 	std::unique_ptr<DataImp> m_ptrData;

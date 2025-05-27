@@ -47,5 +47,7 @@ COMMON_FUN_API std::string getComplierInfo();
 
 COMMON_FUN_API std::string timeInt64ToString(int64_t llTime);
 
+COMMON_FUN_API std::string formatMemorySize(int64_t bytes);
+
 END_NAMESPACE(mmrUtil)
 #endif

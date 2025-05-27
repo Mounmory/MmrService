@@ -55,12 +55,15 @@ TypePolicyObj(PServGuid, FramworkPolicy, Serv, PGuid);
 ValuePolicyObj(PNotSer, FramworkPolicy, IsSer, false);
 #include <common/include/general/PolicyMicroEnd.h>
 
+using TimerFunc = std::function<void(int64_t)>;
+
+using CmdFunc = std::function<void(std::atomic_bool&)>;//是否运行标记
+
 template<typename... TPolicies>
 class COMPO_CORE_CLASS_API CCompFramework
 {
 	using TPoliCont = mmrComm::PolicyContainer<TPolicies...>;
 	using TPolicyRes = mmrComm::PolicySelect<FramworkPolicy, TPoliCont>;
-
 
 	using ServiceCtrl = typename TPolicyRes::Serv;
 	using EventCtrl = typename TPolicyRes::Event;
@@ -89,6 +92,18 @@ public:
 	//日志相关
 	void addComponetLogWrapper(std::string strCompName, std::weak_ptr<mmrUtil::LogWrapper> logWrap);
 
+	//添加时钟回调函数(在整个生命周期可用的，用这个接口)
+	void addTimerCallback(const std::shared_ptr<TimerFunc>& func);
+
+	//添加时钟回调函数，内部弱指针引用（可能失效的，用这个接口）
+	void addTimerCallbackWk(const std::shared_ptr<TimerFunc>& func);
+
+	//添加命令控制函数
+	void addCmdCallback(std::string strCmd, std::string strDesc, std::shared_ptr<CmdFunc> func);
+
+	//计时器
+	void waitAndDealTimer();
+
 	//程序控制相关
 	void dealCmd();
 
@@ -106,11 +121,13 @@ public:
 	}
 
 	//处理事件相关接口
+	//添加订阅回调函数
 	void addFunc(const std::string& strTopcs, const std::shared_ptr<CallbackFunc>& ptrFunc)
 	{
 		m_ptrEventCtrl->addFunc(strTopcs, ptrFunc);
 	}
 
+	//添加订阅数据
 	void addEvenVartData(mmrUtil::CVarDatas&& varData)
 	{
 		m_ptrEventCtrl->addEvenVartData(std::forward<mmrUtil::CVarDatas>(varData));
@@ -137,8 +154,8 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<IComponent>> m_mapComponents;//所有组件模块
 	std::set<libHandle> m_libHandl;//组件动态库handle
 
-	struct CFrameData;//framework中的其它数据
-	std::unique_ptr<CFrameData> m_ptrData;
+	struct DataFrame;//framework中的其它数据
+	std::unique_ptr<DataFrame> m_ptrData;
 };
 
 

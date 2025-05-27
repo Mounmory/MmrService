@@ -20,9 +20,7 @@
 #endif
 
 
-
 #define MAX_STR_LEN 1024
-
 
 bool mmrUtil::utf8ToLocalString(const std::string& strIn, std::string& strOut)
 {
@@ -335,3 +333,44 @@ const char* mmrUtil::getFileName(const char* szFullPath)
 	return szFullPath;
 }
 
+std::string mmrUtil::formatMemorySize(int64_t bytes) 
+{
+	constexpr int64_t KB = 1024;
+	constexpr int64_t MB = KB * 1024;
+	constexpr int64_t GB = MB * 1024;
+
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(3);
+
+	if (bytes >= GB) {
+		double gb = static_cast<double>(bytes) / GB;
+		oss << gb << " GB";
+	}
+	else if (bytes >= MB) {
+		double mb = static_cast<double>(bytes) / MB;
+		oss << mb << " MB";
+	}
+	else if (bytes >= KB) {
+		double kb = static_cast<double>(bytes) / KB;
+		oss << kb << " KB";
+	}
+	else {
+		oss << bytes << " B";
+	}
+
+	// 移除末尾无意义的零和小数点（如 1.000 → 1）
+	std::string result = oss.str();
+	size_t dot_pos = result.find('.');
+	if (dot_pos != std::string::npos) {
+		// 从末尾开始删除连续的零
+		while (result.back() == '0') {
+			result.pop_back();
+		}
+		// 如果小数点后没有数字了，删除小数点
+		if (result.back() == '.') {
+			result.pop_back();
+		}
+	}
+
+	return result;
+}

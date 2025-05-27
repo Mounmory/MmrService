@@ -1,6 +1,7 @@
 ﻿#include "CComponentActivator.h"
 #include "service/core/include/CCompFramework.h"
 #include "common/include/util/Clogger.h"
+#include <common/include/util/MemoryPool.hpp>
 
 #include "service/interface/iservice/ProtoRpcServer/IProtoRpcServer.h"
 #include "common/include/protoBase/ProtoMsgCallback.h"
@@ -31,7 +32,7 @@ const char* CComponentActivator::getName()
 bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 {
 	//日志设置
-	g_LoggerPtr = std::make_shared<mmrUtil::LogWrapper>();
+	g_LoggerPtr = mmrUtil::Make_Shared<mmrUtil::LogWrapper>();
 	CoreFrameworkIns->addComponetLogWrapper(getName(), g_LoggerPtr);
 	if (jsonConfig.hasKey("LogLevel"))
 	{
@@ -39,13 +40,19 @@ bool CComponentActivator::initialise(const Json::Value& jsonConfig)
 	}
 
 	////注册服务
-	//std::shared_ptr<ICmdService> serPtr = std::make_shared<CCmdService>();
+	//std::shared_ptr<ICmdService> serPtr = mmrUtil::Make_Shared<CCmdService>();
 	//CoreFrameworkIns->registService<ICmdService>(std::move(serPtr));
 
 	LOG_INFO("%s initialise success!", getName());
 	return true;
 }
 
+struct BigData 
+{
+	char bug[1028];
+};
+
+std::shared_ptr<BigData> g_ptrBigData = nullptr;
 
 bool CComponentActivator::start()
 {
@@ -57,6 +64,9 @@ bool CComponentActivator::start()
 		LOG_ERROR("Get rpcDispatcher service failed!");
 		return false;
 	}
+
+	g_ptrBigData = mmrUtil::Make_Shared<BigData>();
+
 
 	//std::function<std::shared_ptr<mmrService::LoginResponse>(const std::shared_ptr<mmrService::LoginRequest>&)>
 	//	fun = std::bind(&CAlthorityProcessor::onLogin, g_althorProcesser.get(), std::placeholders::_1);
@@ -73,4 +83,5 @@ void CComponentActivator::stop()
 {
 	g_LoggerPtr.reset();
 	g_althorProcesser.reset();
+	g_ptrBigData.reset();
 }

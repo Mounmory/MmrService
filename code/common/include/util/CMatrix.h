@@ -32,9 +32,9 @@ public:
 
 	CMatrix(const size_t nRow, const size_t nCol);
 
-	/*explicit */CMatrix(const CMatrix<_Ty> &rhs);
+	/*explicit */CMatrix(const CMatrix &rhs);
 
-	CMatrix(CMatrix<_Ty>&& rhs) noexcept;
+	CMatrix(CMatrix&& rhs) noexcept;
 
 	~CMatrix();
 
@@ -50,18 +50,18 @@ public:
 
 	const _Ty* operator[] (const size_t index) const;
 
-	CMatrix<_Ty>& operator=(const _Ty& value);
+	CMatrix& operator=(const _Ty& value);
 
-	CMatrix<_Ty>& operator=(const CMatrix<_Ty> &rhs);
+	CMatrix& operator=(const CMatrix &rhs);
 
-	CMatrix<_Ty>& operator=(CMatrix<_Ty>&& rhs) noexcept;
+	CMatrix& operator=(CMatrix&& rhs) noexcept;
 
 	//template<typename _Ty>
-	//friend std::ostream& operator<< (std::ostream &os, const CMatrix<_Ty>& rhs);
+	//friend std::ostream& operator<< (std::ostream &os, const CMatrix& rhs);
 
-	bool operator==(const CMatrix<_Ty> &rhs);
+	bool operator==(const CMatrix &rhs);
 
-	bool operator!=(const CMatrix<_Ty> &rhs);
+	bool operator!=(const CMatrix &rhs);
 
 	_Ty** getPtr() { return m_array; }
 private:

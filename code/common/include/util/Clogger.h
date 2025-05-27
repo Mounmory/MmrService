@@ -7,8 +7,8 @@
  * 
  */
 
-#ifndef CLOGGER_H
-#define CLOGGER_H
+#ifndef MMR_UTIL_LOGGER_H
+#define MMR_UTIL_LOGGER_H
 #include <common/include/util/UtilExport.h>
 #include <common/include/general/Noncopyable.hpp>
 #include <common/include/general/Singleton.hpp>
@@ -104,7 +104,7 @@ template class COMMON_CLASS_API mmrComm::Singleton<mmrUtil::CLogger>;
 struct LogWrapper 
 {
 	emLogLevel logLevel = emLogLevel::Log_Debug;
-	CLogger* loger = mmrComm::Singleton<mmrUtil::CLogger>::getInstance();
+	mmrUtil::CLogger* loger = mmrComm::Singleton<mmrUtil::CLogger>::getInstance();
 };
 
 
@@ -147,8 +147,16 @@ if(g_LoggerPtr->logLevel >= mmrUtil::emLogLevel::Log_Debug)\
 #define LOG_FORCE(format, ...) \
    logInstancePtr->logForce("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
+#define LOG_FORCE_PRINT(format, ...) \
+	logInstancePtr->logForce("[%ld][A][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__);\
+   printf("[%ld][A][%s][%d]" format "\n",Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+
 #define LOG_FATAL(format, ...) \
    logInstancePtr->logFatal("[%ld][F][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
+
+#define LOG_FATAL_PRINT(format, ...) \
+	logInstancePtr->logFatal("[%ld][F][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__);\
+   printf("[%ld][F][%s][%d]" format "\n",Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
 
 #define LOG_ERROR(format, ...) \
    logInstancePtr->logError("[%ld][E][%s][%d]" format,Thread_ID, __FUNCTION__,__LINE__, ##__VA_ARGS__)
